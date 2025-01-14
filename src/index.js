@@ -1,5 +1,11 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import CommentListener from './CommentListener.jsx';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx'; // Import the main App component
 
-ReactDOM.render(<CommentListener />, document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+

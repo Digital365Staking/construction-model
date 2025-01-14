@@ -1,0 +1,12 @@
+{
+  "files": {
+    "main.js": "/Bop2023/supabase-comment-listener/static/js/main.2719f79c.js",
+    "static/js/966.57dfe848.chunk.js": "/Bop2023/supabase-comment-listener/static/js/966.57dfe848.chunk.js",
+    "index.html": "/Bop2023/supabase-comment-listener/index.html",
+    "main.2719f79c.js.map": "/Bop2023/supabase-comment-listener/static/js/main.2719f79c.js.map",
+    "966.57dfe848.chunk.js.map": "/Bop2023/supabase-comment-listener/static/js/966.57dfe848.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.2719f79c.js"
+  ]
+}

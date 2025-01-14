@@ -7,11 +7,23 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const CommentListener = () => {
+  console.log('CommentListener');
   const [commentText, setCommentText] = useState('');
 
   useEffect(() => {
     // Subscribe to the "COMMENT" table for new row insertions
-    const subscription = supabase
+    const channels = supabase.channel('custom-all-channel')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'COMMENT' },
+      (payload) => {
+        console.log('Change received!', payload);
+        setCommentText(payload.new.text);
+      }
+    )
+    .subscribe()
+
+    /*const subscription = supabase
       .channel('realtime:public:COMMENT')
       .on(
         'postgres_changes',
@@ -21,14 +33,14 @@ const CommentListener = () => {
           setCommentText(payload.new.text); // Update state with the new row's "text" field
         }
       )
-      .subscribe();
+      .subscribe();*/
 
     // Cleanup subscription on component unmount
     return () => {
-      supabase.removeChannel(subscription);
+      channels.unsubscribe();
     };
   }, []);
-
+    
   return (
     <div>
       <h1>Latest Comment</h1>
@@ -37,4 +49,6 @@ const CommentListener = () => {
   );
 };
 
+
 export default CommentListener;
+
