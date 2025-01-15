@@ -8,8 +8,7 @@ const App = () => {
     <div>      
       <main>
         <h1>Welcome to My React App</h1>
-        <CommentListener />
-        <InsertCommentButton />
+        <CommentListener />        
       </main>      
     </div>
   );
