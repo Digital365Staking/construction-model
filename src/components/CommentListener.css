@@ -138,3 +138,44 @@ body {
   display: block;
   margin: 2.5em auto;
 }
+
+.typing-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px; /* Space between dots */
+  height: 50px; /* Adjust to fit your design */
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background-color: #3498db; /* Blue dot color */
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+}
+
+/* Stagger the animations for the dots */
+.dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.dot:nth-child(2) {
+  animation-delay: 0.3s;
+}
+.dot:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+/* Keyframes for blinking dots */
+@keyframes blink {
+  0%, 20% {
+      opacity: 0.3;
+  }
+  50% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0.3;
+  }
+}
+

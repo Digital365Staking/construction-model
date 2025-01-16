@@ -11,6 +11,7 @@ const CommentListener = () => {
   const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('messages')) || []);
   const [messageSender, setMessageSender] = useState('John');
   const [chatInput, setChatInput] = useState('');
+  const [displayHeader, setDisplayHeader] = useState('none');
 
   async function fetchChatGPTResponse(message) {
     try {
@@ -67,6 +68,7 @@ const CommentListener = () => {
 
     if(messageSender === 'John'){
       console.log('msg : ' + chatInput);
+      setDisplayHeader('flex');
       const chatResponse = await fetchChatGPTResponse(chatInput);
       const newMessage2 = {
         sender: 'Jane',
@@ -74,7 +76,7 @@ const CommentListener = () => {
         timestamp,
       }; 
       setMessages((prevMessages) => [...prevMessages, newMessage2]);     
-      //setChatInput('COCO');
+      setDisplayHeader('none');
     }
     setChatInput('');
   };
@@ -101,9 +103,13 @@ const CommentListener = () => {
         </button>
       </div>
 
-      <div className="chat-container">
-        <h2 className="chat-header">{messageSender} chatting...</h2>
-
+      <div className="chat-container">        
+        <div class="chat-header typing-indicator" style={{ display: displayHeader }}>
+          <h2 className="chat-header">{messageSender} chatting</h2>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
         <div className="chat-messages">
           {messages.map((message, index) => (
             <div
