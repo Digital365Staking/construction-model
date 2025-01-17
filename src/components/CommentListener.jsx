@@ -124,18 +124,11 @@ const CommentListener = () => {
         </div>
 
         <form className="chat-input-form" onSubmit={handleSendMessage}>
-          <input
-            type="text"
-            className="chat-input"
-            required
-            placeholder={`Type here, ${messageSender}...`}
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-          />
+          <textarea id="message" name="message" rows="5" cols="50" className="chat-input" value={chatInput} placeholder={`Type here, ${messageSender}...`} onChange={(e) => setChatInput(e.target.value)}></textarea>          
           <button type="submit" className="button send-button">Send</button>
         </form>
 
-        <button className="button clear-chat-button" onClick={handleClearChat}>
+        <button className="button send-button" onClick={handleClearChat}>
           Clear Chat
         </button>
       </div>

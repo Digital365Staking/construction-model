@@ -69,8 +69,11 @@ body {
 }
 
 .chat-messages {
-  height: 23em;
-  overflow-y: scroll;
+  display: flex;
+  flex-direction: column; /* Arranges messages vertically */
+  justify-content: flex-start; /* Aligns messages to the top */
+  height: 23em; /* Ensures the container takes up its allocated space */
+  overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
 }
 
 .chat-messages::-webkit-scrollbar {
@@ -112,9 +115,10 @@ body {
 
 .chat-input-form {
   display: flex;
-  align-items: center;
+  align-items: top;
   margin-top: 2em;
   gap: 0.625em;
+  margin-bottom: 20px;
 }
 
 .chat-input {
@@ -132,6 +136,7 @@ body {
   color: #fff;
   font-size: 1em;
   font-weight: bold;
+  height: fit-content;
 }
 
 .clear-chat-button {
