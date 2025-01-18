@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import "./CommentListener.css";
 
@@ -40,9 +40,18 @@ const CommentListener = () => {
     }
   }
 
+  const contentRef = useRef(null);
+
   useEffect(() => {
     localStorage.setItem('messages', JSON.stringify(messages));
   }, [messages]);
+
+  // Scroll to the bottom whenever messages are updated
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = contentRef.current.scrollHeight;
+    }
+  }, [messages]); // This effect runs when the messages array changes
 
   const handleSenderChange = (name) => {
     setMessageSender(name);
@@ -110,7 +119,7 @@ const CommentListener = () => {
           <span class="dot"></span>
           <span class="dot"></span>
         </div>
-        <div className="chat-messages">
+        <div ref={contentRef} className="chat-messages">
           {messages.map((message, index) => (
             <div
               key={index}
