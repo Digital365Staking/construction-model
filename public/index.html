@@ -5,8 +5,125 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>React App</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
   </head>
   <body>    
     <div id="root"></div>
+    <svg width="430" height="700" style="position: absolute; top: 0; left: 0;"></svg>
+    <script>
+      const data = {
+          nodes: [
+              { id: "Disease", group: 1 },
+              { id: "Symptom", group: 2 },
+              { id: "Treatment", group: 3 },
+              { id: "Condition", group: 4 },
+              { id: "Diabetes", group: 1 },
+              { id: "Hypertension", group: 1 },
+              { id: "Healthy Diet", group: 3 },
+              { id: "Exercise", group: 3 },
+              { id: "Medication", group: 3 },
+              { id: "Insulin Therapy", group: 3 },
+              { id: "Fatigue", group: 2 },
+              { id: "Increased Thirst", group: 2 },
+              { id: "Blurred Vision", group: 2 },
+              { id: "Insulin Resistance", group: 4 },
+              { id: "Obesity", group: 4 }
+          ],
+          links: [
+              { source: "Disease", target: "Diabetes", value: 1 },
+              { source: "Disease", target: "Hypertension", value: 2 },
+              { source: "Healthy Diet", target: "Treatment", value: 3 },
+              { source: "Exercise", target: "Treatment", value: 4 },
+              { source: "Medication", target: "Treatment", value: 5 },
+              { source: "Insulin Therapy", target: "Treatment", value: 6 },
+              { source: "Fatigue", target: "Symptom", value: 7 },
+              { source: "Increased Thirst", target: "Symptom", value: 8 },
+              { source: "Blurred Vision", target: "Symptom", value: 9 },
+              { source: "Insulin Resistance", target: "Condition", value: 10 },
+              { source: "Obesity", target: "Condition", value: 11 }
+          ]
+      };
+
+      const width = 430;
+      const height = 700;
+
+      const svg = d3.select("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+      const simulation = d3.forceSimulation(data.nodes)
+          .force("link", d3.forceLink(data.links).id(d => d.id).distance(70))
+          .force("charge", d3.forceManyBody().strength(-30))
+          .force("center", d3.forceCenter(width / 2, height / 2));
+
+      const link = svg.append("g")
+          .attr("class", "links")
+          .selectAll("line")
+          .data(data.links)
+          .enter().append("line")
+          .attr("class", "link")
+          .attr("stroke-width", d => Math.sqrt(d.value));
+
+      const node = svg.append("g")
+          .attr("class", "nodes")
+          .selectAll("circle")
+          .data(data.nodes)
+          .enter().append("circle")
+          .attr("r", 10)
+          .attr("fill", d => {
+              const groupColors = { 1: "red", 2: "blue", 3: "green", 4: "orange" };
+              return groupColors[d.group] || "gray";
+          })
+          .call(d3.drag()
+              .on("start", dragstarted)
+              .on("drag", dragged)
+              .on("end", dragended));
+
+      node.append("title")
+          .text(d => d.id);
+
+      const text = svg.append("g")
+          .attr("class", "labels")
+          .selectAll("text")
+          .data(data.nodes)
+          .enter().append("text")
+          .attr("dx", 12)
+          .attr("dy", ".35em")
+          .text(d => d.id);
+
+      simulation
+          .on("tick", () => {
+              link
+                  .attr("x1", d => d.source.x)
+                  .attr("y1", d => d.source.y)
+                  .attr("x2", d => d.target.x)
+                  .attr("y2", d => d.target.y);
+
+              node
+                  .attr("cx", d => d.x = Math.max(10, Math.min(width - 10, d.x))) // Clamp x within bounds
+                  .attr("cy", d => d.y = Math.max(10, Math.min(height - 10, d.y))); // Clamp y within bounds
+
+              text
+                  .attr("x", d => d.x)
+                  .attr("y", d => d.y);
+          });
+
+      function dragstarted(event, d) {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+      }
+
+      function dragged(event, d) {
+          d.fx = event.x;
+          d.fy = event.y;
+      }
+
+      function dragended(event, d) {
+          if (!event.active) simulation.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+      }
+  </script>
   </body>
 </html>
