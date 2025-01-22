@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import "./CommentListener.css";
+import "../styles/CommentListener.css";
 
 // Initialize Supabase client
 const supabaseUrl = 'https://ydxelzxjsuemylifgwte.supabase.co';
