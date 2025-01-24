@@ -6,14 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>React App</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script type="module" crossorigin src="/assets/index-DrEpxi2y.js"></script>
+    <script type="module" crossorigin src="/assets/index-CFfdyzJ5.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-BfocwmNC.css">
   </head>
   <body>    
     <div id="root"></div>    
-    <svg width="430" height="700" style="position: absolute; top: 0; left: 0;"></svg>
+    <svg width="430" height="700" style="position: absolute; top: 0; left: 0;" id="Svg"></svg>
     <script>
-      const data = {
+    // Function to detect if the user is on a mobile device
+    function isMobileDevice() {
+        return !!/Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
+    }
+
+    const data = {
           nodes: [
               { id: "Disease", group: 1 },
               { id: "Symptom", group: 2 },
@@ -45,6 +50,14 @@
               { source: "Obesity", target: "Condition", value: 11 }
           ]
       };
+    const simulation = d3.forceSimulation(data.nodes)
+        .force("link", d3.forceLink(data.links).id(d => d.id).distance(70))
+        .force("charge", d3.forceManyBody().strength(-30))
+        .force("center", d3.forceCenter(width / 2, height / 2));
+    alert(isMobileDevice());
+    if (!isMobileDevice()) {
+      document.getElementById('Svg').style.display = 'block';
+      
 
       const width = 430;
       const height = 700;
@@ -52,11 +65,7 @@
       const svg = d3.select("svg")
           .attr("width", width)
           .attr("height", height);
-
-      const simulation = d3.forceSimulation(data.nodes)
-          .force("link", d3.forceLink(data.links).id(d => d.id).distance(70))
-          .force("charge", d3.forceManyBody().strength(-30))
-          .force("center", d3.forceCenter(width / 2, height / 2));
+      
 
       const link = svg.append("g")
           .attr("class", "links")
@@ -109,23 +118,26 @@
                   .attr("x", d => d.x)
                   .attr("y", d => d.y);
           });
+    }else{
+        document.getElementById('Svg').style.display = 'none';
+    }
 
-      function dragstarted(event, d) {
+    function dragstarted(event, d) {
           if (!event.active) simulation.alphaTarget(0.3).restart();
           d.fx = d.x;
           d.fy = d.y;
-      }
+    }
 
-      function dragged(event, d) {
+    function dragged(event, d) {
           d.fx = event.x;
           d.fy = event.y;
-      }
+    }
 
-      function dragended(event, d) {
+    function dragended(event, d) {
           if (!event.active) simulation.alphaTarget(0);
           d.fx = null;
           d.fy = null;
-      }
+    }
   </script>
   </body>
 </html>

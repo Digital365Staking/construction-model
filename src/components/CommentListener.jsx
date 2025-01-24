@@ -28,7 +28,7 @@ const CommentListener = () => {
             { "role": "system", "content": "You are a helpful assistant." },
             { "role": "user", "content": message }
           ],
-          max_tokens: 100
+          max_tokens: 200
         })
       });
 
