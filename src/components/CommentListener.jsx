@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import "../styles/CommentListener.css";
+import * as XLSX from "xlsx"; // For reading XLSX files
+import * as pdfjsLib from "pdfjs-dist"; // For reading PDF files
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 // Initialize Supabase client
 const supabaseUrl = 'https://ydxelzxjsuemylifgwte.supabase.co';
@@ -8,70 +12,18 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const CommentListener = () => {
-  const [fileContent, setFileContent] = useState("");
+  
   const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('messages')) || []);
   const [messageSender, setMessageSender] = useState('John');
   const [chatInput, setChatInput] = useState('');
   const [displayHeader, setDisplayHeader] = useState('none');
 
-  async function GetContentFromPath(path) {
-    try {
-        let text = '';
-        const type = path.toLowerCase().endsWith(".pdf") ? 1 : (path.toLowerCase().endsWith(".xlsx") ? 2 : 3);
-        switch (type) {
-            case 1: // Pdf docs
-                const response = await fetch(url);
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch the PDF file');
-                }
-
-                const arrayBuffer = await response.arrayBuffer();
-
-                // Load the PDF document using pdfjs
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-
-                // Extract text from each page
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const textContent = await page.getTextContent();
-                    const pageText = textContent.items.map((item) => item.str).join(' ');
-                    text += pageText + '\n';
-                }
-                break;
-
-            case 2: // XLSX docs
-                const excelResponse = await fetch(url);
-
-                if (!excelResponse.ok) {
-                    throw new Error('Failed to fetch the Excel file');
-                }
-
-                const excelArrayBuffer = await excelResponse.arrayBuffer();
-                const workbook = XLSX.read(excelArrayBuffer, { type: 'array' });
-
-                // Iterate through each sheet in the workbook
-                workbook.SheetNames.forEach((sheetName) => {
-                    const sheet = workbook.Sheets[sheetName];
-                    const sheetData = XLSX.utils.sheet_to_csv(sheet); // Convert to CSV format
-                    text += `Sheet: ${sheetName}\n${sheetData}\n`;
-                });
-                break;
-
-            case 3: // SQL Query from database
-                return "Wednesday";
-        }
-
-        return text;
-    } catch (error) {
-        console.error('Error parsing file:', error);
-        alert('An error occurred while processing the file.');
-    }
-  }
-
 
   async function fetchChatGPTResponse(message) {
     try {
+      // Generate the summary when textArray changes
+      const generatedSummary = textArray.join(" ");
+      alert(generatedSummary + "\nBased on the previous text, provide a natural and conversational response to the following question :  " + message);
       var k = atob('c2stcHJvai1iV2Z5UEdZUE80OFZJMGVfQmFaSjM2ZnV1X1c5M3c1eDNhWnF0OE9XS0RObFY3RFZrMWdQQ0xaaFdZTUhKdDI5N1ZIRERZMUEwblQzQmxia0ZKckJVa0lBT0J3MFY3RU9OcXE0bllVYUduYUExVTM3SmVBYTEzNDNNYUlwUDQycEdJX1Rtd2wyTGFxV3ZFV19fWkJQc0tQUlpxWUE=');
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -83,7 +35,7 @@ const CommentListener = () => {
           "model": "gpt-4",
           "messages": [
             { "role": "system", "content": "You are a helpful assistant." },
-            { "role": "user", "content": message }
+            { "role": "user", "content": generatedSummary + "\nBased on the previous text, provide a natural and conversational response to the following question :  " + message }
           ],
           max_tokens: 200
         })
@@ -100,17 +52,78 @@ const CommentListener = () => {
   const contentRef = useRef(null);
 
   // Use import.meta.glob to get all files in the folder
-  const fileImports = import.meta.glob("/src/files/*");
+  const fileImports = import.meta.glob("/public/files/*");
+  const [textArray, setTextArray] = useState([]);
 
   useEffect(() => {
-    // Extract the file paths
-    const filePaths = Object.keys(fileImports);
-    // Perform an action for each file using forEach
-    filePaths.forEach((filePath) => {
-      console.log("File found:", filePath); // Example action: log the file path
+    const fetchFiles = async () => {
+      
+      const fileUrls = [
+        "/files/Mathematical database development_.pdf" // PDF file
+      ];
+      alert(fileUrls.length);
+      // Fetch all files concurrently
+      const fileFetches = fileUrls.map((url) =>
+        fetch(url)
+          .then((response) => {
+            if (url.endsWith(".txt")) {
+              return response.text(); // Read as text for TXT files
+            } else if (url.endsWith(".pdf")) {
+              return response.arrayBuffer(); // Read as binary for PDF files
+            } else if (url.endsWith(".xlsx")) {
+              return response.arrayBuffer(); // Read as binary for XLSX files
+            }
+          })
+          .catch((error) => console.error("Error fetching file:", error))
+      );
+      alert("B" + fileFetches.length);
+      // Wait for all fetches to resolve
+      const fileBuffers = await Promise.all(fileFetches);
+
+      // Process the files based on their type
+      const processedFiles = await Promise.all(
+        fileBuffers.map((buffer, index) => {
+          const fileUrl = fileUrls[index];
+          if (fileUrl.endsWith(".txt")) {
+            return buffer; // TXT: Just return the text content
+          } else if (fileUrl.endsWith(".pdf")) {
+            return processPdf(buffer); // Process PDF file
+          } else if (fileUrl.endsWith(".xlsx")) {
+            return processXlsx(buffer); // Process XLSX file
+          }
+        })
+      );
+      alert("A" + processedFiles.length);
+      // Set the processed contents to the state
+      setTextArray(processedFiles);
+    };
+
+    fetchFiles();
+  }, []);
+
+  // Process PDF files
+  const processPdf = async (arrayBuffer) => {
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let text = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map((item) => item.str).join(" ");
+      text += pageText + "\n";
+    }
+    return text;
+  };
+
+  // Process XLSX files
+  const processXlsx = (arrayBuffer) => {
+    const workbook = XLSX.read(arrayBuffer, { type: "array" });
+    let result = "";
+    workbook.SheetNames.forEach((sheetName) => {
+      const worksheet = workbook.Sheets[sheetName];
+      result += XLSX.utils.sheet_to_csv(worksheet) + "\n"; // Convert sheet to CSV format
     });
-    
-  });
+    return result;
+  };
 
   useEffect(() => {
     localStorage.setItem('messages', JSON.stringify(messages));
