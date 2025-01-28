@@ -8,10 +8,67 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const CommentListener = () => {
+  const [fileContent, setFileContent] = useState("");
   const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('messages')) || []);
   const [messageSender, setMessageSender] = useState('John');
   const [chatInput, setChatInput] = useState('');
   const [displayHeader, setDisplayHeader] = useState('none');
+
+  async function GetContentFromPath(path) {
+    try {
+        let text = '';
+        const type = path.toLowerCase().endsWith(".pdf") ? 1 : (path.toLowerCase().endsWith(".xlsx") ? 2 : 3);
+        switch (type) {
+            case 1: // Pdf docs
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch the PDF file');
+                }
+
+                const arrayBuffer = await response.arrayBuffer();
+
+                // Load the PDF document using pdfjs
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+                // Extract text from each page
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map((item) => item.str).join(' ');
+                    text += pageText + '\n';
+                }
+                break;
+
+            case 2: // XLSX docs
+                const excelResponse = await fetch(url);
+
+                if (!excelResponse.ok) {
+                    throw new Error('Failed to fetch the Excel file');
+                }
+
+                const excelArrayBuffer = await excelResponse.arrayBuffer();
+                const workbook = XLSX.read(excelArrayBuffer, { type: 'array' });
+
+                // Iterate through each sheet in the workbook
+                workbook.SheetNames.forEach((sheetName) => {
+                    const sheet = workbook.Sheets[sheetName];
+                    const sheetData = XLSX.utils.sheet_to_csv(sheet); // Convert to CSV format
+                    text += `Sheet: ${sheetName}\n${sheetData}\n`;
+                });
+                break;
+
+            case 3: // SQL Query from database
+                return "Wednesday";
+        }
+
+        return text;
+    } catch (error) {
+        console.error('Error parsing file:', error);
+        alert('An error occurred while processing the file.');
+    }
+  }
+
 
   async function fetchChatGPTResponse(message) {
     try {
@@ -41,6 +98,19 @@ const CommentListener = () => {
   }
 
   const contentRef = useRef(null);
+
+  // Use import.meta.glob to get all files in the folder
+  const fileImports = import.meta.glob("/src/files/*");
+
+  useEffect(() => {
+    // Extract the file paths
+    const filePaths = Object.keys(fileImports);
+    // Perform an action for each file using forEach
+    filePaths.forEach((filePath) => {
+      console.log("File found:", filePath); // Example action: log the file path
+    });
+    
+  });
 
   useEffect(() => {
     localStorage.setItem('messages', JSON.stringify(messages));
@@ -113,11 +183,11 @@ const CommentListener = () => {
       </div>
 
       <div className="chat-container">        
-        <div class="chat-header typing-indicator" style={{ display: displayHeader }}>
+        <div className="chat-header typing-indicator" style={{ display: displayHeader }}>
           <h2 className="chat-header">{messageSender} chatting</h2>
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
+          <span className="dot"></span>
+          <span className="dot"></span>
+          <span className="dot"></span>
         </div>
         <div ref={contentRef} className="chat-messages">
           {messages.map((message, index) => (
