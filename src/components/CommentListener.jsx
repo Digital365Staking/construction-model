@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import "../styles/CommentListener.css";
 import * as XLSX from "xlsx"; // For reading XLSX files
-import * as pdfjsLib from "pdfjs-dist"; // For reading PDF files
+import * as pdfjsLib from "pdfjs-dist";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
 // Initialize Supabase client
 const supabaseUrl = 'https://ydxelzxjsuemylifgwte.supabase.co';
@@ -51,26 +51,26 @@ const CommentListener = () => {
 
   const contentRef = useRef(null);
 
-  // Use import.meta.glob to get all files in the folder
-  const fileImports = import.meta.glob("/public/files/*");
   const [textArray, setTextArray] = useState([]);
 
   useEffect(() => {
     const fetchFiles = async () => {
+      try{
+      // Fetch file paths from the backend
+      const keyPaths = "/files/LISIS FERRERA CV_EN.pdf;/files/Mathematical database development_.pdf";
+
+      const pathFiles = keyPaths.split(";");
       
-      const fileUrls = [
-        "/files/Mathematical database development_.pdf" // PDF file
-      ];
-      alert(fileUrls.length);
+      alert(pathFiles);
       // Fetch all files concurrently
-      const fileFetches = fileUrls.map((url) =>
-        fetch(url)
+      const fileFetches = pathFiles.map((path) =>
+        fetch(path)
           .then((response) => {
-            if (url.endsWith(".txt")) {
+            if (path.endsWith(".txt")) {
               return response.text(); // Read as text for TXT files
-            } else if (url.endsWith(".pdf")) {
+            } else if (path.endsWith(".pdf")) {
               return response.arrayBuffer(); // Read as binary for PDF files
-            } else if (url.endsWith(".xlsx")) {
+            } else if (path.endsWith(".xlsx")) {
               return response.arrayBuffer(); // Read as binary for XLSX files
             }
           })
@@ -83,7 +83,7 @@ const CommentListener = () => {
       // Process the files based on their type
       const processedFiles = await Promise.all(
         fileBuffers.map((buffer, index) => {
-          const fileUrl = fileUrls[index];
+          const fileUrl = pathFiles[index];
           if (fileUrl.endsWith(".txt")) {
             return buffer; // TXT: Just return the text content
           } else if (fileUrl.endsWith(".pdf")) {
@@ -94,8 +94,12 @@ const CommentListener = () => {
         })
       );
       alert("A" + processedFiles.length);
+      
       // Set the processed contents to the state
       setTextArray(processedFiles);
+      } catch (err) {
+        console.error("Error in fetchFiles function:", err);
+      }
     };
 
     fetchFiles();
