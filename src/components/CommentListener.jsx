@@ -18,13 +18,10 @@ const CommentListener = () => {
   const [chatInput, setChatInput] = useState('');
   const [displayHeader, setDisplayHeader] = useState('none');
 
-
-  async function fetchChatGPTResponse(message) {
-    try {
-      // Generate the summary when textArray changes
-      const generatedSummary = textArray.join(" ");
-      alert(generatedSummary + "\nBased on the previous text, provide a natural and conversational response to the following question :  " + message);
-      var k = atob('c2stcHJvai1iV2Z5UEdZUE80OFZJMGVfQmFaSjM2ZnV1X1c5M3c1eDNhWnF0OE9XS0RObFY3RFZrMWdQQ0xaaFdZTUhKdDI5N1ZIRERZMUEwblQzQmxia0ZKckJVa0lBT0J3MFY3RU9OcXE0bllVYUduYUExVTM3SmVBYTEzNDNNYUlwUDQycEdJX1Rtd2wyTGFxV3ZFV19fWkJQc0tQUlpxWUE=');
+  const keyPaths = "/files/contact.xlsx;/files/Mathematical database development_.pdf";
+  
+  async function callChatGPT(prefix, message) {
+    var k = atob('c2stcHJvai1iV2Z5UEdZUE80OFZJMGVfQmFaSjM2ZnV1X1c5M3c1eDNhWnF0OE9XS0RObFY3RFZrMWdQQ0xaaFdZTUhKdDI5N1ZIRERZMUEwblQzQmxia0ZKckJVa0lBT0J3MFY3RU9OcXE0bllVYUduYUExVTM3SmVBYTEzNDNNYUlwUDQycEdJX1Rtd2wyTGFxV3ZFV19fWkJQc0tQUlpxWUE=');
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -35,14 +32,52 @@ const CommentListener = () => {
           "model": "gpt-4",
           "messages": [
             { "role": "system", "content": "You are a helpful assistant." },
-            { "role": "user", "content": generatedSummary + "\nBased on the previous text, provide a natural and conversational response to the following question :  " + message }
+            { "role": "user", "content": prefix + (prefix === "" ? "" :
+              `\nBased on the previous text and/or CSV report, provide a natural and conversational response to the following question :  `
+            ) + message }
           ],
-          max_tokens: 200
+          max_tokens: 300
         })
       });
 
-      const data = await response.json();
-      return data.choices[0].message.content;
+    const data = await response.json();
+    alert(data.choices.length);
+    return data.choices[0].message.content;
+  }
+
+  async function fetchChatGPTResponse(message) {
+    try {
+      
+      // Generate the summary when textArray changes
+      alert("SUM = " + textArray.length);
+      
+      console.log(textArray[0]);
+      if(textArray.length>0){
+        const ret = await callChatGPT(textArray[0],message);
+        return ret;
+      }
+      //const generatedSummary = textArray.join(" ");
+      //alert(generatedSummary + "\nBased on the previous text, provide a natural and conversational response to the following question :  " + message);
+      
+      alert(textArray[1]);
+      const response2 = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + k
+        },
+        body: JSON.stringify({
+          "model": "gpt-4",
+          "messages": [
+            { "role": "system", "content": "You are a helpful assistant." },
+            { "role": "user", "content": data.choices[0].message.content + "\n" + textArray[1] + "\nBased on the previous text and/or CSV report, could you repeat the response to the following question :  " + message }
+          ],
+          max_tokens: 400
+        })
+      });
+      const data2 = await response2.json();
+      return data2.choices[0].message.content;
+      //return data.choices[0].message.content;
     } catch (error) {
       console.error('Error fetching ChatGPT response:', error);
       return 'Sorry, I couldn\'t process your request.';
@@ -57,8 +92,6 @@ const CommentListener = () => {
     const fetchFiles = async () => {
       try{
       // Fetch file paths from the backend
-      const keyPaths = "/files/LISIS FERRERA CV_EN.pdf;/files/Mathematical database development_.pdf";
-
       const pathFiles = keyPaths.split(";");
       
       alert(pathFiles);
