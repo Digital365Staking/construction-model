@@ -9,6 +9,9 @@ export default defineConfig({
     // Configure server to return index.html for unknown routes
     hmr: true,
   },
+  optimizeDeps: {
+    include: ['json2csv'],
+  },
   plugins: [
     viteStaticCopy({
       targets: [

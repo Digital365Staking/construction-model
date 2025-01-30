@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import "../styles/CommentListener.css";
 import * as XLSX from "xlsx"; // For reading XLSX files
 import * as pdfjsLib from "pdfjs-dist";
+import Papa from 'papaparse';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
@@ -18,8 +19,10 @@ const CommentListener = () => {
   const [chatInput, setChatInput] = useState('');
   const [displayHeader, setDisplayHeader] = useState('none');
 
-  const keyPaths = "/files/contact.xlsx;/files/Mathematical database development_.pdf";
-  
+  //Examples of CSV
+  const [contactInfo, setContactInfo] = useState(null);
+  const keyPaths = "/files/Mathematical database development_.pdf";
+
   async function callChatGPT(prefix, message) {
     var k = atob('c2stcHJvai1iV2Z5UEdZUE80OFZJMGVfQmFaSjM2ZnV1X1c5M3c1eDNhWnF0OE9XS0RObFY3RFZrMWdQQ0xaaFdZTUhKdDI5N1ZIRERZMUEwblQzQmxia0ZKckJVa0lBT0J3MFY3RU9OcXE0bllVYUduYUExVTM3SmVBYTEzNDNNYUlwUDQycEdJX1Rtd2wyTGFxV3ZFV19fWkJQc0tQUlpxWUE=');
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -41,16 +44,61 @@ const CommentListener = () => {
       });
 
     const data = await response.json();
-    alert(data.choices.length);
+    alert(message + "\n" + data.choices[0].message.content);
     return data.choices[0].message.content;
+  }
+
+  async function prepareQuery(message, tableName, headers) {
+    let req = `
+      How should I request a supabase table "${tableName}" with the headers "${headers}" if I have to answer to the question : "${message}" ? Give as anwer only the select string and the filter string in the JSON format model 
+      {
+        "select": "Contact name, Business phone, Mobile phone, Account",
+        "filter": "Contact name=ilike.%Zarife Abduli%,Account=ilike.%Bombardier%"
+      }, with the filter 'ilike.'
+      `;
+      const jsonContact = await callChatGPT("",req);
+      console.log(jsonContact);
+      let tab = jsonContact.split("{");
+      let parsedData = null;
+      if(tab.length > 1){
+        tab = tab[1].split("}");
+        if(tab.length > 1){          
+          let jsonText = tab[0];
+          console.log(jsonText);
+          parsedData = JSON.parse(`{${jsonText}}`);
+          // Fetching the phone numbers
+          let query = await supabase
+          .from(tableName)  // Table name
+          .select(parsedData.select)
+
+          let tabFilter = parsedData.filter.split(",");
+          tabFilter.forEach(filter => {
+          if(filter.includes("ilike.") || filter.includes(".eq")){
+            let tabFilter = filter.replace("ilike.","").split("=");
+            if(tabFilter.length > 1){
+              alert("Filter : " + tabFilter[0] + "=" + tabFilter[1]);
+              query = query.ilike(tabFilter[0], `*Zarife*`);
+              console.log(query);
+            }
+          }        
+          });
+        }
+        
+      }
+      
+      const csv = Papa.unparse(query.data);
+      console.log(csv);
+      return csv;
   }
 
   async function fetchChatGPTResponse(message) {
     try {
+      csv = await prepareQuery(message,"contact_csv","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
+      return csv;
       
       // Generate the summary when textArray changes
       alert("SUM = " + textArray.length);
-      
+
       console.log(textArray[0]);
       if(textArray.length>0){
         const ret = await callChatGPT(textArray[0],message);
@@ -103,9 +151,9 @@ const CommentListener = () => {
               return response.text(); // Read as text for TXT files
             } else if (path.endsWith(".pdf")) {
               return response.arrayBuffer(); // Read as binary for PDF files
-            } else if (path.endsWith(".xlsx")) {
+            } /*else if (path.endsWith(".xlsx")) {
               return response.arrayBuffer(); // Read as binary for XLSX files
-            }
+            }*/
           })
           .catch((error) => console.error("Error fetching file:", error))
       );
@@ -121,9 +169,9 @@ const CommentListener = () => {
             return buffer; // TXT: Just return the text content
           } else if (fileUrl.endsWith(".pdf")) {
             return processPdf(buffer); // Process PDF file
-          } else if (fileUrl.endsWith(".xlsx")) {
+          } /*else if (fileUrl.endsWith(".xlsx")) {
             return processXlsx(buffer); // Process XLSX file
-          }
+          }*/
         })
       );
       alert("A" + processedFiles.length);
@@ -152,7 +200,7 @@ const CommentListener = () => {
   };
 
   // Process XLSX files
-  const processXlsx = (arrayBuffer) => {
+  /*const processXlsx = (arrayBuffer) => {
     const workbook = XLSX.read(arrayBuffer, { type: "array" });
     let result = "";
     workbook.SheetNames.forEach((sheetName) => {
@@ -160,7 +208,7 @@ const CommentListener = () => {
       result += XLSX.utils.sheet_to_csv(worksheet) + "\n"; // Convert sheet to CSV format
     });
     return result;
-  };
+  };*/
 
   useEffect(() => {
     localStorage.setItem('messages', JSON.stringify(messages));
