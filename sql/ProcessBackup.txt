@@ -1,0 +1,6 @@
+ supabase db dump --file ./comment.sql
+WARN: no seed files matched pattern: supabase/seed.sql
+Forgot your password? Reset it from the Dashboard: https://supabase.com/dashboard/project/ydxelzxjsuemylifgwte/settings/database
+Enter your database password:
+Dumping schemas from remote database...
+Dumped schema to C:\Users\noreply\OneDrive - Digital 365 Staking\Documents\BackupSupabase\comment.sql.
