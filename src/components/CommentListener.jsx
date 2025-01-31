@@ -48,47 +48,80 @@ const CommentListener = () => {
     return data.choices[0].message.content;
   }
 
+  const removeEmptyLines = (text) => {
+    return text
+      .split("\n") // Split by newline
+      .filter(line => line.trim() !== "") // Remove empty lines
+      .join("\n"); // Join back into a string
+  };
+
   async function prepareQuery(message, tableName, headers) {
+    try {
     let req = `
       How should I request a supabase table "${tableName}" with the headers "${headers}" if I have to answer to the question : "${message}" ? Give as anwer only the select string and the filter string in the JSON format model 
       {
         "select": "Contact name, Business phone, Mobile phone, Account",
-        "filter": "Contact name=ilike.%Zarife Abduli%,Account=ilike.%Bombardier%"
-      }, with the filter 'ilike.'
+        "filter": "Contact name=%Zarife Abduli%,Account=%Bombardier%"
+      }
       `;
       const jsonContact = await callChatGPT("",req);
       console.log(jsonContact);
+      let selectRequest = "";
+      let filterRequest = "";
+      let selectRequest2 = "";
+      let filterRequest2 = "";
       let tab = jsonContact.split("{");
       let parsedData = null;
+      let ct = 1;      
       if(tab.length > 1){
         tab = tab[1].split("}");
-        if(tab.length > 1){          
-          let jsonText = tab[0];
-          console.log(jsonText);
+        if(tab.length > 0){          
+          let jsonText = tab[0].replace("eq.","");
+          console.log("jsonText : " + jsonText);
           parsedData = JSON.parse(`{${jsonText}}`);
-          // Fetching the phone numbers
-          let query = await supabase
-          .from(tableName)  // Table name
-          .select(parsedData.select)
-
-          let tabFilter = parsedData.filter.split(",");
+          
+          let tabFilter = parsedData.filter.split(",");          
           tabFilter.forEach(filter => {
-          if(filter.includes("ilike.") || filter.includes(".eq")){
-            let tabFilter = filter.replace("ilike.","").split("=");
+            let tabFilter = filter.split("=");
             if(tabFilter.length > 1){
-              alert("Filter : " + tabFilter[0] + "=" + tabFilter[1]);
-              query = query.ilike(tabFilter[0], `*Zarife*`);
-              console.log(query);
-            }
-          }        
+              if(ct === 1){
+                selectRequest = parsedData.select;
+                filterRequest = tabFilter[0] + "=" + !filter.includes("%") ? "%" + tabFilter[1] + "%" : tabFilter[1];
+              }else{
+                selectRequest2 = parsedData.select;
+                filterRequest2 = tabFilter[0] + "=" + !filter.includes("%") ? "%" + tabFilter[1] + "%" : tabFilter[1];
+              }              
+              ct++;                      
+            }                 
           });
         }
         
       }
+      console.log(selectRequest + "\n" + filterRequest);
+      const { data, error } = await supabase.rpc('getcontact_csv_1', { selectcontact: selectRequest, filtercontact: filterRequest });
+      if (error) {
+        throw new Error(`Supabase RPC Error: ${error.message}`);
+      }
+      let csv2 = "";
+      const csv = Papa.unparse(data);  
+      console.log(csv);    
+      if(ct >= 2){
+        console.log(selectRequest2 + "\n" + filterRequest2);
+        const { data2, error2 } = await supabase.rpc('getcontact_csv_1', { selectcontact: selectRequest2, filtercontact: filterRequest2 });
+        if (error2) {
+          throw new Error(`Supabase RPC Error: ${error2.message}`);
+        }
+        csv2 = csv + ' - ' + Papa.unparse(data2);
+      }else{
+        csv2 = csv;
+      }
+      csv2 = removeEmptyLines(csv2);
+      console.log(csv2);
+      } catch (err) {
+        console.error(err);
+      }
       
-      const csv = Papa.unparse(query.data);
-      console.log(csv);
-      return csv;
+      return csv2;
   }
 
   async function fetchChatGPTResponse(message) {
