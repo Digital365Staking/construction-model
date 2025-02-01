@@ -44,7 +44,6 @@ const CommentListener = () => {
       });
 
     const data = await response.json();
-    alert(message + "\n" + data.choices[0].message.content);
     return data.choices[0].message.content;
   }
 
@@ -133,38 +132,21 @@ const CommentListener = () => {
   async function fetchChatGPTResponse(message) {
     try {
       let csv = await prepareQuery(message,"contact_csv","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
-      return csv;
+      
       
       // Generate the summary when textArray changes
       alert("SUM = " + textArray.length);
 
-      console.log(textArray[0]);
-      if(textArray.length>0){
-        const ret = await callChatGPT(textArray[0],message);
-        return ret;
+      for (let i = 0; i < textArray.length; i++) {
+        const ret = await callChatGPT(textArray[i],message);
+        console.log(ret);
+        if(!ret.includes("doesn't mention")){
+          return csv + "\n" + ret;
+        }         
       }
-      //const generatedSummary = textArray.join(" ");
-      //alert(generatedSummary + "\nBased on the previous text, provide a natural and conversational response to the following question :  " + message);
-      
-      alert(textArray[1]);
-      const response2 = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + k
-        },
-        body: JSON.stringify({
-          "model": "gpt-4",
-          "messages": [
-            { "role": "system", "content": "You are a helpful assistant." },
-            { "role": "user", "content": data.choices[0].message.content + "\n" + textArray[1] + "\nBased on the previous text and/or CSV report, could you repeat the response to the following question :  " + message }
-          ],
-          max_tokens: 400
-        })
-      });
-      const data2 = await response2.json();
-      return data2.choices[0].message.content;
-      //return data.choices[0].message.content;
+
+      return csv;
+
     } catch (error) {
       console.error('Error fetching ChatGPT response:', error);
       return 'Sorry, I couldn\'t process your request.';
@@ -180,8 +162,6 @@ const CommentListener = () => {
       try{
       // Fetch file paths from the backend
       const pathFiles = keyPaths.split(";");
-      
-      alert(pathFiles);
       // Fetch all files concurrently
       const fileFetches = pathFiles.map((path) =>
         fetch(path)
@@ -190,13 +170,10 @@ const CommentListener = () => {
               return response.text(); // Read as text for TXT files
             } else if (path.endsWith(".pdf")) {
               return response.arrayBuffer(); // Read as binary for PDF files
-            } /*else if (path.endsWith(".xlsx")) {
-              return response.arrayBuffer(); // Read as binary for XLSX files
-            }*/
+            }
           })
           .catch((error) => console.error("Error fetching file:", error))
       );
-      alert("B" + fileFetches.length);
       // Wait for all fetches to resolve
       const fileBuffers = await Promise.all(fileFetches);
 
@@ -208,12 +185,9 @@ const CommentListener = () => {
             return buffer; // TXT: Just return the text content
           } else if (fileUrl.endsWith(".pdf")) {
             return processPdf(buffer); // Process PDF file
-          } /*else if (fileUrl.endsWith(".xlsx")) {
-            return processXlsx(buffer); // Process XLSX file
-          }*/
+          }
         })
       );
-      alert("A" + processedFiles.length);
       
       // Set the processed contents to the state
       setTextArray(processedFiles);
@@ -237,17 +211,6 @@ const CommentListener = () => {
     }
     return text;
   };
-
-  // Process XLSX files
-  /*const processXlsx = (arrayBuffer) => {
-    const workbook = XLSX.read(arrayBuffer, { type: "array" });
-    let result = "";
-    workbook.SheetNames.forEach((sheetName) => {
-      const worksheet = workbook.Sheets[sheetName];
-      result += XLSX.utils.sheet_to_csv(worksheet) + "\n"; // Convert sheet to CSV format
-    });
-    return result;
-  };*/
 
   useEffect(() => {
     localStorage.setItem('messages', JSON.stringify(messages));
