@@ -39,7 +39,7 @@ const CommentListener = () => {
               `\nBased on the previous text and/or CSV report, provide a natural and conversational response to the following question :  `
             ) + message }
           ],
-          max_tokens: 300
+          max_tokens: 200
         })
       });
 
@@ -60,9 +60,9 @@ const CommentListener = () => {
     let req = `
       How should I request a supabase table "${tableName}" with the headers "${headers}" if I have to answer to the question : "${message}" ? Give as anwer only the select string and the filter string in the JSON format model 
       {
-        "select": "Contact name, Business phone, Mobile phone, Account",
-        "filter": "Contact name=%Zarife Abduli%,Account=%Bombardier%"
-      }
+        "select": "Account",
+        "filter": "Contact name=%Bertrand VANNE%"
+      }. Follow the previous JSON model strictly.
       `;
       const jsonContact = await callChatGPT("",req);
       console.log(jsonContact);
@@ -72,7 +72,7 @@ const CommentListener = () => {
       let filterRequest2 = "";
       let tab = jsonContact.split("{");
       let parsedData = null;
-      let ct = 1;      
+      let ct = 0;      
       if(tab.length > 1){
         tab = tab[1].split("}");
         if(tab.length > 0){          
@@ -83,13 +83,15 @@ const CommentListener = () => {
           let tabFilter = parsedData.filter.split(",");          
           tabFilter.forEach(filter => {
             let tabFilter = filter.split("=");
+            console.log(tabFilter[0]);
             if(tabFilter.length > 1){
-              if(ct === 1){
+              if(ct === 0){
                 selectRequest = parsedData.select;
-                filterRequest = tabFilter[0] + "=" + !filter.includes("%") ? "%" + tabFilter[1] + "%" : tabFilter[1];
+                filterRequest = !filter.includes("%") ? `${tabFilter[0]}=%${tabFilter[1]}%` : `${tabFilter[0]}=${tabFilter[1]}`;
+                console.log(filterRequest);
               }else{
                 selectRequest2 = parsedData.select;
-                filterRequest2 = tabFilter[0] + "=" + !filter.includes("%") ? "%" + tabFilter[1] + "%" : tabFilter[1];
+                filterRequest2 = !filter.includes("%") ? `${tabFilter[0]}=%${tabFilter[1]}%` : `${tabFilter[0]}=${tabFilter[1]}`;
               }              
               ct++;                      
             }                 
@@ -102,31 +104,35 @@ const CommentListener = () => {
       if (error) {
         throw new Error(`Supabase RPC Error: ${error.message}`);
       }
-      let csv2 = "";
-      const csv = Papa.unparse(data);  
-      console.log(csv);    
+      let csv2 = "";      
+      if(data.length === 0)
+        return "";      
+      const csv = data[0].TITLE; //Papa.unparse();  
+      console.log(data[0].TITLE);    
       if(ct >= 2){
         console.log(selectRequest2 + "\n" + filterRequest2);
         const { data2, error2 } = await supabase.rpc('getcontact_csv_1', { selectcontact: selectRequest2, filtercontact: filterRequest2 });
         if (error2) {
           throw new Error(`Supabase RPC Error: ${error2.message}`);
         }
-        csv2 = csv + ' - ' + Papa.unparse(data2);
+        if(data2.length === 0)
+          return csv;
+        csv2 = csv + '\n' + data2[0].TITLE;//Papa.unparse(data2[0]);
       }else{
         csv2 = csv;
       }
       csv2 = removeEmptyLines(csv2);
       console.log(csv2);
+      return csv2;
       } catch (err) {
         console.error(err);
-      }
+      } 
       
-      return csv2;
   }
 
   async function fetchChatGPTResponse(message) {
     try {
-      csv = await prepareQuery(message,"contact_csv","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
+      let csv = await prepareQuery(message,"contact_csv","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
       return csv;
       
       // Generate the summary when textArray changes
