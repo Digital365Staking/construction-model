@@ -54,7 +54,7 @@ const CommentListener = () => {
       .join("\n"); // Join back into a string
   };
 
-  async function prepareQuery(message, tableName, headers) {
+  async function prepareQuery(message, tableName, procedureName, headers) {
     try {
     let req = `
       How should I request a supabase table "${tableName}" with the headers "${headers}" if I have to answer to the question : "${message}" ? Give as anwer only the select string and the filter string in the JSON format model 
@@ -99,7 +99,7 @@ const CommentListener = () => {
         
       }
       console.log(selectRequest + "\n" + filterRequest);
-      const { data, error } = await supabase.rpc('getcontact_csv_1', { selectcontact: selectRequest, filtercontact: filterRequest });
+      const { data, error } = await supabase.rpc(procedureName, { selectcontact: selectRequest, filtercontact: filterRequest });
       if (error) {
         throw new Error(`Supabase RPC Error: ${error.message}`);
       }
@@ -110,7 +110,7 @@ const CommentListener = () => {
       console.log(data[0].TITLE);    
       if(ct >= 2){
         console.log(selectRequest2 + "\n" + filterRequest2);
-        const { data2, error2 } = await supabase.rpc('getcontact_csv_1', { selectcontact: selectRequest2, filtercontact: filterRequest2 });
+        const { data2, error2 } = await supabase.rpc(procedureName, { selectcontact: selectRequest2, filtercontact: filterRequest2 });
         if (error2) {
           throw new Error(`Supabase RPC Error: ${error2.message}`);
         }
@@ -131,7 +131,7 @@ const CommentListener = () => {
 
   async function fetchChatGPTResponse(message) {
     try {
-      let csv = await prepareQuery(message,"contact_csv","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
+      let csv = await prepareQuery(message,"contact_csv","getcontact_csv_1","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
 
       for (let i = 0; i < textArray.length; i++) {
         const ret = await callChatGPT(textArray[i],message);
