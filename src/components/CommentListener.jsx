@@ -132,16 +132,14 @@ const CommentListener = () => {
   async function fetchChatGPTResponse(message) {
     try {
       let csv = await prepareQuery(message,"contact_csv","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
-      
-      
-      // Generate the summary when textArray changes
-      alert("SUM = " + textArray.length);
 
       for (let i = 0; i < textArray.length; i++) {
         const ret = await callChatGPT(textArray[i],message);
         console.log(ret);
-        if(!ret.includes("doesn't mention")){
-          return csv + "\n" + ret;
+        if(ret.includes("not mention") || ret.includes("not include") || ret.includes("not contain") || ret.includes("sorry")){
+          continue;
+        }else{
+          csv = csv + "\n" + ret;
         }         
       }
 
