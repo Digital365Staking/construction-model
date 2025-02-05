@@ -103,11 +103,24 @@ const CommentListener = () => {
       if (error) {
         throw new Error(`Supabase RPC Error: ${error.message}`);
       }
-      let csv2 = "";      
-      if(data.length === 0)
-        return "";      
-      const csv = data[0].TITLE; //Papa.unparse();  
-      console.log(data[0].TITLE);    
+      let csv2 = "";    
+      console.log("Number of items : " + data.length);  
+      let csv = "";
+      if(data.length === 0){
+        return "";  
+      }else{
+        if(data.length <= 1){ 
+          csv = data[0].TITLE;
+        }else{
+          csv = Papa.unparse(data, {
+            header: false,  // Do not include column headers
+            newline: '\r\n'
+          });
+          //csv = csv.replace(/\r\n/g, '\n');
+        }
+      }   
+    
+      console.log(csv);    
       if(ct >= 2){
         console.log(selectRequest2 + "\n" + filterRequest2);
         const { data2, error2 } = await supabase.rpc(procedureName, { selectcontact: selectRequest2, filtercontact: filterRequest2 });
@@ -136,7 +149,9 @@ const CommentListener = () => {
       for (let i = 0; i < textArray.length; i++) {
         const ret = await callChatGPT(textArray[i],message);
         console.log(ret);
-        if(ret.includes("not mention") || ret.includes("not include") || ret.includes("not contain") || ret.includes("sorry")){
+        if(ret.includes("doesn't provide") || ret.includes("doesn't mention") || ret.includes("doesn't include") ||
+          ret.includes("not provide") || ret.includes("not mention") || ret.includes("not include") || 
+          ret.includes("doesn't specify") || ret.includes("not specify") || ret.includes("not contain") || ret.includes("sorry")){
           continue;
         }else{
           csv = csv + "\n" + ret;
@@ -238,6 +253,7 @@ const CommentListener = () => {
     const newMessage = {
       sender: messageSender,
       text: chatInput,
+      lines: chatInput.split('\n'),
       timestamp,
     };
 
@@ -250,6 +266,7 @@ const CommentListener = () => {
       const newMessage2 = {
         sender: 'Jane',
         text: chatResponse,
+        lines: chatResponse.split('\n'),
         timestamp,
       }; 
       setMessages((prevMessages) => [...prevMessages, newMessage2]);     
@@ -288,13 +305,21 @@ const CommentListener = () => {
           <span className="dot"></span>
         </div>
         <div ref={contentRef} className="chat-messages">
-          {messages.map((message, index) => (
+          {messages.map((message, index) => (            
             <div
               key={index}
-              className={`message ${message.sender === 'John' ? 'blue-bg' : 'gray-bg'}`}
-            >
-              <div className="message-sender">{message.sender}</div>
-              <div className="message-text">{message.text}</div>
+              className={`message ${message.sender === 'John' ? 'blue-bg' : 'gray-bg'}`}>
+              <div className="message-sender">{message.sender}</div>               
+              <div className="message-text">
+                {message.lines && message.lines.length > 0
+                  ? message.lines.map((line, lineIndex) => (
+                      <span key={lineIndex}>
+                        {line}
+                        <br />
+                      </span>
+                    ))
+                  : message.text}
+              </div>            
               <div className="message-timestamp">{message.timestamp}</div>
             </div>
           ))}
