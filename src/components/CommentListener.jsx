@@ -4,6 +4,7 @@ import "../styles/CommentListener.css";
 import * as XLSX from "xlsx"; // For reading XLSX files
 import * as pdfjsLib from "pdfjs-dist";
 import Papa from 'papaparse';
+import { Mistral } from '@mistralai/mistralai';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
@@ -244,6 +245,38 @@ const CommentListener = () => {
     e.preventDefault();
     if (chatInput.trim() === '') return;
 
+    // Get the API key from environment variables
+    const apiKey = import.meta.env.VITE_MISTRAL_API_KEY;
+    console.log(apiKey);
+    const client = new Mistral({ apiKey });
+
+    try {
+      const chatResponse = await client.chat.complete({
+        model: 'mistral-large-latest',
+        messages: [{ role: 'user', content: 'What is the best French cheese?' }],
+      });
+      const txt = chatResponse.choices[0].message.content;
+      const tm = new Date().toLocaleString('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true,
+      });    
+  
+      const nm = {
+        sender: messageSender,
+        text: txt,
+        lines: txt.split('\n'),
+        tm,
+      };
+  
+      setMessages((prevMessages) => [...prevMessages, nm]);
+    } catch (error) {
+      console.error('Error fetching chat response:', error);
+    }
+
+    
+
+    return;
     const timestamp = new Date().toLocaleString('en-US', {
       hour: 'numeric',
       minute: 'numeric',
