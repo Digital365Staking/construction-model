@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import "../styles/CommentListener.css";
-import * as XLSX from "xlsx"; // For reading XLSX files
 import * as pdfjsLib from "pdfjs-dist";
 import Papa from 'papaparse';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { createPerplexity } from '@ai-sdk/perplexity';
+import { generateText } from 'ai';
+
+const perplexity = createPerplexity({
+  apiKey: import.meta.env.VITE_PERPLEXITY_API_KEY,
+});
 
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
@@ -257,12 +262,45 @@ const CommentListener = () => {
         messages: [{ role: 'user', content: 'What is the best French cheese?' }],
       });*/
 
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY; // Replace with your actual API key
+      
+        //const apiKey = import.meta.env.VITE_PERPLEXITY_API_KEY;
+        
+
+        const loadPerplexitySDK = async () => {
+          try {
+            const { txt } = await generateText({
+              model: perplexity('llama-3.1-sonar-small-128k-online'),
+              prompt: 'What are the latest developments in quantum computing?',
+            });                   
+            console.log(txt);
+            const tm = new Date().toLocaleString('en-US', {
+              hour: 'numeric',
+              minute: 'numeric',
+              hour12: true,
+            });    
+    
+            const nm = {
+              sender: messageSender,
+              text: txt,
+              lines: txt.split('\n'),
+              tm,
+            };
+    
+            setMessages((prevMessages) => [...prevMessages, nm]);
+          } catch (error) {
+            console.error("Error loading Perplexity SDK:", error);
+          }
+        };        
+        loadPerplexitySDK();
+        return;
+      
+
+      /*const apiKey = import.meta.env.VITE_GEMINI_API_KEY; // Replace with your actual API key
       
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-      const prompt = 'Explain how AI works';
+      const prompt = 'What is the best French cheese';
       try {
         const result = await model.generateContent(prompt);
         const txt = result.response.text();
@@ -283,9 +321,9 @@ const CommentListener = () => {
         setMessages((prevMessages) => [...prevMessages, nm]);
       } catch (error) {
         console.error('Error generating content:', error);
-      }
+      }*/
 
-    return;
+    
     const timestamp = new Date().toLocaleString('en-US', {
       hour: 'numeric',
       minute: 'numeric',
