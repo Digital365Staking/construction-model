@@ -4,7 +4,8 @@ import "../styles/CommentListener.css";
 import * as XLSX from "xlsx"; // For reading XLSX files
 import * as pdfjsLib from "pdfjs-dist";
 import Papa from 'papaparse';
-import { Mistral } from '@mistralai/mistralai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
@@ -40,7 +41,7 @@ const CommentListener = () => {
               `\nBased on the previous text and/or CSV report, provide a natural and conversational response to the following question :  `
             ) + message }
           ],
-          max_tokens: 200
+          max_tokens: 100
         })
       });
 
@@ -246,7 +247,7 @@ const CommentListener = () => {
     if (chatInput.trim() === '') return;
 
     // Get the API key from environment variables
-    const apiKey = import.meta.env.VITE_MISTRAL_API_KEY;
+    /*const apiKey = import.meta.env.VITE_MISTRAL_API_KEY;
     console.log(apiKey);
     const client = new Mistral({ apiKey });
 
@@ -254,27 +255,35 @@ const CommentListener = () => {
       const chatResponse = await client.chat.complete({
         model: 'mistral-large-latest',
         messages: [{ role: 'user', content: 'What is the best French cheese?' }],
-      });
-      const txt = chatResponse.choices[0].message.content;
-      const tm = new Date().toLocaleString('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true,
-      });    
-  
-      const nm = {
-        sender: messageSender,
-        text: txt,
-        lines: txt.split('\n'),
-        tm,
-      };
-  
-      setMessages((prevMessages) => [...prevMessages, nm]);
-    } catch (error) {
-      console.error('Error fetching chat response:', error);
-    }
+      });*/
 
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY; // Replace with your actual API key
+      
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+      const prompt = 'Explain how AI works';
+      try {
+        const result = await model.generateContent(prompt);
+        const txt = result.response.text();
+        console.log(txt);
+        const tm = new Date().toLocaleString('en-US', {
+          hour: 'numeric',
+          minute: 'numeric',
+          hour12: true,
+        });    
     
+        const nm = {
+          sender: messageSender,
+          text: txt,
+          lines: txt.split('\n'),
+          tm,
+        };
+    
+        setMessages((prevMessages) => [...prevMessages, nm]);
+      } catch (error) {
+        console.error('Error generating content:', error);
+      }
 
     return;
     const timestamp = new Date().toLocaleString('en-US', {
