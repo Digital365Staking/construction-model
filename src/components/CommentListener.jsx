@@ -268,10 +268,11 @@ const CommentListener = () => {
 
         const loadPerplexitySDK = async () => {
           try {
-            const { txt } = await generateText({
+            const result = await generateText({
               model: perplexity('llama-3.1-sonar-small-128k-online'),
-              prompt: 'What are the latest developments in quantum computing?',
-            });                   
+              prompt: 'Who is Bill Gates ?',
+            });    
+            const txt = result.text;              
             console.log(txt);
             const tm = new Date().toLocaleString('en-US', {
               hour: 'numeric',
