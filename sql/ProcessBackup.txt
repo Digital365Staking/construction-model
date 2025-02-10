@@ -4,3 +4,5 @@ Forgot your password? Reset it from the Dashboard: https://supabase.com/dashboar
 Enter your database password:
 Dumping schemas from remote database...
 Dumped schema to C:\Users\noreply\OneDrive - Digital 365 Staking\Documents\BackupSupabase\comment.sql.
+
+scoop update supabase

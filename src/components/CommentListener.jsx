@@ -15,8 +15,8 @@ const perplexity = createPerplexity({
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
 // Initialize Supabase client
-const supabaseUrl = 'https://ydxelzxjsuemylifgwte.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlkeGVsenhqc3VlbXlsaWZnd3RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY2MDY4MzAsImV4cCI6MjA1MjE4MjgzMH0.Nnbgsp8NvJaD_DyXpsNwnvrdZUwZz4ylWzv7_fglxPo';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const CommentListener = () => {
@@ -27,8 +27,7 @@ const CommentListener = () => {
   const [displayHeader, setDisplayHeader] = useState('none');
 
   //Examples of CSV
-  const [contactInfo, setContactInfo] = useState(null);
-  const keyPaths = "/files/Mathematical database development_.pdf";
+  const keyPaths = ""; //"/files/Mathematical database development_.pdf";
 
   async function callChatGPT(prefix, message) {
     var k = atob('c2stcHJvai1iV2Z5UEdZUE80OFZJMGVfQmFaSjM2ZnV1X1c5M3c1eDNhWnF0OE9XS0RObFY3RFZrMWdQQ0xaaFdZTUhKdDI5N1ZIRERZMUEwblQzQmxia0ZKckJVa0lBT0J3MFY3RU9OcXE0bllVYUduYUExVTM3SmVBYTEzNDNNYUlwUDQycEdJX1Rtd2wyTGFxV3ZFV19fWkJQc0tQUlpxWUE=');
@@ -63,6 +62,23 @@ const CommentListener = () => {
 
   async function prepareQuery(message, tableName, procedureName, headers) {
     try {
+      let csv = "";
+      if(message.includes("budget")){
+        const { data, error } = await supabase.rpc(procedureName);
+        if (error) {
+          throw new Error(`Supabase RPC Error: ${error.message}`);
+        }        
+        if(data.length <= 1){ 
+          csv = data[0].TITLE;
+        }else{
+          csv = Papa.unparse(data, {
+            header: false,
+            newline: '\r\n'
+          });          
+        }
+        console.log("Request only : \n" + csv);
+        return csv;
+      }
     let req = `
       How should I request a supabase table "${tableName}" with the headers "${headers}" if I have to answer to the question : "${message}" ? Give as anwer only the select string and the filter string in the JSON format model 
       {
@@ -112,7 +128,7 @@ const CommentListener = () => {
       }
       let csv2 = "";    
       console.log("Number of items : " + data.length);  
-      let csv = "";
+      
       if(data.length === 0){
         return "";  
       }else{
@@ -122,8 +138,7 @@ const CommentListener = () => {
           csv = Papa.unparse(data, {
             header: false,  // Do not include column headers
             newline: '\r\n'
-          });
-          //csv = csv.replace(/\r\n/g, '\n');
+          });          
         }
       }   
     
@@ -151,7 +166,8 @@ const CommentListener = () => {
 
   async function fetchChatGPTResponse(message) {
     try {
-      let csv = await prepareQuery(message,"contact_csv","getcontact_csv_1","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
+      //let csv = await prepareQuery(message,"contact_csv","getcontact_csv_1","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
+      let csv = await prepareQuery(message, "", "get_construction_data_es", "");
 
       for (let i = 0; i < textArray.length; i++) {
         const ret = await callChatGPT(textArray[i],message);
@@ -266,7 +282,7 @@ const CommentListener = () => {
         //const apiKey = import.meta.env.VITE_PERPLEXITY_API_KEY;
         
 
-        const loadPerplexitySDK = async () => {
+        /*const loadPerplexitySDK = async () => {
           try {
             const result = await generateText({
               model: perplexity('llama-3.1-sonar-small-128k-online'),
@@ -293,7 +309,7 @@ const CommentListener = () => {
           }
         };        
         loadPerplexitySDK();
-        return;
+        return;*/
       
 
       /*const apiKey = import.meta.env.VITE_GEMINI_API_KEY; // Replace with your actual API key
