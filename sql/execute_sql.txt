@@ -1,0 +1,25 @@
+CREATE OR REPLACE FUNCTION public.execute_sql(query TEXT)
+RETURNS VOID AS $$
+BEGIN
+    EXECUTE query;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+SELECT * FROM pg_proc WHERE proname = 'execute_sql';
+
+GRANT EXECUTE ON FUNCTION execute_sql(TEXT) TO postgres, anon, authenticated;
+
+DROP FUNCTION get_construction_data_es;
+CREATE OR REPLACE FUNCTION get_construction_data_es()
+RETURNS TABLE (TITLE TEXT) AS $$
+BEGIN
+    RETURN QUERY
+     SELECT  
+      CASE 
+        WHEN "construction_csv_es"."Categoría" = 'Servicio' THEN 'Servicio:' || "construction_csv_es"."Tarea/Equipo" || ',' || "construction_csv_es"."Precio Estimado" ||'€'
+        ELSE "construction_csv_es"."Tarea/Equipo" || ',' || "construction_csv_es"."Precio Estimado" ||'€'
+      END AS TITLE
+      FROM "construction_csv_es"
+      LIMIT 5000;
+END;
+$$ LANGUAGE plpgsql;

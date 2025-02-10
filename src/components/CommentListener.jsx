@@ -43,9 +43,9 @@ const CommentListener = () => {
             { "role": "system", "content": "You are a helpful assistant." },
             { "role": "user", "content": prefix + (prefix === "" ? "" :
               `\nBased on the previous text and/or CSV report, provide a natural and conversational response to the following question :  `
-            ) + message }
+            ) + message + "No recomendar de ponerse en contacto con empresas de limpieza locales. La expresión 'Lo siento' no puede aparecer en la respuesta." }
           ],
-          max_tokens: 100
+          max_tokens: 130
         })
       });
 
@@ -60,10 +60,15 @@ const CommentListener = () => {
       .join("\n"); // Join back into a string
   };
 
+  const Categ = 2;
+
   async function prepareQuery(message, tableName, procedureName, headers) {
     try {
       let csv = "";
-      if(message.includes("budget")){
+      if((procedureName.endsWith("_es") && Categ === 2) 
+        || message.includes("budget")){
+          //console.log(supabaseUrl);
+          //console.log(supabaseAnonKey);
         const { data, error } = await supabase.rpc(procedureName);
         if (error) {
           throw new Error(`Supabase RPC Error: ${error.message}`);
@@ -73,9 +78,12 @@ const CommentListener = () => {
         }else{
           csv = Papa.unparse(data, {
             header: false,
-            newline: '\r\n'
+            newline: '\r\n',
+            quotes: false, // Disable quoting of fields            
           });          
         }
+        csv = csv.replace(/"/g, '');
+        csv = await callChatGPT(csv + ".\nSi la información necesaria para proporcionar un presupuesto no es suficiente, dar el WhatsApp del jefe de la empresa : +34744789609 (ultima frase de la respuesta).",message);
         console.log("Request only : \n" + csv);
         return csv;
       }
@@ -168,7 +176,7 @@ const CommentListener = () => {
     try {
       //let csv = await prepareQuery(message,"contact_csv","getcontact_csv_1","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
       let csv = await prepareQuery(message, "", "get_construction_data_es", "");
-
+      console.log(textArray.length);
       for (let i = 0; i < textArray.length; i++) {
         const ret = await callChatGPT(textArray[i],message);
         console.log(ret);
@@ -179,7 +187,7 @@ const CommentListener = () => {
         }else{
           csv = csv + "\n" + ret;
         }         
-      }
+      }      
 
       return csv;
 
@@ -196,37 +204,39 @@ const CommentListener = () => {
   useEffect(() => {
     const fetchFiles = async () => {
       try{
-      // Fetch file paths from the backend
-      const pathFiles = keyPaths.split(";");
-      // Fetch all files concurrently
-      const fileFetches = pathFiles.map((path) =>
-        fetch(path)
-          .then((response) => {
-            if (path.endsWith(".txt")) {
-              return response.text(); // Read as text for TXT files
-            } else if (path.endsWith(".pdf")) {
-              return response.arrayBuffer(); // Read as binary for PDF files
+      if(keyPaths != ""){
+        // Fetch file paths from the backend
+        const pathFiles = keyPaths.split(";");
+        // Fetch all files concurrently
+        const fileFetches = pathFiles.map((path) =>
+          fetch(path)
+            .then((response) => {
+              if (path.endsWith(".txt")) {
+                return response.text(); // Read as text for TXT files
+              } else if (path.endsWith(".pdf")) {
+                return response.arrayBuffer(); // Read as binary for PDF files
+              }
+            })
+            .catch((error) => console.error("Error fetching file:", error))
+        );
+        // Wait for all fetches to resolve
+        const fileBuffers = await Promise.all(fileFetches);
+
+        // Process the files based on their type
+        const processedFiles = await Promise.all(
+          fileBuffers.map((buffer, index) => {
+            const fileUrl = pathFiles[index];
+            if (fileUrl.endsWith(".txt")) {
+              return buffer; // TXT: Just return the text content
+            } else if (fileUrl.endsWith(".pdf")) {
+              return processPdf(buffer); // Process PDF file
             }
           })
-          .catch((error) => console.error("Error fetching file:", error))
-      );
-      // Wait for all fetches to resolve
-      const fileBuffers = await Promise.all(fileFetches);
-
-      // Process the files based on their type
-      const processedFiles = await Promise.all(
-        fileBuffers.map((buffer, index) => {
-          const fileUrl = pathFiles[index];
-          if (fileUrl.endsWith(".txt")) {
-            return buffer; // TXT: Just return the text content
-          } else if (fileUrl.endsWith(".pdf")) {
-            return processPdf(buffer); // Process PDF file
-          }
-        })
-      );
+        );
+        // Set the processed contents to the state
+        setTextArray(processedFiles);
+      }
       
-      // Set the processed contents to the state
-      setTextArray(processedFiles);
       } catch (err) {
         console.error("Error in fetchFiles function:", err);
       }
@@ -345,12 +355,17 @@ const CommentListener = () => {
       hour: 'numeric',
       minute: 'numeric',
       hour12: true,
-    });    
-
+    });
+    
+    let wap = "";
+    let lnkWAP = "";    
+    
     const newMessage = {
       sender: messageSender,
       text: chatInput,
       lines: chatInput.split('\n'),
+      whatsapp:wap,
+      lnkWhatsapp:lnkWAP,
       timestamp,
     };
 
@@ -360,10 +375,19 @@ const CommentListener = () => {
       console.log('msg : ' + chatInput);
       setDisplayHeader('flex');
       const chatResponse = await fetchChatGPTResponse(chatInput);
+      if(!chatResponse.includes("34744789609")){
+        wap = "";
+        lnkWAP = "";
+      }else{
+        wap = "+34744789609";
+        lnkWAP = "https://wa.me/34744789609";
+      }
       const newMessage2 = {
         sender: 'Jane',
         text: chatResponse,
         lines: chatResponse.split('\n'),
+        whatsapp:wap,
+        lnkWhatsapp:lnkWAP,
         timestamp,
       }; 
       setMessages((prevMessages) => [...prevMessages, newMessage2]);     
@@ -416,6 +440,7 @@ const CommentListener = () => {
                       </span>
                     ))
                   : message.text}
+                  <br/><a style={{ color: 'white' }} href={message.lnkWhatsapp}>{message.whatsapp}</a>
               </div>            
               <div className="message-timestamp">{message.timestamp}</div>
             </div>
