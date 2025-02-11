@@ -28,6 +28,7 @@ const CommentListener = () => {
   const [messageSender, setMessageSender] = useState('John');
   const [chatInput, setChatInput] = useState('');
   const [displayHeader, setDisplayHeader] = useState('none');
+  const [selLang, setSelLang] = useState("");
 
   //Examples of CSV
   const keyPaths = ""; //"/files/Mathematical database development_.pdf";
@@ -39,6 +40,7 @@ const CommentListener = () => {
       const prompt = prefix + (prefix === "" ? "" : `\nBased on the previous text and/or CSV report, provide a natural and conversational response to the following question :  `
               ) + message + "No recomendar de ponerse en contacto con empresas de limpieza locales. La expresión 'Lo siento' no puede aparecer en la respuesta."
       if(type_ai === "1"){
+        const max = Number(import.meta.env.VITE_MAX_TOKENS_CHATGPT);
         const response = await fetch(chatgpt_api_url, {
           method: 'POST',
           headers: {
@@ -51,7 +53,7 @@ const CommentListener = () => {
               { "role": "system", "content": "You are a company in the construction industry." },
               { "role": "user", "content": prompt }
             ],
-            max_tokens: 100
+            max_tokens: max
           })
         });
 
@@ -59,13 +61,14 @@ const CommentListener = () => {
         return data.choices[0].message.content;
       }
       if(type_ai === "2"){
+        const max = Number(import.meta.env.VITE_MAX_TOKENS_GEMINI);
         const apiKey = import.meta.env.VITE_GEMINI_API_KEY; // Replace with your actual API key
         
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ 
           model: 'gemini-1.5-flash', 
           systemInstruction: "You are a company in the construction industry.",
-          "maxOutputTokens":30
+          "maxOutputTokens":max
         });
       
         const result = await model.generateContent(prompt);
@@ -74,6 +77,8 @@ const CommentListener = () => {
         return result.response.text(); 
       }
       if(type_ai === "3"){
+        const max = Number(import.meta.env.VITE_MAX_TOKENS_HUGGING);
+        console.log("Max : " + max);
         const key = import.meta.env.VITE_HUGGING_KEY;
         const client = new HfInference(key);
         const modelHugging = import.meta.env.VITE_HUGGING_MODEL;
@@ -86,18 +91,18 @@ const CommentListener = () => {
             }
           ],
           provider: "together",
-          max_tokens: 200
+          max_tokens: max
         });
         const resp = chatCompletion.choices[0].message.content;
         console.log(resp);
         return resp;
       }
       if(type_ai === "4"){
-          //const apiKey = import.meta.env.VITE_PERPLEXITY_API_KEY;
+          const max = Number(import.meta.env.VITE_MAX_TOKENS_PERPLEXITY);
           const result = await generateText({
             model: perplexity('llama-3.1-sonar-small-128k-online'),
             prompt: prompt,
-            max_tokens:50
+            max_tokens:max
           });
                        
           console.log("USE PERPLEXITY" + prompt);
@@ -383,6 +388,30 @@ const CommentListener = () => {
     setMessages([]);
   };
 
+  // Styles
+  const labelStyle = {
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer",
+    fontSize: "12px",
+    gap: "4px",
+  };
+
+  const radioStyle = {
+    content: '""',
+    width: "10px",
+    height: "10px",
+    borderRadius: "50%",
+    border: "2px solid #007BFF",
+    display: "inline-block",
+    transition: "0.3s",
+  };
+
+  const selectedStyle = {
+    backgroundColor: "#007BFF",
+    boxShadow: "inset 0 0 0 5px white",
+  };
+
   return (
     <div className="app-container">
       <div className="person-selector">
@@ -433,10 +462,65 @@ const CommentListener = () => {
           <textarea id="message" name="message" rows="5" cols="50" className="chat-input" value={chatInput} placeholder={`Type here, ${messageSender}...`} onChange={(e) => setChatInput(e.target.value)}></textarea>          
           <button type="submit" className="button send-button">Send</button>
         </form>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          {/* Left-aligned button */}
+          <button className="button send-button" onClick={handleClearChat}>
+            Clear Chat
+          </button>
+          <div style={{ display: "flex", gap: "20px", alignItems: "center", color: "white", fontWeight: "bold" }}>
+            {/* Radio Button 1 */}
+            <input
+              type="radio"
+              id="EN"
+              name="options"
+              checked={selLang === "EN"}
+              onChange={() => setSelLang("EN")}
+              style={{ display: "none" }}
+            />
+            <label htmlFor="EN" style={labelStyle}>
+              <span style={{ ...radioStyle, ...(selLang === "EN" ? selectedStyle : {}) }}></span>
+              EN
+            </label>
 
-        <button className="button send-button" onClick={handleClearChat}>
-          Clear Chat
-        </button>
+            {/* Radio Button 2 */}
+            <input
+              type="radio"
+              id="FR"
+              name="options"
+              checked={selLang === "FR"}
+              onChange={() => setSelLang("FR")}
+              style={{ display: "none" }}
+            />
+            <label htmlFor="FR" style={labelStyle}>
+              <span style={{ ...radioStyle, ...(selLang === "FR" ? selectedStyle : {}) }}></span>
+              FR
+            </label>
+
+            {/* Radio Button 3 */}
+            <input
+              type="radio"
+              id="ES"
+              name="options"
+              checked={selLang === "ES"}
+              onChange={() => setSelLang("ES")}
+              style={{ display: "none" }}
+            />
+            <label htmlFor="ES" style={labelStyle}>
+              <span style={{ ...radioStyle, ...(selLang === "ES" ? selectedStyle : {}) }}></span>
+              ES
+            </label>
+          </div>
+          {/* Right-aligned buttons */}
+          <div style={{ display: 'flex', gap: '20px' }}>
+            <button className="button send-button" onClick={handleClearChat}>
+              Información
+            </button>
+            <button className="button send-button" onClick={handleClearChat}>
+              Presupuesto
+            </button>
+          </div>
+        </div>
+        
       </div>
     </div>
   );
