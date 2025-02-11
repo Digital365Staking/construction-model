@@ -6,6 +6,7 @@ import Papa from 'papaparse';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createPerplexity } from '@ai-sdk/perplexity';
 import { generateText } from 'ai';
+import { HfInference } from "@huggingface/inference";
 
 const perplexity = createPerplexity({
   apiKey: import.meta.env.VITE_PERPLEXITY_API_KEY,
@@ -14,7 +15,9 @@ const perplexity = createPerplexity({
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
-// Initialize Supabase client
+// Initialize ENV Variables
+const chatgpt_api_url = import.meta.env.VITE_CHATGPT_URL;
+const chatgpt_api_key = import.meta.env.VITE_CHATGPT_KEY;
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -29,28 +32,104 @@ const CommentListener = () => {
   //Examples of CSV
   const keyPaths = ""; //"/files/Mathematical database development_.pdf";
 
-  async function callChatGPT(prefix, message) {
-    var k = atob('c2stcHJvai1iV2Z5UEdZUE80OFZJMGVfQmFaSjM2ZnV1X1c5M3c1eDNhWnF0OE9XS0RObFY3RFZrMWdQQ0xaaFdZTUhKdDI5N1ZIRERZMUEwblQzQmxia0ZKckJVa0lBT0J3MFY3RU9OcXE0bllVYUduYUExVTM3SmVBYTEzNDNNYUlwUDQycEdJX1Rtd2wyTGFxV3ZFV19fWkJQc0tQUlpxWUE=');
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + k
-        },
-        body: JSON.stringify({
-          "model": "gpt-4",
-          "messages": [
-            { "role": "system", "content": "You are a helpful assistant." },
-            { "role": "user", "content": prefix + (prefix === "" ? "" :
-              `\nBased on the previous text and/or CSV report, provide a natural and conversational response to the following question :  `
-            ) + message + "No recomendar de ponerse en contacto con empresas de limpieza locales. La expresión 'Lo siento' no puede aparecer en la respuesta." }
-          ],
-          max_tokens: 130
-        })
-      });
+  async function callAPIAI(prefix, message) {
+    try {
+      const type_ai = import.meta.env.VITE_TYPE_AI;
+      console.log("Type AI : " + type_ai);
+      const prompt = prefix + (prefix === "" ? "" : `\nBased on the previous text and/or CSV report, provide a natural and conversational response to the following question :  `
+              ) + message + "No recomendar de ponerse en contacto con empresas de limpieza locales. La expresión 'Lo siento' no puede aparecer en la respuesta."
+      if(type_ai === "1"){
+        const response = await fetch(chatgpt_api_url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + chatgpt_api_key
+          },
+          body: JSON.stringify({
+            "model": "gpt-4",
+            "messages": [
+              { "role": "system", "content": "You are a company in the construction industry." },
+              { "role": "user", "content": prompt }
+            ],
+            max_tokens: 100
+          })
+        });
 
-    const data = await response.json();
-    return data.choices[0].message.content;
+        const data = await response.json();
+        return data.choices[0].message.content;
+      }
+      if(type_ai === "2"){
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY; // Replace with your actual API key
+        
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ 
+          model: 'gemini-1.5-flash', 
+          systemInstruction: "You are a company in the construction industry.",
+          "maxOutputTokens":30
+        });
+      
+        const result = await model.generateContent(prompt);
+        
+        console.log("USE GEMINI");
+        return result.response.text(); 
+      }
+      if(type_ai === "3"){
+        const client = new HfInference("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");
+
+        const chatCompletion = await client.chatCompletion({
+          model: "mistralai/Mistral-Small-24B-Instruct-2501",
+          messages: [
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          provider: "together",
+          max_tokens: 200
+        });
+        const resp = chatCompletion.choices[0].message.content;
+        console.log(resp);
+        return resp;
+      }
+      if(type_ai === "4"){
+          //const apiKey = import.meta.env.VITE_PERPLEXITY_API_KEY;
+          const result = await generateText({
+            model: perplexity('llama-3.1-sonar-small-128k-online'),
+            prompt: prompt,
+            max_tokens:50
+          });
+                       
+          console.log("USE PERPLEXITY" + prompt);
+          return result.text;
+        /*const loadPerplexitySDK = async () => {
+          try {
+                
+            
+            const tm = new Date().toLocaleString('en-US', {
+              hour: 'numeric',
+              minute: 'numeric',
+              hour12: true,
+            });    
+    
+            const nm = {
+              sender: messageSender,
+              text: txt,
+              lines: txt.split('\n'),
+              tm,
+            };
+    
+            setMessages((prevMessages) => [...prevMessages, nm]);
+          } catch (error) {
+            console.error("Error loading Perplexity SDK:", error);
+          }
+        };        
+        loadPerplexitySDK();
+        */
+      }
+    } catch (error) {
+      console.error('Error generating content:', error);
+    }
+    return "No-API AI"; 
   }
 
   const removeEmptyLines = (text) => {
@@ -83,7 +162,7 @@ const CommentListener = () => {
           });          
         }
         csv = csv.replace(/"/g, '');
-        csv = await callChatGPT(csv + ".\nSi la información necesaria para proporcionar un presupuesto no es suficiente, dar el WhatsApp del jefe de la empresa : +34744789609 (ultima frase de la respuesta).",message);
+        csv = await callAPIAI(csv + ".\nSi la información necesaria para proporcionar un presupuesto no es suficiente, dar el WhatsApp del jefe de la empresa : +34744789609 (ultima frase de la respuesta).",message);
         console.log("Request only : \n" + csv);
         return csv;
       }
@@ -94,7 +173,7 @@ const CommentListener = () => {
         "filter": "Contact name=%Bertrand VANNE%"
       }. Follow the previous JSON model strictly.
       `;
-      const jsonContact = await callChatGPT("",req);
+      const jsonContact = await callAPIAI("",req);
       console.log(jsonContact);
       let selectRequest = "";
       let filterRequest = "";
@@ -172,13 +251,13 @@ const CommentListener = () => {
       
   }
 
-  async function fetchChatGPTResponse(message) {
+  async function fetchChatAIResponse(message) {
     try {
       //let csv = await prepareQuery(message,"contact_csv","getcontact_csv_1","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
       let csv = await prepareQuery(message, "", "get_construction_data_es", "");
       console.log(textArray.length);
       for (let i = 0; i < textArray.length; i++) {
-        const ret = await callChatGPT(textArray[i],message);
+        const ret = await callAPIAI(textArray[i],message);
         console.log(ret);
         if(ret.includes("doesn't provide") || ret.includes("doesn't mention") || ret.includes("doesn't include") ||
           ret.includes("not provide") || ret.includes("not mention") || ret.includes("not include") || 
@@ -287,69 +366,6 @@ const CommentListener = () => {
         model: 'mistral-large-latest',
         messages: [{ role: 'user', content: 'What is the best French cheese?' }],
       });*/
-
-      
-        //const apiKey = import.meta.env.VITE_PERPLEXITY_API_KEY;
-        
-
-        /*const loadPerplexitySDK = async () => {
-          try {
-            const result = await generateText({
-              model: perplexity('llama-3.1-sonar-small-128k-online'),
-              prompt: 'Who is Bill Gates ?',
-            });    
-            const txt = result.text;              
-            console.log(txt);
-            const tm = new Date().toLocaleString('en-US', {
-              hour: 'numeric',
-              minute: 'numeric',
-              hour12: true,
-            });    
-    
-            const nm = {
-              sender: messageSender,
-              text: txt,
-              lines: txt.split('\n'),
-              tm,
-            };
-    
-            setMessages((prevMessages) => [...prevMessages, nm]);
-          } catch (error) {
-            console.error("Error loading Perplexity SDK:", error);
-          }
-        };        
-        loadPerplexitySDK();
-        return;*/
-      
-
-      /*const apiKey = import.meta.env.VITE_GEMINI_API_KEY; // Replace with your actual API key
-      
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-      const prompt = 'What is the best French cheese';
-      try {
-        const result = await model.generateContent(prompt);
-        const txt = result.response.text();
-        console.log(txt);
-        const tm = new Date().toLocaleString('en-US', {
-          hour: 'numeric',
-          minute: 'numeric',
-          hour12: true,
-        });    
-    
-        const nm = {
-          sender: messageSender,
-          text: txt,
-          lines: txt.split('\n'),
-          tm,
-        };
-    
-        setMessages((prevMessages) => [...prevMessages, nm]);
-      } catch (error) {
-        console.error('Error generating content:', error);
-      }*/
-
     
     const timestamp = new Date().toLocaleString('en-US', {
       hour: 'numeric',
@@ -374,7 +390,7 @@ const CommentListener = () => {
     if(messageSender === 'John'){
       console.log('msg : ' + chatInput);
       setDisplayHeader('flex');
-      const chatResponse = await fetchChatGPTResponse(chatInput);
+      const chatResponse = await fetchChatAIResponse(chatInput);
       if(!chatResponse.includes("34744789609")){
         wap = "";
         lnkWAP = "";

@@ -24,6 +24,7 @@
   "dependencies": {
     "@ai-sdk/perplexity": "^0.0.7",
     "@google/generative-ai": "^0.21.0",
+    "@huggingface/inference": "^3.3.2",
     "@supabase/supabase-js": "^2.47.12",
     "ai": "^4.1.26",
     "dotenv": "^16.4.7",
