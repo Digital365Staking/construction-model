@@ -74,10 +74,11 @@ const CommentListener = () => {
         return result.response.text(); 
       }
       if(type_ai === "3"){
-        const client = new HfInference("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");
-
+        const key = import.meta.env.VITE_HUGGING_KEY;
+        const client = new HfInference(key);
+        const modelHugging = import.meta.env.VITE_HUGGING_MODEL;
         const chatCompletion = await client.chatCompletion({
-          model: "mistralai/Mistral-Small-24B-Instruct-2501",
+          model: modelHugging,
           messages: [
             {
               role: "user",
@@ -100,31 +101,7 @@ const CommentListener = () => {
           });
                        
           console.log("USE PERPLEXITY" + prompt);
-          return result.text;
-        /*const loadPerplexitySDK = async () => {
-          try {
-                
-            
-            const tm = new Date().toLocaleString('en-US', {
-              hour: 'numeric',
-              minute: 'numeric',
-              hour12: true,
-            });    
-    
-            const nm = {
-              sender: messageSender,
-              text: txt,
-              lines: txt.split('\n'),
-              tm,
-            };
-    
-            setMessages((prevMessages) => [...prevMessages, nm]);
-          } catch (error) {
-            console.error("Error loading Perplexity SDK:", error);
-          }
-        };        
-        loadPerplexitySDK();
-        */
+          return result.text;        
       }
     } catch (error) {
       console.error('Error generating content:', error);
@@ -144,8 +121,7 @@ const CommentListener = () => {
   async function prepareQuery(message, tableName, procedureName, headers) {
     try {
       let csv = "";
-      if((procedureName.endsWith("_es") && Categ === 2) 
-        || message.includes("budget")){
+      if(procedureName.endsWith("_es") && Categ === 2){
           //console.log(supabaseUrl);
           //console.log(supabaseAnonKey);
         const { data, error } = await supabase.rpc(procedureName);
@@ -253,8 +229,9 @@ const CommentListener = () => {
 
   async function fetchChatAIResponse(message) {
     try {
+      const procedure = import.meta.env.VITE_PROCEDURE_GET;
       //let csv = await prepareQuery(message,"contact_csv","getcontact_csv_1","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
-      let csv = await prepareQuery(message, "", "get_construction_data_es", "");
+      let csv = await prepareQuery(message, "", procedure, "");
       console.log(textArray.length);
       for (let i = 0; i < textArray.length; i++) {
         const ret = await callAPIAI(textArray[i],message);
@@ -355,17 +332,6 @@ const CommentListener = () => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (chatInput.trim() === '') return;
-
-    // Get the API key from environment variables
-    /*const apiKey = import.meta.env.VITE_MISTRAL_API_KEY;
-    console.log(apiKey);
-    const client = new Mistral({ apiKey });
-
-    try {
-      const chatResponse = await client.chat.complete({
-        model: 'mistral-large-latest',
-        messages: [{ role: 'user', content: 'What is the best French cheese?' }],
-      });*/
     
     const timestamp = new Date().toLocaleString('en-US', {
       hour: 'numeric',
@@ -386,17 +352,17 @@ const CommentListener = () => {
     };
 
     setMessages((prevMessages) => [...prevMessages, newMessage]);
-
+    const phone = import.meta.env.VITE_WHATSAPP;
     if(messageSender === 'John'){
       console.log('msg : ' + chatInput);
       setDisplayHeader('flex');
       const chatResponse = await fetchChatAIResponse(chatInput);
-      if(!chatResponse.includes("34744789609")){
+      if(!chatResponse.includes(phone)){
         wap = "";
         lnkWAP = "";
       }else{
-        wap = "+34744789609";
-        lnkWAP = "https://wa.me/34744789609";
+        wap = "+" + phone;
+        lnkWAP = "https://wa.me/" + phone;
       }
       const newMessage2 = {
         sender: 'Jane',
