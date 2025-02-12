@@ -25,10 +25,30 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 const CommentListener = () => {
   
   const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('messages')) || []);
-  const [messageSender, setMessageSender] = useState('John');
+  const isDisabled = messages.length === 0;
   const [chatInput, setChatInput] = useState('');
   const [displayHeader, setDisplayHeader] = useState('none');
-  const [selLang, setSelLang] = useState("");
+  const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
+  const [displayBudget, setDisplayBudget] = useState(
+    {
+      display: "block"
+    }
+  );
+  const [displayInfo, setDisplayInfo] = useState(
+    {
+      display: "block"
+    }
+  );
+  
+  const curMe = selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
+  const [categ, setCateg] = useState(1);
+  const [messageSender, setMessageSender] = useState(curMe);
+  const curAI = selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
+  const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
+  const curClear = selLang === 'es' ? 'Borrar' : (selLang === 'en' ? 'Clear' : 'Effacer');
+  const curInfo = selLang === 'es' ? 'Información' : 'Information';
+  const curBudget = selLang === 'es' ? 'Presupuesto' : 'Budget';
+  const curTypeHere = selLang === 'es' ? 'Escribe aquí' : (selLang === 'en' ? 'Type here' : 'Tapez ici'); 
 
   //Examples of CSV
   const keyPaths = ""; //"/files/Mathematical database development_.pdf";
@@ -73,7 +93,7 @@ const CommentListener = () => {
       
         const result = await model.generateContent(prompt);
         
-        console.log("USE GEMINI");
+        console.log("USE GEMINI, input :\n" + prompt);
         return result.response.text(); 
       }
       if(type_ai === "3"){
@@ -119,22 +139,23 @@ const CommentListener = () => {
       .split("\n") // Split by newline
       .filter(line => line.trim() !== "") // Remove empty lines
       .join("\n"); // Join back into a string
-  };
-
-  const Categ = 2;
+  };  
 
   async function prepareQuery(message, tableName, procedureName, headers) {
     try {
       let csv = "";
-      if(procedureName.endsWith("_es") && Categ === 2){
-          //console.log(supabaseUrl);
-          //console.log(supabaseAnonKey);
+      if(categ === 1){          
+        
         const { data, error } = await supabase.rpc(procedureName);
         if (error) {
           throw new Error(`Supabase RPC Error: ${error.message}`);
         }        
+        console.log(data.length + "-" + procedureName);
         if(data.length <= 1){ 
-          csv = data[0].TITLE;
+          if(data.length > 0)
+            csv = data[0].TITLE;
+          else
+            csv = "";
         }else{
           csv = Papa.unparse(data, {
             header: false,
@@ -143,9 +164,16 @@ const CommentListener = () => {
           });          
         }
         csv = csv.replace(/"/g, '');
-        csv = await callAPIAI(csv + ".\nSi la información necesaria para proporcionar un presupuesto no es suficiente, dar el WhatsApp del jefe de la empresa : +34744789609 (ultima frase de la respuesta).",message);
+        const wap = import.meta.env.VITE_WHATSAPP;
+        csv = await callAPIAI(csv + ".\nSi la información necesaria para proporcionar un presupuesto no es suficiente, dar el WhatsApp del jefe de la empresa : +" + wap + " (ultima frase de la respuesta).",message);
         console.log("Request only : \n" + csv);
+        
         return csv;
+      }else{
+        if(categ === 2){
+          let respAI = await callAPIAI("",message);
+          return respAI;
+        }
       }
     let req = `
       How should I request a supabase table "${tableName}" with the headers "${headers}" if I have to answer to the question : "${message}" ? Give as anwer only the select string and the filter string in the JSON format model 
@@ -234,7 +262,7 @@ const CommentListener = () => {
 
   async function fetchChatAIResponse(message) {
     try {
-      const procedure = import.meta.env.VITE_PROCEDURE_GET;
+      const procedure = import.meta.env.VITE_PROCEDURE_GET + import.meta.env.VITE_ID_CLIENT + "_" + selLang;
       //let csv = await prepareQuery(message,"contact_csv","getcontact_csv_1","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
       let csv = await prepareQuery(message, "", procedure, "");
       console.log(textArray.length);
@@ -337,8 +365,10 @@ const CommentListener = () => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (chatInput.trim() === '') return;
-    
-    const timestamp = new Date().toLocaleString('en-US', {
+    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
+    const timestamp = new Date().toLocaleString(curFormat, {
+      month: 'long',
+      day: 'numeric',
       hour: 'numeric',
       minute: 'numeric',
       hour12: true,
@@ -358,10 +388,10 @@ const CommentListener = () => {
 
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     const phone = import.meta.env.VITE_WHATSAPP;
-    if(messageSender === 'John'){
+    if(messageSender === curMe){
       console.log('msg : ' + chatInput);
       setDisplayHeader('flex');
-      const chatResponse = await fetchChatAIResponse(chatInput);
+      let chatResponse = await fetchChatAIResponse(chatInput);
       if(!chatResponse.includes(phone)){
         wap = "";
         lnkWAP = "";
@@ -369,8 +399,9 @@ const CommentListener = () => {
         wap = "+" + phone;
         lnkWAP = "https://wa.me/" + phone;
       }
+      chatResponse = chatResponse = chatResponse.replace("+" + wap + ".", ':');
       const newMessage2 = {
-        sender: 'Jane',
+        sender: curAI,
         text: chatResponse,
         lines: chatResponse.split('\n'),
         whatsapp:wap,
@@ -385,15 +416,80 @@ const CommentListener = () => {
 
   const handleClearChat = () => {
     localStorage.clear();
-    setMessages([]);
+    setMessages([]);   
+    setDisplayBudget(
+      {
+        display: "block"
+      }
+    ); 
+    setDisplayInfo(
+      {
+        display: "block"
+      }
+    );  
   };
+
+  const handleChat = (typeChat) => {
+    setCateg(typeChat);
+    localStorage.clear();
+    setMessages([]);
+    let wap = "";
+    let lnkWAP = "";
+    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
+    const timestamp = new Date().toLocaleString(curFormat, {
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour24: true,
+    });
+    let msg = "";
+    if(typeChat === 1){
+      msg = selLang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (selLang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?');
+      setDisplayBudget(
+        {
+          display: "none"
+        }
+      ); 
+      setDisplayInfo(
+        {
+          display: "block"
+        }
+      ); 
+    }
+    if(typeChat === 2){
+      msg = selLang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (selLang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?");
+      setDisplayBudget(
+        {
+          display: "block"
+        }
+      ); 
+      setDisplayInfo(
+        {
+          display: "none"
+        }
+      ); 
+    }     
+    const newMsg = {
+      sender: curAI,
+      text: msg,
+      lines: [],
+      whatsapp:wap,
+      lnkWhatsapp:lnkWAP,
+      timestamp,
+    };
+    setMessages((prevMessages) => [...prevMessages, newMsg]);
+    setMessageSender(curMe);
+  };
+
+  
 
   // Styles
   const labelStyle = {
     display: "flex",
     alignItems: "center",
     cursor: "pointer",
-    fontSize: "12px",
+    fontSize: "14px",
     gap: "4px",
   };
 
@@ -416,13 +512,13 @@ const CommentListener = () => {
     <div className="app-container">
       <div className="person-selector">
         <button
-          className={`button person-selector-button ${messageSender === 'John' ? 'active-person' : ''}`}
-          onClick={() => handleSenderChange('John')}
+          className={`button person-selector-button ${messageSender === curMe ? 'active-person' : ''}`}
+          onClick={() => handleSenderChange(curMe)}
         >
           John
         </button>
         <button
-          className={`button person-selector-button ${messageSender === 'Jane' ? 'active-person' : ''}`}
+          className={`button person-selector-button ${messageSender === curAI ? 'active-person' : ''}`}
           onClick={() => handleSenderChange('Jane')}
         >
           Jane
@@ -440,7 +536,7 @@ const CommentListener = () => {
           {messages.map((message, index) => (            
             <div
               key={index}
-              className={`message ${message.sender === 'John' ? 'blue-bg' : 'gray-bg'}`}>
+              className={`message ${message.sender === curMe ? 'blue-bg' : 'gray-bg'}`}>
               <div className="message-sender">{message.sender}</div>               
               <div className="message-text">
                 {message.lines && message.lines.length > 0
@@ -459,64 +555,61 @@ const CommentListener = () => {
         </div>
 
         <form className="chat-input-form" onSubmit={handleSendMessage}>
-          <textarea id="message" name="message" rows="5" cols="50" className="chat-input" value={chatInput} placeholder={`Type here, ${messageSender}...`} onChange={(e) => setChatInput(e.target.value)}></textarea>          
-          <button type="submit" className="button send-button">Send</button>
+          <textarea id="message" name="message" rows="5" cols="50" disabled={isDisabled} className="chat-input" value={chatInput} placeholder={`${curTypeHere}, ${messageSender}...`} onChange={(e) => setChatInput(e.target.value)}></textarea>          
+          <button type="submit" disabled={isDisabled} className="button send-button">{curSend}</button>
         </form>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           {/* Left-aligned button */}
           <button className="button send-button" onClick={handleClearChat}>
-            Clear Chat
+            {curClear}
           </button>
           <div style={{ display: "flex", gap: "20px", alignItems: "center", color: "white", fontWeight: "bold" }}>
             {/* Radio Button 1 */}
             <input
               type="radio"
-              id="EN"
+              id="en"
               name="options"
-              checked={selLang === "EN"}
-              onChange={() => setSelLang("EN")}
+              checked={selLang === "en"}
               style={{ display: "none" }}
             />
             <label htmlFor="EN" style={labelStyle}>
-              <span style={{ ...radioStyle, ...(selLang === "EN" ? selectedStyle : {}) }}></span>
+              <span style={{ ...radioStyle, ...(selLang === "en" ? selectedStyle : {}) }} onClick={() => setSelLang("en")}></span>
               EN
             </label>
 
             {/* Radio Button 2 */}
             <input
               type="radio"
-              id="FR"
+              id="fr"
               name="options"
-              checked={selLang === "FR"}
-              onChange={() => setSelLang("FR")}
+              checked={selLang === "fr"}
               style={{ display: "none" }}
             />
             <label htmlFor="FR" style={labelStyle}>
-              <span style={{ ...radioStyle, ...(selLang === "FR" ? selectedStyle : {}) }}></span>
+              <span style={{ ...radioStyle, ...(selLang === "fr" ? selectedStyle : {}) }} onClick={() => setSelLang("fr")}></span>
               FR
             </label>
 
             {/* Radio Button 3 */}
             <input
               type="radio"
-              id="ES"
+              id="es"
               name="options"
-              checked={selLang === "ES"}
-              onChange={() => setSelLang("ES")}
+              checked={selLang === "es"}
               style={{ display: "none" }}
             />
             <label htmlFor="ES" style={labelStyle}>
-              <span style={{ ...radioStyle, ...(selLang === "ES" ? selectedStyle : {}) }}></span>
+              <span style={{ ...radioStyle, ...(selLang === "es" ? selectedStyle : {}) }} onClick={() => setSelLang("es")}></span>
               ES
             </label>
           </div>
           {/* Right-aligned buttons */}
           <div style={{ display: 'flex', gap: '20px' }}>
-            <button className="button send-button" onClick={handleClearChat}>
-              Información
+            <button style={displayInfo} className="button send-button" onClick={() => handleChat(2)}>
+              {curInfo}
             </button>
-            <button className="button send-button" onClick={handleClearChat}>
-              Presupuesto
+            <button style={displayBudget} className="button send-button" onClick={() => handleChat(1)}>
+              {curBudget}
             </button>
           </div>
         </div>

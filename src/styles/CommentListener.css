@@ -37,10 +37,21 @@ body{
   box-shadow: 0 0 0.5em 0.1em #c3c3c333;
 }
 
+button:disabled {
+  pointer-events: none;  /* Prevents the button from being clicked */
+  opacity: 0.5;  /* Optional: visually indicate the button is disabled */
+}
+
+textarea:disabled {
+  background-color: #d3d3d3;  /* Light gray color */
+  pointer-events: none;  /* Optional: Prevent interaction */
+  opacity: 0.5;  /* Optional: Makes it appear disabled */
+}
+
 .chat-container {
   font-family: 'Roboto', sans-serif;
   border-radius: 0.5em;
-  padding: 0.5em 1.25em;
+  padding: 0.5em 0.5em;
   margin: auto;
   max-width: 37.5em;
   height: 37.5em;
