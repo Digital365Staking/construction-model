@@ -415,9 +415,11 @@ const CommentListener = () => {
         lnkWAP = "";
       }else{
         wap = "+" + phone;
-        lnkWAP = "https://wa.me/" + phone;
+        lnkWAP = "https://wa.me/" + phone + "?text=" + chatResponse;
       }
-      chatResponse = chatResponse = chatResponse.replace("+" + wap + ".", ':');
+      console.log("Before html : " + chatResponse);
+      const pattern = new RegExp(`\\+${wap}\\.`, "g");
+      chatResponse = chatResponse.replace(pattern, ":");
       const newMessage2 = {
         sender: curAI,
         text: chatResponse,
