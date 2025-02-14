@@ -32,12 +32,17 @@ const CommentListener = () => {
   const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
   const [displayBudget, setDisplayBudget] = useState(
     {
-      display: "block"
+      display: (import.meta.env.VITE_OPT_BUDGET === "1" ? "block" : "none")
     }
   );
   const [displayInfo, setDisplayInfo] = useState(
     {
       display: "block"
+    }
+  );
+  const [displayCita, setDisplayCita] = useState(
+    {
+      display: (import.meta.env.VITE_OPT_CITA === "1" ? "block" : "none")
     }
   );
   
@@ -48,6 +53,7 @@ const CommentListener = () => {
   const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
   const curClear = selLang === 'es' ? 'Borrar' : (selLang === 'en' ? 'Clear' : 'Effacer');
   const curInfo = selLang === 'es' ? 'Información' : 'Information';
+  const curCita = selLang === 'es' ? 'Cita' : (selLang === 'en' ? '📅​' : 'Rdv');
   const curBudget = selLang === 'es' ? 'Presupuesto' : 'Budget';
   const curTypeHere = selLang === 'es' ? 'Escribe aquí' : (selLang === 'en' ? 'Type here' : 'Tapez ici'); 
 
@@ -452,11 +458,20 @@ const CommentListener = () => {
     let msg = "";
     if(typeChat === 1){
       msg = selLang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (selLang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?');
-      setDisplayBudget(
-        {
-          display: "none"
-        }
-      ); 
+      if(import.meta.env.VITE_OPT_BUDGET === "1"){
+        setDisplayBudget(
+          {
+            display: "none"
+          }
+        );
+      } 
+      if(import.meta.env.VITE_OPT_CITA === "1"){
+        setDisplayCita(
+          {
+            display: "block"
+          }
+        );
+      }      
       setDisplayInfo(
         {
           display: "block"
@@ -465,11 +480,20 @@ const CommentListener = () => {
     }
     if(typeChat === 2){
       msg = selLang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (selLang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?");
-      setDisplayBudget(
-        {
-          display: "block"
-        }
-      ); 
+      if(import.meta.env.VITE_OPT_BUDGET === "1"){
+        setDisplayBudget(
+          {
+            display: "block"
+          }
+        );
+      }
+      if(import.meta.env.VITE_OPT_CITA === "1"){
+        setDisplayCita(
+          {
+            display: "block"
+          }
+        ); 
+      }       
       setDisplayInfo(
         {
           display: "none"
@@ -484,6 +508,25 @@ const CommentListener = () => {
       lnkWhatsapp:lnkWAP,
       timestamp,
     };
+    if(typeChat === 3){
+      if(import.meta.env.VITE_OPT_BUDGET === "1"){
+        setDisplayBudget(
+          {
+            display: "block"
+          }
+        );
+      }
+      setDisplayInfo(
+        {
+          display: "block"
+        }
+      ); 
+      setDisplayCita(
+        {
+          display: "none"
+        }
+      ); 
+    }
     setMessages((prevMessages) => [...prevMessages, newMsg]);
     setMessageSender(curMe);
   };
@@ -629,6 +672,9 @@ const CommentListener = () => {
             </button>
             <button style={displayBudget} className="button send-button" onClick={() => handleChat(1)}>
               {curBudget}
+            </button>
+            <button style={displayCita} className="button send-button" onClick={() => handleChat(3)}>
+              {curCita}
             </button>
           </div>
         </div>
