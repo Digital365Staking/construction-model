@@ -538,32 +538,6 @@ const CommentListener = () => {
     setMessageSender(curMe);
   };
 
-  
-
-  // Styles
-  const labelStyle = {
-    display: "flex",
-    alignItems: "center",
-    cursor: "pointer",
-    fontSize: "14px",
-    gap: "4px",
-  };
-
-  const radioStyle = {
-    content: '""',
-    width: "10px",
-    height: "10px",
-    borderRadius: "50%",
-    border: "2px solid #007BFF",
-    display: "inline-block",
-    transition: "0.3s",
-  };
-
-  const selectedStyle = {
-    backgroundColor: "#007BFF",
-    boxShadow: "inset 0 0 0 5px white",
-  };
-
   const handleHoney = (e) => {
     setHoneyValue(e.target.value);
   };
@@ -649,8 +623,8 @@ const CommentListener = () => {
               checked={selLang === "en"}
               style={{ display: "none" }}
             />
-            <label htmlFor="EN" style={labelStyle}>
-              <span style={{ ...radioStyle, ...(selLang === "en" ? selectedStyle : {}) }} onClick={() => setSelLang("en")}></span>
+            <label htmlFor="EN" className="label" onClick={() => setSelLang("en")}>
+              <span className={`radio ${selLang === "en" ? "selected" : ""}`} onClick={() => setSelLang("en")}></span>
               EN
             </label>
 
@@ -662,8 +636,8 @@ const CommentListener = () => {
               checked={selLang === "fr"}
               style={{ display: "none" }}
             />
-            <label htmlFor="FR" style={labelStyle}>
-              <span style={{ ...radioStyle, ...(selLang === "fr" ? selectedStyle : {}) }} onClick={() => setSelLang("fr")}></span>
+            <label htmlFor="FR" className="label" onClick={() => setSelLang("fr")}>
+              <span className={`radio ${selLang === "fr" ? "selected" : ""}`} onClick={() => setSelLang("fr")}></span>
               FR
             </label>
 
@@ -675,8 +649,8 @@ const CommentListener = () => {
               checked={selLang === "es"}
               style={{ display: "none" }}
             />
-            <label htmlFor="ES" style={labelStyle}>
-              <span style={{ ...radioStyle, ...(selLang === "es" ? selectedStyle : {}) }} onClick={() => setSelLang("es")}></span>
+            <label htmlFor="ES" className="label" onClick={() => setSelLang("es")}>
+              <span className={`radio ${selLang === "es" ? "selected" : ""}`} onClick={() => setSelLang("es")}></span>
               ES
             </label>
           </div>
