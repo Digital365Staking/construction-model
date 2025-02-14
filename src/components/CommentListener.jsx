@@ -26,6 +26,7 @@ const CommentListener = () => {
   
   const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('messages')) || []);
   const isDisabled = messages.length === 0;
+  const [honeyValue, setHoneyValue] = useState('--');
   const [chatInput, setChatInput] = useState('');
   const [displayHeader, setDisplayHeader] = useState('none');
   const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
@@ -363,7 +364,11 @@ const CommentListener = () => {
   };
 
   const handleSendMessage = async (e) => {
-    e.preventDefault();
+    e.preventDefault();    
+    if (honeyValue !== "--"){
+      console.warn("Bot detected! Submission blocked.");
+      return;
+    }
     if (chatInput.trim() === '') return;
     const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
     const timestamp = new Date().toLocaleString(curFormat, {
@@ -430,6 +435,7 @@ const CommentListener = () => {
   };
 
   const handleChat = (typeChat) => {
+    
     setCateg(typeChat);
     localStorage.clear();
     setMessages([]);
@@ -508,6 +514,10 @@ const CommentListener = () => {
     boxShadow: "inset 0 0 0 5px white",
   };
 
+  const handleHoney = (e) => {
+    setHoneyValue(e.target.value);
+  };
+
   return (
     <div className="app-container">
       <div className="person-selector">
@@ -556,6 +566,15 @@ const CommentListener = () => {
 
         <form className="chat-input-form" onSubmit={handleSendMessage}>
           <textarea id="message" name="message" rows="5" cols="50" disabled={isDisabled} className="chat-input" value={chatInput} placeholder={`${curTypeHere}, ${messageSender}...`} onChange={(e) => setChatInput(e.target.value)}></textarea>          
+          <input
+            type="text"
+            name="honeypot"
+            value={honeyValue}
+            onChange={handleHoney}            
+            style={{ display: "none" }} // Hide from users
+            tabIndex="-1" // Avoid focus by keyboard users
+            autoComplete="off"
+          />
           <button type="submit" disabled={isDisabled} className="button send-button">{curSend}</button>
         </form>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
