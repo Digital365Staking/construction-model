@@ -195,3 +195,33 @@ textarea:disabled {
   }
 }
 
+.clipboard-icon {
+  float: right;
+  top: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.clipboard-icon:hover {
+  background: #f0f0f0;
+}
+
+.copied-message {
+  float: right;
+  margin-right: 15px;
+  color: green;
+  font-size: 14px;
+  margin-top: 5px;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.copied-message.visible {
+  opacity: 1;
+}

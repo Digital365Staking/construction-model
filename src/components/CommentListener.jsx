@@ -29,7 +29,14 @@ const CommentListener = () => {
   const [honeyValue, setHoneyValue] = useState('--');
   const [chatInput, setChatInput] = useState('');
   const [displayHeader, setDisplayHeader] = useState('none');
+  const [copied, setCopied] = useState(false);
   const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }).catch(err => console.error("Failed to copy:", err));
+  };
   const [displayBudget, setDisplayBudget] = useState(
     {
       display: (import.meta.env.VITE_OPT_BUDGET === "1" ? "block" : "none")
@@ -45,7 +52,7 @@ const CommentListener = () => {
       display: (import.meta.env.VITE_OPT_CITA === "1" ? "block" : "none")
     }
   );
-  
+  const labelCopied = selLang === 'es' ? 'Copiado !' : (selLang === 'en' ? 'Copied !' : 'Copié !'); 
   const curMe = selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
   const [categ, setCateg] = useState(1);
   const [messageSender, setMessageSender] = useState(curMe);
@@ -590,7 +597,15 @@ const CommentListener = () => {
             <div
               key={index}
               className={`message ${message.sender === curMe ? 'blue-bg' : 'gray-bg'}`}>
-              <div className="message-sender">{message.sender}</div>               
+              <div className="message-sender">{message.sender}
+              <button 
+        onClick={() => copyToClipboard(message.text)} 
+        className="clipboard-icon"
+      >
+        📋
+      </button>
+      <span className={`copied-message ${copied ? "visible" : ""}`}>{labelCopied}</span>
+              </div>               
               <div className="message-text">
                 {message.lines && message.lines.length > 0
                   ? message.lines.map((line, lineIndex) => (
@@ -601,7 +616,7 @@ const CommentListener = () => {
                     ))
                   : message.text}
                   <br/><a style={{ color: 'white' }} href={message.lnkWhatsapp}>{message.whatsapp}</a>
-              </div>            
+              </div>      
               <div className="message-timestamp">{message.timestamp}</div>
             </div>
           ))}
