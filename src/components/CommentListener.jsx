@@ -509,15 +509,8 @@ const CommentListener = () => {
         }
       ); 
     }     
-    const newMsg = {
-      sender: curAI,
-      text: msg,
-      lines: [],
-      whatsapp:wap,
-      lnkWhatsapp:lnkWAP,
-      timestamp,
-    };
     if(typeChat === 3){
+      msg = selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
       if(import.meta.env.VITE_OPT_BUDGET === "1"){
         setDisplayBudget(
           {
@@ -534,8 +527,16 @@ const CommentListener = () => {
         {
           display: "none"
         }
-      ); 
+      );
     }
+    const newMsg = {
+      sender: curAI,
+      text: msg,
+      lines: [],
+      whatsapp:wap,
+      lnkWhatsapp:lnkWAP,
+      timestamp,
+    };
     setMessages((prevMessages) => [...prevMessages, newMsg]);
     setMessageSender(curMe);
   };
@@ -545,21 +546,7 @@ const CommentListener = () => {
   };
 
   return (
-    <div className="app-container">
-      <div className="person-selector">
-        <button
-          className={`button person-selector-button ${messageSender === curMe ? 'active-person' : ''}`}
-          onClick={() => handleSenderChange(curMe)}
-        >
-          John
-        </button>
-        <button
-          className={`button person-selector-button ${messageSender === curAI ? 'active-person' : ''}`}
-          onClick={() => handleSenderChange('Jane')}
-        >
-          Jane
-        </button>
-      </div>
+    <div className="app-container">      
 
       <div className="chat-container">        
         <div className="chat-header typing-indicator" style={{ display: displayHeader }}>
@@ -596,6 +583,23 @@ const CommentListener = () => {
               <div className="message-timestamp">{message.timestamp}</div>
             </div>
           ))}
+          <div class="cita-container">
+            <button className="cita-button button send-button" onClick={() => handleChat(3)}>
+                14/02/2025
+              </button>
+              <button className="cita-button button send-button" onClick={() => handleChat(3)}>
+                14/02/2025
+              </button>
+              <button className="cita-button button send-button" onClick={() => handleChat(3)}>
+                14/02/2025
+              </button>
+              <button className="cita-button button send-button" onClick={() => handleChat(3)}>
+                14/02/2025
+              </button>
+              <button className="cita-button button send-button" onClick={() => handleChat(3)}>
+                14/02/2025
+              </button>
+            </div>
         </div>
 
         <form className="chat-input-form" onSubmit={handleSendMessage}>
