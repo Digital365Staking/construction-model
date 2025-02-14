@@ -26,7 +26,7 @@ const CommentListener = () => {
   
   const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('messages')) || []);
   const isDisabled = messages.length === 0;
-  const [honeyValue, setHoneyValue] = useState('--');
+  const [honeyValue, setHoneyValue] = useState('5fbc1b7a-c556-420d-83e6-c5b6ffe0cbb9');
   const [chatInput, setChatInput] = useState('');
   const [displayHeader, setDisplayHeader] = useState('none');
   const [copied, setCopied] = useState(false);
@@ -300,7 +300,8 @@ const CommentListener = () => {
     }
   }
 
-  const contentRef = useRef(null);
+  const lstMsgRef = useRef(null);
+  const honeyRef = useRef(null);
 
   const [textArray, setTextArray] = useState([]);
 
@@ -367,8 +368,8 @@ const CommentListener = () => {
 
   // Scroll to the bottom whenever messages are updated
   useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.scrollTop = contentRef.current.scrollHeight;
+    if (lstMsgRef.current) {
+      lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight;
     }
   }, [messages]); // This effect runs when the messages array changes
 
@@ -377,10 +378,16 @@ const CommentListener = () => {
   };
 
   const handleSendMessage = async (e) => {
-    e.preventDefault();    
-    if (honeyValue !== "--"){
+    e.preventDefault();  
+      
+    if (honeyValue !== "5fbc1b7a-c556-420d-83e6-c5b6ffe0cbb9"){
       console.warn("Bot detected! Submission blocked.");
       return;
+    }else{
+      if (honeyRef.current) {
+        //console.log();
+        //lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight;
+      }
     }
     if (chatInput.trim() === '') return;
     const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
@@ -555,7 +562,7 @@ const CommentListener = () => {
           <span className="dot"></span>
           <span className="dot"></span>
         </div>
-        <div ref={contentRef} className="chat-messages">
+        <div ref={lstMsgRef} className="chat-messages">
           {messages.map((message, index) => (            
             <div
               key={index}
@@ -607,7 +614,8 @@ const CommentListener = () => {
           <input
             type="text"
             name="honeypot"
-            value={honeyValue}
+            value={chatInput}
+            ref={honeyRef}
             onChange={handleHoney}            
             style={{ display: "none" }} // Hide from users
             tabIndex="-1" // Avoid focus by keyboard users
