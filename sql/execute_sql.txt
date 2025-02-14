@@ -28,11 +28,23 @@ RETURNS TABLE (TITLE TEXT) AS $$
 BEGIN
     RETURN QUERY
      SELECT  
-      CASE 
-        WHEN "construction_csv_1_en"."Category" = 'Servicio' THEN 'Servicio:' || "construction_csv_1_en"."Task/Equipment" || ',' || "construction_csv_1_en"."Estimated Price" ||'€'
-        ELSE "construction_csv_1_en"."Task/Equipment" || ',' || "construction_csv_1_en"."Estimated Price" ||'€'
+      WHEN "construction_csv_1_en"."Category" = 'Service' THEN 'Service:' || "construction_csv_1_en"."Task/Equipment" || ',' || "construction_csv_1_en"."Estimated Price" ||'GBP'
+        ELSE "construction_csv_1_en"."Task/Equipment" || ',' || "construction_csv_1_en"."Estimated Price" ||'GBP'
       END AS TITLE
       FROM "construction_csv_1_en"
+      LIMIT 5000;
+END;
+$$ LANGUAGE plpgsql;
+CREATE OR REPLACE FUNCTION get_construction_data_1_fr()
+RETURNS TABLE (TITLE TEXT) AS $$
+BEGIN
+    RETURN QUERY
+     SELECT  
+      CASE 
+        WHEN "construction_csv_1_fr"."Catégorie" = 'Service' THEN 'Service:' || "construction_csv_1_fr"."Tâche/Équipement" || ',' || "construction_csv_1_fr"."Prix Estimé" ||'€'
+        ELSE "construction_csv_1_fr"."Tâche/Équipement" || ',' || "construction_csv_1_fr"."Prix Estimé" ||'€'
+      END AS TITLE
+      FROM "construction_csv_1_fr"
       LIMIT 5000;
 END;
 $$ LANGUAGE plpgsql;
