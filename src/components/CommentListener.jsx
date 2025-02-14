@@ -24,9 +24,10 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const CommentListener = () => {
   
+  const [userInteracted, setUserInteracted] = useState(false);
   const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('messages')) || []);
   const isDisabled = messages.length === 0;
-  const [honeyValue, setHoneyValue] = useState('5fbc1b7a-c556-420d-83e6-c5b6ffe0cbb9');
+  const [usrValue, setUsrValue] = useState(import.meta.env.VITE_HUGGING_KEY);
   const [chatInput, setChatInput] = useState('');
   const [displayHeader, setDisplayHeader] = useState('none');
   const [copied, setCopied] = useState(false);
@@ -37,6 +38,11 @@ const CommentListener = () => {
       setTimeout(() => setCopied(false), 1500);
     }).catch(err => console.error("Failed to copy:", err));
   };
+
+  const handleFocus = () => {
+    setUserInteracted(true);
+  };
+
   const [displayBudget, setDisplayBudget] = useState(
     {
       display: (import.meta.env.VITE_OPT_BUDGET === "1" ? "block" : "none")
@@ -301,7 +307,6 @@ const CommentListener = () => {
   }
 
   const lstMsgRef = useRef(null);
-  const honeyRef = useRef(null);
 
   const [textArray, setTextArray] = useState([]);
 
@@ -377,18 +382,28 @@ const CommentListener = () => {
     setMessageSender(name);
   };
 
+  const startTime = Date.now();
+
   const handleSendMessage = async (e) => {
     e.preventDefault();  
       
-    if (honeyValue !== "5fbc1b7a-c556-420d-83e6-c5b6ffe0cbb9"){
+    if (usrValue !== import.meta.env.VITE_HUGGING_KEY){
       console.warn("Bot detected! Submission blocked.");
       return;
     }else{
-      if (honeyRef.current) {
-        //console.log();
-        //lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight;
+      const timeTaken = Date.now() - startTime;
+      console.log("Diff : " + timeTaken);
+      if (timeTaken < 2000) {
+        console.log("Bot detected: Too fast!");
+        return;
+      }else{
+        if (!userInteracted) {
+          console.log("Bot detected: No prior interaction!");
+          return;
+        }
       }
     }
+    
     if (chatInput.trim() === '') return;
     const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
     const timestamp = new Date().toLocaleString(curFormat, {
@@ -548,8 +563,8 @@ const CommentListener = () => {
     setMessageSender(curMe);
   };
 
-  const handleHoney = (e) => {
-    setHoneyValue(e.target.value);
+  const handleUsr = (e) => {
+    setUsrValue(e.target.value);
   };
 
   return (
@@ -610,13 +625,13 @@ const CommentListener = () => {
         </div>
 
         <form className="chat-input-form" onSubmit={handleSendMessage}>
-          <textarea id="message" name="message" rows="5" cols="50" disabled={isDisabled} className="chat-input" value={chatInput} placeholder={`${curTypeHere}, ${messageSender}...`} onChange={(e) => setChatInput(e.target.value)}></textarea>          
+          <textarea id="message" name="message" rows="5" cols="50" disabled={isDisabled} className="chat-input" value={chatInput} placeholder={`${curTypeHere}, ${messageSender}...`} onFocus={handleFocus} onChange={(e) => setChatInput(e.target.value)}></textarea>          
           <input
             type="text"
-            name="honeypot"
-            value={chatInput}
-            ref={honeyRef}
-            onChange={handleHoney}            
+            name="usr"
+            value=""
+            onChange={handleUsr}     
+            onFocus={handleFocus}        
             style={{ display: "none" }} // Hide from users
             tabIndex="-1" // Avoid focus by keyboard users
             autoComplete="off"
