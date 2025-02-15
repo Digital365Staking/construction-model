@@ -9,6 +9,8 @@ SELECT * FROM pg_proc WHERE proname = 'execute_sql';
 
 GRANT EXECUTE ON FUNCTION execute_sql(TEXT) TO postgres, anon, authenticated;
 
+select * from get_available_cita(1,'2025-02-15','0900','1330','1700','2000')
+
 DROP FUNCTION get_construction_data_es;
 CREATE OR REPLACE FUNCTION get_construction_data_1_es()
 RETURNS TABLE (TITLE TEXT) AS $$

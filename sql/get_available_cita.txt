@@ -1,0 +1,81 @@
+
+
+DROP FUNCTION get_available_cita;
+CREATE OR REPLACE FUNCTION get_available_cita(id_cli int, start_dat text, start_slot_am text, end_slot_am text, start_slot_pm text, end_slot_pm text)
+RETURNS TABLE (hour_slot TEXT, minute_slot TEXT) AS $$
+BEGIN
+    RETURN QUERY
+
+WITH RECURSIVE AllPossibleSlots AS (
+    -- Generate all possible 15-minute slots for the selected date
+    SELECT 
+        CAST(start_dat AS TIMESTAMP) AS possible_slot
+    FROM "CITA" a
+    WHERE a.id_client = id_cli AND DATE(a.start_date) = DATE(start_dat)
+    
+    UNION ALL
+    
+    -- Add 15 minutes to each previous slot
+    SELECT 
+        possible_slot + INTERVAL '15' MINUTE
+    FROM AllPossibleSlots
+    WHERE possible_slot + INTERVAL '15' MINUTE <= (CAST(start_dat AS TIMESTAMP) + INTERVAL '1' DAY)
+),
+
+AppointmentSlots AS ( 
+    -- Extract necessary appointment details and join with service duration
+    SELECT 
+        a.id_service,
+        DATE(a.start_date) AS appointment_date,
+        EXTRACT(HOUR FROM a.start_date) AS hour_slot,
+        EXTRACT(MINUTE FROM a.start_date) AS minute_slot,
+        s.duration,
+        a.start_date
+    FROM "CITA" a 
+    JOIN "SERVICE" s ON a.id_service = s.id
+    WHERE a.id_client = id_cli AND DATE(a.start_date) = DATE(start_dat)
+),
+
+ExpandedSlots AS (
+    -- Manually generate the occupied time slots before and during the appointment
+    SELECT 
+        appointment_date,
+        a.start_date - INTERVAL '30' MINUTE + (seq.seq - 1) * INTERVAL '15' MINUTE AS occupied_slot
+    FROM AppointmentSlots a
+    CROSS JOIN (SELECT 1 AS seq UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5) seq
+),
+
+GroupedSlots AS (
+    -- Group by time slot and count appointments
+    SELECT 
+        DATE(occupied_slot) AS appointment_date,
+        EXTRACT(HOUR FROM occupied_slot) AS hour_slot,
+        TO_CHAR(occupied_slot, 'MI') AS minute_slot
+    FROM ExpandedSlots
+    GROUP BY DATE(occupied_slot), EXTRACT(HOUR FROM occupied_slot), TO_CHAR(occupied_slot, 'MI')
+    HAVING COUNT(*) >= 2 -- Only count slots that are fully booked
+),
+
+FreeSlots AS (
+    -- Exclude the fully booked slots from all possible slots
+    SELECT
+        DATE(possible_slot) AS appointment_date,
+        CAST(EXTRACT(HOUR FROM possible_slot) AS text) AS hour_slot,
+        TO_CHAR(possible_slot, 'MI') AS minute_slot  
+    FROM AllPossibleSlots
+    WHERE possible_slot NOT IN (
+        SELECT occupied_slot
+        FROM ExpandedSlots
+    )
+),
+
+Final AS (SELECT f.hour_slot, f.minute_slot
+FROM FreeSlots f
+WHERE LPAD(CAST(f.hour_slot AS TEXT), 2, '0') || LPAD(CAST(f.minute_slot AS TEXT), 2, '0') BETWEEN start_slot_am AND end_slot_am or
+LPAD(CAST(f.hour_slot AS TEXT), 2, '0') || LPAD(CAST(f.minute_slot AS TEXT), 2, '0') BETWEEN start_slot_pm AND end_slot_pm
+ORDER BY appointment_date, f.hour_slot, f.minute_slot)
+
+SELECT DISTINCT fi.hour_slot,fi.minute_slot FROM Final fi;
+
+END;
+$$ LANGUAGE plpgsql;
