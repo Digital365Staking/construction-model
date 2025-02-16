@@ -16,6 +16,7 @@ const perplexity = createPerplexity({
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
 // Initialize ENV Variables
+const public_holidays = import.meta.env.VITE_PUBLIC_HOLIDAYS_2025;
 const chatgpt_api_url = import.meta.env.VITE_CHATGPT_URL;
 const chatgpt_api_key = import.meta.env.VITE_CHATGPT_KEY;
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -26,6 +27,10 @@ const CommentListener = () => {
   
   const [userInteracted, setUserInteracted] = useState(false);
   const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('messages')) || []);
+  const [linesDay, setLinesDay] = useState(() => {
+    const savedLinesDay = localStorage.getItem('linesDay');
+    return savedLinesDay ? JSON.parse(savedLinesDay) : [[]];
+  });
   const isDisabled = messages.length === 0;
   const [usrValue, setUsrValue] = useState(import.meta.env.VITE_HUGGING_KEY);
   const [chatInput, setChatInput] = useState('');
@@ -38,6 +43,60 @@ const CommentListener = () => {
       setTimeout(() => setCopied(false), 1500);
     }).catch(err => console.error("Failed to copy:", err));
   };
+
+  const getWorkingDays = (startDate, endDate, publicHolidays, totalDays) => {
+    let workingDays = [];
+    let currentDate = new Date(startDate);
+    let d = 0;
+    let dayGroup = [];
+  
+    // Collect all valid working days
+    while (currentDate <= endDate) {
+      let dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      let formattedDate = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+  
+      if (dayOfWeek !== 0 && !publicHolidays.includes(formattedDate)) {
+        workingDays.push(formattedDate); // Add valid working day to the array
+      }
+      
+      d++;
+      if (d === totalDays) break;
+      
+      currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+    }
+  
+    // Sort working days in ascending order
+    workingDays.sort((a, b) => new Date(a) - new Date(b));
+  
+    // Group working days into arrays (example: 5 working days per group)
+    let groupedWorkingDays = [];
+    for (let i = 0; i < workingDays.length; i += 5) {
+      groupedWorkingDays.push(workingDays.slice(i, i + 5));
+    }
+  
+    return groupedWorkingDays;
+  };
+  
+
+  /*const getWorkingDays = (startDate, endDate, publicHolidays, totalDays) => {
+    let workingDays = [];
+    let currentDate = new Date(startDate);
+    let d = 0;
+    while (currentDate <= endDate) {
+      let dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      let formattedDate = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+  
+      if (dayOfWeek !== 0 && !publicHolidays.includes(formattedDate)) {
+        workingDays.push(formattedDate);
+      }
+      d++;
+      if(d === totalDays)
+        break;
+      currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+    }
+  
+    return workingDays;
+  };*/
 
   const handleFocus = () => {
     setUserInteracted(true);
@@ -550,6 +609,12 @@ const CommentListener = () => {
           display: "none"
         }
       );
+  
+      const startDate = formatDate(new Date());
+      const endDate = new Date(new Date().getFullYear() + "-12-31");
+  
+      let array = getWorkingDays(startDate, endDate, public_holidays, 30);
+      setLinesDay(array);
     }
     const newMsg = {
       sender: curAI,
@@ -561,6 +626,14 @@ const CommentListener = () => {
     };
     setMessages((prevMessages) => [...prevMessages, newMsg]);
     setMessageSender(curMe);
+  };
+
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
+    const day = date.getDate().toString().padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
   };
 
   const handleUsr = (e) => {
@@ -606,21 +679,21 @@ const CommentListener = () => {
             </div>
           ))}
           <div class="cita-container">
-            <button className="cita-button button send-button" onClick={() => handleChat(3)}>
-                14/02/2025
-              </button>
-              <button className="cita-button button send-button" onClick={() => handleChat(3)}>
-                14/02/2025
-              </button>
-              <button className="cita-button button send-button" onClick={() => handleChat(3)}>
-                14/02/2025
-              </button>
-              <button className="cita-button button send-button" onClick={() => handleChat(3)}>
-                14/02/2025
-              </button>
-              <button className="cita-button button send-button" onClick={() => handleChat(3)}>
-                14/02/2025
-              </button>
+          {linesDay.map((lin, idxLin) => (
+              <div key={idxLin} className="button-line">  
+                {lin.map((col, idxCol) => (
+                  <button
+                    key={idxCol}  
+                    className="cita-button button send-button"
+                    onClick={() => handleChat(3)}
+                  >
+                    {col} 
+                  </button>
+                ))}
+                <br/>
+              </div>
+            ))}
+            
             </div>
         </div>
 
