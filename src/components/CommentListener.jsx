@@ -47,7 +47,7 @@ const CommentListener = () => {
 
   useEffect(() => {
     const fetchServices = async () => {
-      const { data, error } = await supabase.from("SERVICE").select("en");
+      const { data, error } = await supabase.from("SERVICE").select("id,en");
       
       if (error) {
         console.error("Error fetching data:", error);
@@ -58,11 +58,11 @@ const CommentListener = () => {
     fetchServices();
   }, []);
 
-  const getWorkingDays = (startDate, endDate, publicHolidays, totalDays) => {
+  const getWorkingDays = (startDate, endDate, publicHolidays, totalDays, idxService) => {
     let workingDays = [];
     let currentDate = new Date(startDate);
     let d = 0;
-    let dayGroup = [];
+    //let dayGroup = [];
   
     // Collect all valid working days
     while (currentDate <= endDate) {
@@ -70,7 +70,7 @@ const CommentListener = () => {
       let formattedDate = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
   
       if (dayOfWeek !== 0 && !publicHolidays.includes(formattedDate)) {
-        workingDays.push(formattedDate); // Add valid working day to the array
+        workingDays.push(idxService + "-" + formattedDate); // Add valid working day to the array
       }
       
       d++;
@@ -85,7 +85,7 @@ const CommentListener = () => {
     // Group working days into arrays (example: 5 working days per group)
     let groupedWorkingDays = [];
     for (let i = 0; i < workingDays.length; i += 5) {
-      groupedWorkingDays.push(workingDays.slice(i, i + 5));
+      groupedWorkingDays.push(idxService + "-" + workingDays.slice(i, i + 5));
     }
   
     return groupedWorkingDays;
@@ -544,6 +544,16 @@ const CommentListener = () => {
     );  
   };
 
+  const manageCita = (e) => {
+    console.log(e.target.value);
+    const startDate = formatDate(new Date());
+    const endDate = new Date("2099-12-31");
+  
+    let array = getWorkingDays(startDate, endDate, public_holidays, 29, e.target.value);
+    console.log(array[1].length);
+    setLinesDay(array);
+  };
+
   const manageServiceCita = (e) => {
 
   };
@@ -637,13 +647,8 @@ const CommentListener = () => {
       );
       const array = [[]];
       array.push([]);
-      services.map(item => array[0].push(item.en));
+      services.map(item => array[0].push(item.id + "-" + item.en));
       
-      //.push(services);
-      /*const startDate = formatDate(new Date());
-      const endDate = new Date(new Date().getFullYear() + "-12-31");
-  
-      let array = getWorkingDays(startDate, endDate, public_holidays, 29);*/
       setLinesDay(array);
     }
     const newMsg = {
@@ -714,9 +719,9 @@ const CommentListener = () => {
                   <button
                     key={idxCol}  
                     className="cita-button button send-button"
-                    onClick={() => handleChat(3)}
+                    onClick={(e) => manageCita(e)} value={col.split("-")[0]}
                   >
-                    {col} 
+                    {col.split("-").length > 1 ? col.split("-")[1] : col} 
                   </button>
                 ))}
                 <br/>
