@@ -58,7 +58,7 @@ const CommentListener = () => {
     fetchServices();
   }, []);
 
-  const getWorkingDays = (startDate, endDate, publicHolidays, totalDays, idxService) => {
+  const getWorkingDays = (startDate, endDate, publicHolidays, totalDays) => {
     let workingDays = [];
     let currentDate = new Date(startDate);
     let d = 0;
@@ -85,7 +85,7 @@ const CommentListener = () => {
     // Group working days into arrays (example: 5 working days per group)
     let groupedWorkingDays = [];
     for (let i = 0; i < workingDays.length; i += 5) {
-      groupedWorkingDays.push(idxService + "-" + workingDays.slice(i, i + 5));
+      groupedWorkingDays.push(workingDays.slice(i, i + 5));
     }
   
     return groupedWorkingDays;
@@ -131,9 +131,11 @@ const CommentListener = () => {
       display: (import.meta.env.VITE_OPT_CITA === "1" ? "block" : "none")
     }
   );
-  const labelCopied = selLang === 'es' ? 'Copiado !' : (selLang === 'en' ? 'Copied !' : 'Copié !'); 
+  const labelCopied = selLang === 'es' ? 'Copiado !' : (selLang === 'en' ? 'Copied !' : 'Copié !');
+  const codeLang = selLang === 'es-ES' ? 'es' : (selLang === 'en' ? 'en-US' : 'fr-FR'); 
   const curMe = selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
   const [categ, setCateg] = useState(1);
+  const [idService, setIdService] = useState(0);
   const [messageSender, setMessageSender] = useState(curMe);
   const curAI = selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
   const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
@@ -546,12 +548,10 @@ const CommentListener = () => {
 
   const manageCita = (e) => {
     console.log(e.target.value);
+    setIdService(Number(e.target.value));
     const startDate = formatDate(new Date());
-    const endDate = formatDate(new Date("2099-12-31"));
-    console.log(startDate);
-    console.log(endDate);
-    let array = getWorkingDays(startDate, endDate, public_holidays, 29, e.target.value);
-    console.log(array.length);
+    const endDate = new Date("2099-12-31");
+    let array = getWorkingDays(startDate, endDate, public_holidays, 29);
     setLinesDay(array);
   };
 
@@ -720,9 +720,9 @@ const CommentListener = () => {
                   <button
                     key={idxCol}  
                     className="cita-button button send-button"
-                    onClick={(e) => manageCita(e)} value={col.split("-")[0]}
+                    onClick={(e) => manageCita(e)} value={col.split("-").length > 2 ? col.split("-")[0] + "-" + col.split("-")[1] + "-" + col.split("-")[2] : col.split("-")[0] }
                   >
-                    {col.split("-").length > 1 ? col.split("-")[1] : col} 
+                    {col.split("-").length > 2 ? new Date(col).toLocaleDateString(codeLang, { weekday: "short", day: "2-digit", month: "2-digit" }) : col.split("-")[1] } 
                   </button>
                 ))}
                 <br/>
