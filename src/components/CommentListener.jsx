@@ -26,6 +26,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 const CommentListener = () => {
   
   const [userInteracted, setUserInteracted] = useState(false);
+  const [services, setServices] = useState([]);
   const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('messages')) || []);
   const [linesDay, setLinesDay] = useState(() => {
     const savedLinesDay = localStorage.getItem('linesDay');
@@ -43,6 +44,19 @@ const CommentListener = () => {
       setTimeout(() => setCopied(false), 1500);
     }).catch(err => console.error("Failed to copy:", err));
   };
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      const { data, error } = await supabase.from("SERVICE").select("en");
+      
+      if (error) {
+        console.error("Error fetching data:", error);
+      } else {
+        setServices(data);
+      }
+    };
+    fetchServices();
+  }, []);
 
   const getWorkingDays = (startDate, endDate, publicHolidays, totalDays) => {
     let workingDays = [];
@@ -530,6 +544,18 @@ const CommentListener = () => {
     );  
   };
 
+  const manageServiceCita = (e) => {
+
+  };
+
+  const manageHourCita = (e) => {
+
+  };
+
+  const manageDateCita = (e) => {
+
+  };
+
   const handleChat = (typeChat) => {
     
     setCateg(typeChat);
@@ -609,11 +635,15 @@ const CommentListener = () => {
           display: "none"
         }
       );
-  
-      const startDate = formatDate(new Date());
+      const array = [[]];
+      array.push([]);
+      services.map(item => array[0].push(item.en));
+      
+      //.push(services);
+      /*const startDate = formatDate(new Date());
       const endDate = new Date(new Date().getFullYear() + "-12-31");
   
-      let array = getWorkingDays(startDate, endDate, public_holidays, 30);
+      let array = getWorkingDays(startDate, endDate, public_holidays, 29);*/
       setLinesDay(array);
     }
     const newMsg = {
@@ -668,8 +698,7 @@ const CommentListener = () => {
                 {message.lines && message.lines.length > 0
                   ? message.lines.map((line, lineIndex) => (
                       <span key={lineIndex}>
-                        {line}
-                        <br />
+                        {line}                        
                       </span>
                     ))
                   : message.text}
