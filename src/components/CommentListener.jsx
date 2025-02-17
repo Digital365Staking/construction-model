@@ -70,7 +70,7 @@ const CommentListener = () => {
       let formattedDate = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
   
       if (dayOfWeek !== 0 && !publicHolidays.includes(formattedDate)) {
-        workingDays.push(idxService + "-" + formattedDate); // Add valid working day to the array
+        workingDays.push(formattedDate); // Add valid working day to the array
       }
       
       d++;
@@ -547,10 +547,11 @@ const CommentListener = () => {
   const manageCita = (e) => {
     console.log(e.target.value);
     const startDate = formatDate(new Date());
-    const endDate = new Date("2099-12-31");
-  
+    const endDate = formatDate(new Date("2099-12-31"));
+    console.log(startDate);
+    console.log(endDate);
     let array = getWorkingDays(startDate, endDate, public_holidays, 29, e.target.value);
-    console.log(array[1].length);
+    console.log(array.length);
     setLinesDay(array);
   };
 
