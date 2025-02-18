@@ -16,7 +16,8 @@ const perplexity = createPerplexity({
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
 // Initialize ENV Variables
-const public_holidays = import.meta.env.VITE_PUBLIC_HOLIDAYS_2025;
+const year = new Date().getFullYear();
+const public_holidays = `import.meta.env.VITE_PUBLIC_HOLIDAYS_${year}`;
 const chatgpt_api_url = import.meta.env.VITE_CHATGPT_URL;
 const chatgpt_api_key = import.meta.env.VITE_CHATGPT_KEY;
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -35,6 +36,7 @@ const CommentListener = () => {
   const isDisabled = messages.length === 0;
   const [usrValue, setUsrValue] = useState(import.meta.env.VITE_HUGGING_KEY);
   const [chatInput, setChatInput] = useState('');
+  const [stepCita, setStepCita] = useState(0);
   const [displayHeader, setDisplayHeader] = useState('none');
   const [copied, setCopied] = useState(false);
   const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
@@ -47,7 +49,7 @@ const CommentListener = () => {
 
   useEffect(() => {
     const fetchServices = async () => {
-      const { data, error } = await supabase.from("SERVICE").select("id,en");
+      const { data, error } = await supabase.from("SERVICE").select("id,en").eq("cat", Number(import.meta.env.VITE_CATEG_CITA));
       
       if (error) {
         console.error("Error fetching data:", error);
@@ -215,7 +217,7 @@ const CommentListener = () => {
       if(type_ai === "4"){
           const max = Number(import.meta.env.VITE_MAX_TOKENS_PERPLEXITY);
           const result = await generateText({
-            model: perplexity('llama-3.1-sonar-small-128k-online'),
+            model: perplexity(import.meta.env.VITE_MODEL_PERPLEXITY),
             prompt: prompt,
             max_tokens:max
           });
@@ -453,9 +455,9 @@ const CommentListener = () => {
     }
   }, [messages]); // This effect runs when the messages array changes
 
-  const handleSenderChange = (name) => {
+  /*const handleSenderChange = (name) => {
     setMessageSender(name);
-  };
+  };*/
 
   const startTime = Date.now();
 
@@ -546,13 +548,50 @@ const CommentListener = () => {
     );  
   };
 
-  const manageCita = (e) => {
-    console.log(e.target.value);
-    setIdService(Number(e.target.value));
-    const startDate = formatDate(new Date());
-    const endDate = new Date("2099-12-31");
-    let array = getWorkingDays(startDate, endDate, public_holidays, 29);
-    setLinesDay(array);
+  const manageCita = async (e) => {
+    switch (stepCita) {
+      case 0:
+        console.log(e.target.value);
+        setIdService(Number(e.target.value));
+        const startDate = formatDate(new Date());
+        const endDate = new Date("2099-12-31");
+        console.log(public_holidays);
+        let array = getWorkingDays(startDate, endDate, public_holidays, 29);
+        setLinesDay(array);
+        break;
+      case 1:
+        console.log(e.target.value);
+        const { data, error } = await supabase.rpc('get_available_cita', 
+          {id_cli: Number(import.meta.env.VITE_ID_CLIENT), 
+            start_date: e.target.value, 
+            start_slot_am: import.meta.env.VITE_START_SLOT_AM,
+            end_slot_am: import.meta.env.VITE_END_SLOT_AM,
+            start_slot_pm: import.meta.env.VITE_START_SLOT_PM,
+            end_slot_pm: import.meta.env.VITE_END_SLOT_PM
+           });
+        if (error) {
+          throw new Error(`Supabase RPC Error: ${error.message}`);
+        } 
+        const arr = [[]];
+        arr.push([]);
+        data.map(item => array[0].push(item.hour_slot + ":" + item.minute_slot));       
+        /*console.log(data.length + "-" + procedureName);
+        let csv = Papa.unparse(data, {
+          header: false,
+          newline: '\r\n',
+          quotes: false, // Disable quoting of fields            
+        }); 
+        csv = csv.replace(/"/g, '');*/
+        setLinesDay(arr);
+        break;
+      case 2:
+        // Code to execute if expression === value3
+        break;
+      default:
+        // Code to execute if none of the cases match
+    }
+    setStepCita(stepCita+1);
+    
   };
 
   const manageServiceCita = (e) => {
