@@ -29,6 +29,7 @@ const CommentListener = () => {
   
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
+  const [availability, setAvailability] = useState([]);
   const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('messages')) || []);
   const [linesDay, setLinesDay] = useState(() => {
     const savedLinesDay = localStorage.getItem('linesDay');
@@ -49,6 +50,18 @@ const CommentListener = () => {
   };
 
   useEffect(() => {
+    const fetchAvailability = async () => {
+      const { data, error } = await supabase.from('AVAILABILITY').select('cur_date,slot').eq('id_client',Number(import.meta.env.VITE_ID_CLIENT));
+      if (error) {
+        console.error('Error fetching availability:', error);
+      } else {
+        setAvailability(data);
+      }   
+    };
+    fetchAvailability();
+  }, []);
+
+  useEffect(() => {
     const fetchServices = async () => {
       const { data, error } = await supabase.from("SERVICE").select("id,en").eq("cat", Number(import.meta.env.VITE_CATEG_CITA));
       
@@ -57,21 +70,7 @@ const CommentListener = () => {
       } else {
         setServices(data);
       }
-      const { data2, error2 } = await supabase.rpc('get_available_cita', 
-        {
-          id_cli: 1, 
-          start_date: '2025-02-18',//e.target.value, 
-          start_slot_am: '09:00',//import.meta.env.VITE_START_SLOT_AM,
-          end_slot_am: '14:00',//import.meta.env.VITE_END_SLOT_AM,
-          start_slot_pm: '17:00',//import.meta.env.VITE_START_SLOT_PM
-          end_slot_pm: '20:00'//import.meta.env.VITE_END_SLOT_PM,
-         });
-         
-      if (error2) {
-        throw new Error(`Supabase RPC Error: ${error2.message}`);
-      }else{
-        console.log(data2);
-      } 
+            
     };
     fetchServices();
   }, []);
@@ -108,27 +107,6 @@ const CommentListener = () => {
   
     return groupedWorkingDays;
   };
-  
-
-  /*const getWorkingDays = (startDate, endDate, publicHolidays, totalDays) => {
-    let workingDays = [];
-    let currentDate = new Date(startDate);
-    let d = 0;
-    while (currentDate <= endDate) {
-      let dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-      let formattedDate = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
-  
-      if (dayOfWeek !== 0 && !publicHolidays.includes(formattedDate)) {
-        workingDays.push(formattedDate);
-      }
-      d++;
-      if(d === totalDays)
-        break;
-      currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
-    }
-  
-    return workingDays;
-  };*/
 
   const handleFocus = () => {
     setUserInteracted(true);
@@ -577,36 +555,28 @@ const CommentListener = () => {
         break;
       case 1:
         console.log(e.target.value);
-        console.log(supabaseUrl);
-        console.log(supabaseAnonKey);
         console.log("VITE_ID_CLIENT:", import.meta.env.VITE_ID_CLIENT);
         console.log("VITE_START_SLOT_AM:", import.meta.env.VITE_START_SLOT_AM);
         console.log("VITE_END_SLOT_AM:", import.meta.env.VITE_END_SLOT_AM);
         console.log("VITE_START_SLOT_PM:", import.meta.env.VITE_START_SLOT_PM);
         console.log("VITE_END_SLOT_PM:", import.meta.env.VITE_END_SLOT_PM);
-        
-        const { data, error } = await supabase.rpc('get_available_cita', 
-          {
-            id_cli: 1, 
-            start_date: '2025-02-18',//e.target.value, 
-            start_slot_am: '09:00',//import.meta.env.VITE_START_SLOT_AM,
-            end_slot_am: '14:00',//import.meta.env.VITE_END_SLOT_AM,
-            start_slot_pm: '17:00',//import.meta.env.VITE_START_SLOT_PM
-            end_slot_pm: '20:00'//import.meta.env.VITE_END_SLOT_PM,
-           });
-        if (error) {
-          throw new Error(`Supabase RPC Error: ${error.message}`);
-        } 
+        console.log(availability);
+                
         const arr = [[]];
         arr.push([]);
-        data.map(item => array[0].push(item.hour_slot + ":" + item.minute_slot));       
-        /*console.log(data.length + "-" + procedureName);
-        let csv = Papa.unparse(data, {
-          header: false,
-          newline: '\r\n',
-          quotes: false, // Disable quoting of fields            
-        }); 
-        csv = csv.replace(/"/g, '');*/
+        let c=0;
+        let line=-1;
+        availability.forEach(item => {
+            if (item.cur_date === e.target.value) {
+              if (c % 5 === 0) {
+                arr.push([]);
+                line++;
+              }
+              arr[line].push(item.slot);                
+            }
+            c++;
+        });
+
         setLinesDay(arr);
         break;
       case 2:
@@ -786,7 +756,7 @@ const CommentListener = () => {
                     className="cita-button button send-button"
                     onClick={(e) => manageCita(e)} value={col.split("-").length > 2 ? col.split("-")[0] + "-" + col.split("-")[1] + "-" + col.split("-")[2] : col.split("-")[0] }
                   >
-                    {col.split("-").length > 2 ? new Date(col).toLocaleDateString(codeLang, { weekday: "short", day: "2-digit", month: "2-digit" }) : col.split("-")[1] } 
+                    {col.split("-").length > 2 ? new Date(col).toLocaleDateString(codeLang, { weekday: "short", day: "2-digit", month: "2-digit" }) : (col.split("-").length > 1 ? col.split("-")[1] : col) } 
                   </button>
                 ))}
                 <br/>
