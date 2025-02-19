@@ -17,7 +17,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
 // Initialize ENV Variables
 const year = new Date().getFullYear();
-const public_holidays = `import.meta.env.VITE_PUBLIC_HOLIDAYS_${year}`;
+const envVarName = `VITE_PUBLIC_HOLIDAYS_${year}`;
+const public_holidays = import.meta.env[envVarName];
 const chatgpt_api_url = import.meta.env.VITE_CHATGPT_URL;
 const chatgpt_api_key = import.meta.env.VITE_CHATGPT_KEY;
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -56,6 +57,21 @@ const CommentListener = () => {
       } else {
         setServices(data);
       }
+      const { data2, error2 } = await supabase.rpc('get_available_cita', 
+        {
+          id_cli: 1, 
+          start_date: '2025-02-18',//e.target.value, 
+          start_slot_am: '09:00',//import.meta.env.VITE_START_SLOT_AM,
+          end_slot_am: '14:00',//import.meta.env.VITE_END_SLOT_AM,
+          start_slot_pm: '17:00',//import.meta.env.VITE_START_SLOT_PM
+          end_slot_pm: '20:00'//import.meta.env.VITE_END_SLOT_PM,
+         });
+         
+      if (error2) {
+        throw new Error(`Supabase RPC Error: ${error2.message}`);
+      }else{
+        console.log(data2);
+      } 
     };
     fetchServices();
   }, []);
@@ -561,13 +577,22 @@ const CommentListener = () => {
         break;
       case 1:
         console.log(e.target.value);
+        console.log(supabaseUrl);
+        console.log(supabaseAnonKey);
+        console.log("VITE_ID_CLIENT:", import.meta.env.VITE_ID_CLIENT);
+        console.log("VITE_START_SLOT_AM:", import.meta.env.VITE_START_SLOT_AM);
+        console.log("VITE_END_SLOT_AM:", import.meta.env.VITE_END_SLOT_AM);
+        console.log("VITE_START_SLOT_PM:", import.meta.env.VITE_START_SLOT_PM);
+        console.log("VITE_END_SLOT_PM:", import.meta.env.VITE_END_SLOT_PM);
+        
         const { data, error } = await supabase.rpc('get_available_cita', 
-          {id_cli: Number(import.meta.env.VITE_ID_CLIENT), 
-            start_date: e.target.value, 
-            start_slot_am: import.meta.env.VITE_START_SLOT_AM,
-            end_slot_am: import.meta.env.VITE_END_SLOT_AM,
-            start_slot_pm: import.meta.env.VITE_START_SLOT_PM,
-            end_slot_pm: import.meta.env.VITE_END_SLOT_PM
+          {
+            id_cli: 1, 
+            start_date: '2025-02-18',//e.target.value, 
+            start_slot_am: '09:00',//import.meta.env.VITE_START_SLOT_AM,
+            end_slot_am: '14:00',//import.meta.env.VITE_END_SLOT_AM,
+            start_slot_pm: '17:00',//import.meta.env.VITE_START_SLOT_PM
+            end_slot_pm: '20:00'//import.meta.env.VITE_END_SLOT_PM,
            });
         if (error) {
           throw new Error(`Supabase RPC Error: ${error.message}`);
