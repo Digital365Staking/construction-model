@@ -3,10 +3,10 @@ RETURNS TRIGGER AS $$
 DECLARE 
     id_cli INTEGER;
     start_dat DATE;
-    start_slot_am TEXT := '09:00';  -- Example value for start AM time
-    end_slot_am TEXT := '14:00';    -- Example value for end AM time
-    start_slot_pm TEXT := '17:00';  -- Example value for start PM time
-    end_slot_pm TEXT := '20:00';    -- Example value for end PM time
+    v_start_slot_am TEXT := '09:00';  -- Example value for start AM time
+    v_end_slot_am TEXT := '14:00';    -- Example value for end AM time
+    v_start_slot_pm TEXT := '17:00';  -- Example value for start PM time
+    v_end_slot_pm TEXT := '20:00';    -- Example value for end PM time
 BEGIN
     -- Determine values based on the trigger event (INSERT or DELETE)
     IF TG_OP = 'INSERT' THEN
@@ -16,8 +16,12 @@ BEGIN
         id_cli := OLD.id_client;
         start_dat := OLD.start_date;
     END IF;
-    
-     DELETE FROM "AVAILABILITY" WHERE id_client = id_cli AND cur_date::DATE = start_dat;
+    SELECT start_slot_am, end_slot_am, start_slot_pm, end_slot_pm 
+    INTO v_start_slot_am, v_end_slot_am, v_start_slot_pm, v_end_slot_pm  
+    FROM "CLIENT" 
+    WHERE id = id_cli;
+
+    DELETE FROM "AVAILABILITY" WHERE id_client = id_cli AND cur_date::DATE = start_dat;
     -- Insert available slots into "AVAILABILITY"
     INSERT INTO "AVAILABILITY" ("id_client", "cur_date", "slot")
     WITH RECURSIVE AllPossibleSlots AS (
@@ -51,9 +55,9 @@ BEGIN
         TO_CHAR(possible_slot, 'HH24:MI') AS slot  -- Corrected TO_CHAR usage
     FROM Final
     WHERE 
-        (possible_slot::TIME >= CAST(start_slot_am AS TIME) AND possible_slot::TIME < CAST(end_slot_am AS TIME))
+        (possible_slot::TIME >= CAST(v_start_slot_am AS TIME) AND possible_slot::TIME < CAST(v_end_slot_am AS TIME))
         OR 
-        (possible_slot::TIME >= CAST(start_slot_pm AS TIME) AND possible_slot::TIME < CAST(end_slot_pm AS TIME))
+        (possible_slot::TIME >= CAST(v_start_slot_pm AS TIME) AND possible_slot::TIME < CAST(v_end_slot_pm AS TIME))
     ORDER BY possible_slot;
 
 IF TG_OP = 'INSERT' THEN
