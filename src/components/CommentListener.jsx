@@ -63,7 +63,7 @@ const CommentListener = () => {
 
   useEffect(() => {
     const fetchServices = async () => {
-      const { data, error } = await supabase.from("SERVICE").select("id,en").eq("cat", Number(import.meta.env.VITE_CATEG_CITA));
+      const { data, error } = await supabase.from("SERVICE").select("id,en,es,fr").eq("cat", Number(import.meta.env.VITE_CATEG_CITA));
       
       if (error) {
         console.error("Error fetching data:", error);
@@ -128,10 +128,13 @@ const CommentListener = () => {
     }
   );
   const labelCopied = selLang === 'es' ? 'Copiado !' : (selLang === 'en' ? 'Copied !' : 'Copié !');
-  const codeLang = selLang === 'es-ES' ? 'es' : (selLang === 'en' ? 'en-US' : 'fr-FR'); 
+  const codeLang = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR'); 
   const curMe = selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
   const [categ, setCateg] = useState(1);
   const [idService, setIdService] = useState(0);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const [curDate, setCurDate] = useState(tomorrow);
   const [messageSender, setMessageSender] = useState(curMe);
   const curAI = selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
   const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
@@ -528,6 +531,8 @@ const CommentListener = () => {
   };
 
   const handleClearChat = () => {
+    setStepCita(0);
+    setIdService(0);
     localStorage.clear();
     setMessages([]);   
     setDisplayBudget(
@@ -539,7 +544,13 @@ const CommentListener = () => {
       {
         display: "block"
       }
+    ); 
+    setDisplayCita(
+      {
+        display: "block"
+      }
     );  
+    setLinesDay([[]]);
   };
 
   const manageCita = async (e) => {
@@ -547,7 +558,10 @@ const CommentListener = () => {
       case 0:
         console.log(e.target.value);
         setIdService(Number(e.target.value));
-        const startDate = formatDate(new Date());
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        console.log(tomorrow);
+        const startDate = tomorrow;
         const endDate = new Date("2099-12-31");
         console.log(public_holidays);
         let array = getWorkingDays(startDate, endDate, public_holidays, 29);
@@ -555,20 +569,21 @@ const CommentListener = () => {
         break;
       case 1:
         console.log(e.target.value);
+        setCurDate(new Date(e.target.value));
         console.log("VITE_ID_CLIENT:", import.meta.env.VITE_ID_CLIENT);
         console.log("VITE_START_SLOT_AM:", import.meta.env.VITE_START_SLOT_AM);
         console.log("VITE_END_SLOT_AM:", import.meta.env.VITE_END_SLOT_AM);
         console.log("VITE_START_SLOT_PM:", import.meta.env.VITE_START_SLOT_PM);
         console.log("VITE_END_SLOT_PM:", import.meta.env.VITE_END_SLOT_PM);
         console.log(availability);
-                
+        
         const arr = [[]];
         arr.push([]);
         let c=0;
         let line=-1;
         availability.forEach(item => {
             if (item.cur_date === e.target.value) {
-              if (c % 5 === 0) {
+              if (c % 4 === 0) {
                 arr.push([]);
                 line++;
               }
@@ -618,6 +633,8 @@ const CommentListener = () => {
     });
     let msg = "";
     if(typeChat === 1){
+      setStepCita(0);
+      setLinesDay([[]]);
       msg = selLang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (selLang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?');
       if(import.meta.env.VITE_OPT_BUDGET === "1"){
         setDisplayBudget(
@@ -640,6 +657,8 @@ const CommentListener = () => {
       ); 
     }
     if(typeChat === 2){
+      setStepCita(0);
+      setLinesDay([[]]);
       msg = selLang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (selLang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?");
       if(import.meta.env.VITE_OPT_BUDGET === "1"){
         setDisplayBudget(
@@ -680,10 +699,18 @@ const CommentListener = () => {
           display: "none"
         }
       );
+      console.log("serv nb : " + services.length);
       const array = [[]];
-      array.push([]);
-      services.map(item => array[0].push(item.id + "-" + item.en));
-      
+      let c=0;
+      let line=-1;
+      services.forEach(item => {
+        if (c % 4 === 0) {
+          array.push([]);
+          line++;           
+        }
+        array[line].push(item.id + "-" + item[selLang]);
+        c++;
+      });
       setLinesDay(array);
     }
     const newMsg = {
@@ -708,6 +735,68 @@ const CommentListener = () => {
 
   const handleUsr = (e) => {
     setUsrValue(e.target.value);
+  };
+
+  const handleChangeLang = (lang) => {
+    setSelLang(lang);
+    console.log("changeLang : " + stepCita);
+    if(idService === 0){
+      const array = [[]];
+      let c=0;
+      let line=-1;
+      services.forEach(item => {
+        if (c % 4 === 0) {
+          array.push([]);
+          line++;           
+        }
+        array[line].push(item.id + "-" + item[lang]);
+        c++;
+      });
+      setLinesDay(array);
+    }else{  
+      let etp = stepCita;
+      etp -= 1;
+      setStepCita(etp); 
+      console.log("changeLang2 : " + etp);  
+      switch (etp) {
+        case 0:
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          const startDate = tomorrow;
+          const endDate = new Date("2099-12-31");
+          console.log(public_holidays);
+          let array = getWorkingDays(startDate, endDate, public_holidays, 29);
+          setLinesDay(array);
+          break;
+        case 1:
+          console.log(availability);       
+          const arr = [[]];
+          arr.push([]);
+          let c=0;
+          let line=-1;
+          
+          availability.forEach(item => {
+              if (item.cur_date === formatDate(curDate)) {
+                if (c % 4 === 0) {
+                  arr.push([]);
+                  line++;
+                }
+                arr[line].push(item.slot);                
+              }
+              c++;
+          });
+  
+          setLinesDay(arr);
+          
+          break;
+        case 2:
+          // Code to execute if expression === value3
+          break;
+        default:
+          // Code to execute if none of the cases match
+      }
+    }
+    
   };
 
   return (
@@ -794,8 +883,8 @@ const CommentListener = () => {
               checked={selLang === "en"}
               style={{ display: "none" }}
             />
-            <label htmlFor="EN" className="label" onClick={() => setSelLang("en")}>
-              <span className={`radio ${selLang === "en" ? "selected" : ""}`} onClick={() => setSelLang("en")}></span>
+            <label htmlFor="EN" className="label" onClick={() => handleChangeLang("en")}>
+              <span className={`radio ${selLang === "en" ? "selected" : ""}`}></span>
               EN
             </label>
 
@@ -807,8 +896,8 @@ const CommentListener = () => {
               checked={selLang === "fr"}
               style={{ display: "none" }}
             />
-            <label htmlFor="FR" className="label" onClick={() => setSelLang("fr")}>
-              <span className={`radio ${selLang === "fr" ? "selected" : ""}`} onClick={() => setSelLang("fr")}></span>
+            <label htmlFor="FR" className="label" onClick={() =>  handleChangeLang("fr")}>
+              <span className={`radio ${selLang === "fr" ? "selected" : ""}`}></span>
               FR
             </label>
 
@@ -820,8 +909,8 @@ const CommentListener = () => {
               checked={selLang === "es"}
               style={{ display: "none" }}
             />
-            <label htmlFor="ES" className="label" onClick={() => setSelLang("es")}>
-              <span className={`radio ${selLang === "es" ? "selected" : ""}`} onClick={() => setSelLang("es")}></span>
+            <label htmlFor="ES" className="label" onClick={() => handleChangeLang("es")}>
+              <span className={`radio ${selLang === "es" ? "selected" : ""}`}></span>
               ES
             </label>
           </div>
