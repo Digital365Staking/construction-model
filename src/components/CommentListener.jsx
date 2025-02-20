@@ -556,6 +556,7 @@ const CommentListener = () => {
   const manageCita = async (e) => {
     switch (stepCita) {
       case 0:
+        msg = selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
         console.log(e.target.value);
         setIdService(Number(e.target.value));
         const tomorrow = new Date();
@@ -582,26 +583,81 @@ const CommentListener = () => {
         let c=0;
         let line=-1;
         availability.forEach(item => {
-            if (item.cur_date === e.target.value) {
-              if (c % 4 === 0) {
-                arr.push([]);
-                line++;
-              }
-              arr[line].push(item.slot);                
+          if (item.cur_date === e.target.value) {
+            if (c % 4 === 0) {
+              arr.push([]);
+              line++;
             }
-            c++;
+            arr[line].push(item.slot);                
+          }
+          c++;
         });
+        console.log("arr l = " + arr[0].length);
+        if(arr[0].length === 0){
+          if(selLang !== "en"){
+            arr[0].push("11:00");  
+            arr[0].push("11:15");
+            arr[0].push("11:30");
+            arr[0].push("11:45");
+            arr.push([]);
+            arr[1].push("12:00");
+            arr[1].push("12:15");
+            arr[1].push("12:30");
+            arr[1].push("12:45");
+            arr.push([]);
+            arr[2].push("13:00");
+            arr[2].push("13:15");
+            arr[2].push("13:30");
+            arr[2].push("13:45");
+            arr.push([]);
+            arr[3].push("17:00");  
+            arr[3].push("17:15");
+            arr[3].push("17:30");
+            arr[3].push("17:45");
+            arr.push([]);
+            arr[4].push("18:00");
+            arr[4].push("18:15");
+            arr[4].push("18:30");
+            arr[4].push("18:45");
+            arr.push([]);
+            arr[5].push("19:00");
+            arr[5].push("19:15");
+            arr[5].push("19:30");
+            arr[5].push("19:45");
+          }
+        }
 
         setLinesDay(arr);
         break;
       case 2:
-        // Code to execute if expression === value3
+        console.log('sel email ' + idService);        
+        setLinesDay([[]]);
+        console.log('sel after email ' + idService);
         break;
       default:
         // Code to execute if none of the cases match
     }
     setStepCita(stepCita+1);
-    
+    localStorage.clear();
+    setMessages([]); 
+    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
+    const timestamp = new Date().toLocaleString(curFormat, {
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour24: true,
+    });
+    const newMsg = {
+      sender: curAI,
+      text: msg,
+      lines: [],
+      whatsapp:"",
+      lnkWhatsapp:"",
+      timestamp,
+    };
+    setMessages((prevMessages) => [...prevMessages, newMsg]);
+    setMessageSender(curMe);
   };
 
   const manageServiceCita = (e) => {
@@ -680,8 +736,8 @@ const CommentListener = () => {
         }
       ); 
     }     
-    if(typeChat === 3){
-      msg = selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
+    if(typeChat === 3){      
+      msg = selLang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (selLang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?");
       if(import.meta.env.VITE_OPT_BUDGET === "1"){
         setDisplayBudget(
           {
@@ -756,7 +812,7 @@ const CommentListener = () => {
     }else{  
       let etp = stepCita;
       etp -= 1;
-      setStepCita(etp); 
+       
       console.log("changeLang2 : " + etp);  
       switch (etp) {
         case 0:
@@ -786,6 +842,39 @@ const CommentListener = () => {
               c++;
           });
   
+          console.log("arr2 l = " + arr[0].length);
+          if(arr[0].length === 0){
+              arr[0].push("11:00");  
+              arr[0].push("11:15");
+              arr[0].push("11:30");
+              arr[0].push("11:45");
+              arr.push([]);
+              arr[1].push("12:00");
+              arr[1].push("12:15");
+              arr[1].push("12:30");
+              arr[1].push("12:45");
+              arr.push([]);
+              arr[2].push("13:00");
+              arr[2].push("13:15");
+              arr[2].push("13:30");
+              arr[2].push("13:45");
+              arr.push([]);
+              arr[3].push("17:00");  
+              arr[3].push("17:15");
+              arr[3].push("17:30");
+              arr[3].push("17:45");
+              arr.push([]);
+              arr[4].push("18:00");
+              arr[4].push("18:15");
+              arr[4].push("18:30");
+              arr[4].push("18:45");
+              arr.push([]);
+              arr[5].push("19:00");
+              arr[5].push("19:15");
+              arr[5].push("19:30");
+              arr[5].push("19:45");
+          }
+
           setLinesDay(arr);
           
           break;
@@ -845,7 +934,7 @@ const CommentListener = () => {
                     className="cita-button button send-button"
                     onClick={(e) => manageCita(e)} value={col.split("-").length > 2 ? col.split("-")[0] + "-" + col.split("-")[1] + "-" + col.split("-")[2] : col.split("-")[0] }
                   >
-                    {col.split("-").length > 2 ? new Date(col).toLocaleDateString(codeLang, { weekday: "short", day: "2-digit", month: "2-digit" }) : (col.split("-").length > 1 ? col.split("-")[1] : col) } 
+                    {col.split("-").length > 2 ? new Date(col).toLocaleDateString(codeLang, { weekday: "short", day: "2-digit", month: "2-digit" }) : (col.split("-").length > 1 ? col.split("-")[1] : new Date('2000-01-01T' + col + ":00").toLocaleTimeString(selLang, { hour: '2-digit', minute: '2-digit' })) } 
                   </button>
                 ))}
                 <br/>
@@ -854,7 +943,7 @@ const CommentListener = () => {
             
             </div>
         </div>
-
+        <div class="fixed-bottom">
         <form className="chat-input-form" onSubmit={handleSendMessage}>
           <textarea id="message" name="message" rows="5" cols="50" disabled={isDisabled} className="chat-input" value={chatInput} placeholder={`${curTypeHere}, ${messageSender}...`} onFocus={handleFocus} onChange={(e) => setChatInput(e.target.value)}></textarea>          
           <input
@@ -927,6 +1016,8 @@ const CommentListener = () => {
             </button>
           </div>
         </div>
+        </div>
+        
         
       </div>
     </div>
