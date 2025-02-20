@@ -890,7 +890,15 @@ const CommentListener = () => {
 
   return (
     <div className="app-container">      
-
+      <div class="header-container">
+          <div class="header-left">
+              <img src="logo.png" alt="Logo"/>
+          </div>
+          <div class="header-right">
+              <div class="header-top">Top 50%</div>
+              <div class="header-bottom">Bottom 50%</div>
+          </div>
+      </div>
       <div className="chat-container">        
         <div className="chat-header typing-indicator" style={{ display: displayHeader }}>
           <h2 className="chat-header">{messageSender} chatting</h2>
