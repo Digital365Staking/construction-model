@@ -554,6 +554,7 @@ const CommentListener = () => {
   };
 
   const manageCita = async (e) => {
+    let msg = "";
     switch (stepCita) {
       case 0:
         msg = selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
@@ -569,6 +570,7 @@ const CommentListener = () => {
         setLinesDay(array);
         break;
       case 1:
+        msg = selLang === 'es' ? '¿ A qué hora ?' : (selLang === 'en' ? 'At what time ?' : "À quelle heure ?");
         console.log(e.target.value);
         setCurDate(new Date(e.target.value));
         console.log("VITE_ID_CLIENT:", import.meta.env.VITE_ID_CLIENT);
@@ -630,6 +632,7 @@ const CommentListener = () => {
         setLinesDay(arr);
         break;
       case 2:
+        msg = selLang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su número de WhatsApp o su dirección de correo electrónico (a elección). Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : (selLang === 'en' ? "To confirm the appointment, you must register your first name and your WhatsApp number or email address (your choice). First, enter your first name, then click 'Send' to save it." : "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre numéro WhatsApp ou votre adresse e-mail (au choix). Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer.");
         console.log('sel email ' + idService);        
         setLinesDay([[]]);
         console.log('sel after email ' + idService);
@@ -795,6 +798,9 @@ const CommentListener = () => {
 
   const handleChangeLang = (lang) => {
     setSelLang(lang);
+    localStorage.clear();
+    setMessages([]);
+    let msg = lang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?");
     console.log("changeLang : " + stepCita);
     if(idService === 0){
       const array = [[]];
@@ -816,6 +822,7 @@ const CommentListener = () => {
       console.log("changeLang2 : " + etp);  
       switch (etp) {
         case 0:
+          msg = lang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (lang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
           const tomorrow = new Date();
           tomorrow.setDate(tomorrow.getDate() + 1);
           const startDate = tomorrow;
@@ -825,6 +832,7 @@ const CommentListener = () => {
           setLinesDay(array);
           break;
         case 1:
+          msg = lang === 'es' ? '¿ A qué hora ?' : (lang === 'en' ? 'At what time ?' : "À quelle heure ?");
           console.log(availability);       
           const arr = [[]];
           arr.push([]);
@@ -879,12 +887,33 @@ const CommentListener = () => {
           
           break;
         case 2:
-          // Code to execute if expression === value3
+          msg = lang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su número de WhatsApp o su dirección de correo electrónico (a elección). Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : (lang === 'en' ? "To confirm the appointment, you must register your first name and your WhatsApp number or email address (your choice). First, enter your first name, then click 'Send' to save it." : "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre numéro WhatsApp ou votre adresse e-mail (au choix). Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer.");
+          console.log('sel email ' + idService);        
+          setLinesDay([[]]);
+          console.log('sel after email ' + idService);
           break;
         default:
           // Code to execute if none of the cases match
       }
     }
+    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
+    const timestamp = new Date().toLocaleString(curFormat, {
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour24: true,
+    });
+    const newMsg = {
+      sender: curAI,
+      text: msg,
+      lines: [],
+      whatsapp:"",
+      lnkWhatsapp:"",
+      timestamp,
+    };
+    setMessages((prevMessages) => [...prevMessages, newMsg]);
+    setMessageSender(curMe);
     
   };
 
