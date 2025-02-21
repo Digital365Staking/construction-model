@@ -135,6 +135,24 @@ const CommentListener = () => {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const [curDate, setCurDate] = useState(tomorrow);
+  const [curNombre, setCurNombre] = useState('');
+  const [curContact, setCurContact] = useState('');
+  const [curCita1, setCurCita1] = useState(
+    {
+      labelService: "",
+      dateCita: new Date(),
+      nombre: "",
+      contact: ""
+    }
+  );
+  const [curCita2, setCurCita2] = useState(
+    {
+      labelService: "",
+      dateCita: new Date(),
+      nombre: "",
+      contact: ""
+    }
+  );
   const [messageSender, setMessageSender] = useState(curMe);
   const curAI = selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
   const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
@@ -555,8 +573,38 @@ const CommentListener = () => {
 
   const manageCita = async (e) => {
     let msg = "";
+    localStorage.clear();
+    setMessages([]); 
+    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
+    const timestamp = new Date().toLocaleString(curFormat, {
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour24: true,
+    });    
     switch (stepCita) {
       case 0:
+        const today = new Date();
+        if(curCita1.labelService !== "" && today < curCita1.dateCita){
+          if(curCita2.labelService !== "" && today < curCita2.dateCita){
+            msg = selLang === 'es' ? 'Usted no puede reservar otra cita porque ya ha reservado dos.' : (selLang === 'en' ? 'You cannot book another appointment because you have already booked two.' : "Vous ne pouvez pas prendre un autre rendez-vous, car vous en avez déjà pris deux.");
+            const newMsg = {
+              sender: curAI,
+              text: msg,
+              lines: [],
+              whatsapp:"",
+              lnkWhatsapp:"",
+              timestamp,
+            };
+            setMessages((prevMessages) => [...prevMessages, newMsg]);
+            setMessageSender(curMe);
+            return;
+          }
+        }else{
+          const filteredData = services.filter(item => item.id === Number(e.target.value));
+          console.log(filteredData)
+        }
         msg = selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
         console.log(e.target.value);
         setIdService(Number(e.target.value));
@@ -572,7 +620,10 @@ const CommentListener = () => {
       case 1:
         msg = selLang === 'es' ? '¿ A qué hora ?' : (selLang === 'en' ? 'At what time ?' : "À quelle heure ?");
         console.log(e.target.value);
-        setCurDate(new Date(e.target.value));
+        const datTarget = new Date(e.target.value);
+        setCurDate(datTarget);
+        if(curCita2.labelService === ""){
+        }
         console.log("VITE_ID_CLIENT:", import.meta.env.VITE_ID_CLIENT);
         console.log("VITE_START_SLOT_AM:", import.meta.env.VITE_START_SLOT_AM);
         console.log("VITE_END_SLOT_AM:", import.meta.env.VITE_END_SLOT_AM);
@@ -637,20 +688,12 @@ const CommentListener = () => {
         setLinesDay([[]]);
         console.log('sel after email ' + idService);
         break;
+      case 3:
+        break;
       default:
         // Code to execute if none of the cases match
     }
     setStepCita(stepCita+1);
-    localStorage.clear();
-    setMessages([]); 
-    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
-    const timestamp = new Date().toLocaleString(curFormat, {
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour24: true,
-    });
     const newMsg = {
       sender: curAI,
       text: msg,
@@ -966,7 +1009,7 @@ const CommentListener = () => {
           {linesDay.map((lin, idxLin) => (
               <div key={idxLin} className="button-line">  
                 {lin.map((col, idxCol) => (
-                  <button
+                  <button 
                     key={idxCol}  
                     className="cita-button button send-button"
                     onClick={(e) => manageCita(e)} value={col.split("-").length > 2 ? col.split("-")[0] + "-" + col.split("-")[1] + "-" + col.split("-")[2] : col.split("-")[0] }
