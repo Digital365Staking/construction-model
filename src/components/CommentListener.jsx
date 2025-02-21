@@ -26,15 +26,17 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const CommentListener = () => {
-  
+  //localStorage.clear();
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
   const [availability, setAvailability] = useState([]);
-  const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('messages')) || []);
-  const [linesDay, setLinesDay] = useState(() => {
+  const [messages, setMessages] = useState([]);
+  //useState(() => JSON.parse(localStorage.getItem('messages')) || []);
+  const [linesDay, setLinesDay] = useState([[]]);
+  /*useState(() => {
     const savedLinesDay = localStorage.getItem('linesDay');
     return savedLinesDay ? JSON.parse(savedLinesDay) : [[]];
-  });
+  });*/
   const isDisabled = messages.length === 0;
   const [usrValue, setUsrValue] = useState(import.meta.env.VITE_HUGGING_KEY);
   const [chatInput, setChatInput] = useState('');
@@ -138,6 +140,7 @@ const CommentListener = () => {
   const [curNombre, setCurNombre] = useState('');
   const [curContact, setCurContact] = useState('');
   const [curCita1, setCurCita1] = useState(
+    () => JSON.parse(localStorage.getItem('curCita1')) ||
     {
       labelService: "",
       dateCita: new Date(),
@@ -145,7 +148,9 @@ const CommentListener = () => {
       contact: ""
     }
   );
+  
   const [curCita2, setCurCita2] = useState(
+    () => JSON.parse(localStorage.getItem('curCita2')) ||
     {
       labelService: "",
       dateCita: new Date(),
@@ -153,6 +158,7 @@ const CommentListener = () => {
       contact: ""
     }
   );
+
   const [messageSender, setMessageSender] = useState(curMe);
   const curAI = selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
   const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
@@ -459,9 +465,17 @@ const CommentListener = () => {
     return text;
   };
 
-  useEffect(() => {
+  /*useEffect(() => {
     localStorage.setItem('messages', JSON.stringify(messages));
-  }, [messages]);
+  }, [messages]);*/
+
+  useEffect(() => {
+    localStorage.setItem('curCita1', JSON.stringify(curCita1));
+  }, [curCita1]);
+
+  useEffect(() => {
+    localStorage.setItem('curCita2', JSON.stringify(curCita2));
+  }, [curCita2]);
 
   // Scroll to the bottom whenever messages are updated
   useEffect(() => {
@@ -469,10 +483,6 @@ const CommentListener = () => {
       lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight;
     }
   }, [messages]); // This effect runs when the messages array changes
-
-  /*const handleSenderChange = (name) => {
-    setMessageSender(name);
-  };*/
 
   const startTime = Date.now();
 
@@ -572,9 +582,9 @@ const CommentListener = () => {
   };
 
   const manageCita = async (e) => {
-    //console.log(curCita1.labelService);
+    console.log(curCita1.labelService);
     let msg = "";
-    localStorage.clear();
+    //localStorage.clear();
     setMessages([]); 
     const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
     const timestamp = new Date().toLocaleString(curFormat, {
@@ -738,22 +748,10 @@ const CommentListener = () => {
     setMessageSender(curMe);
   };
 
-  const manageServiceCita = (e) => {
-
-  };
-
-  const manageHourCita = (e) => {
-
-  };
-
-  const manageDateCita = (e) => {
-
-  };
-
   const handleChat = (typeChat) => {
     
     setCateg(typeChat);
-    localStorage.clear();
+    //localStorage.clear();
     setMessages([]);
     let wap = "";
     let lnkWAP = "";
