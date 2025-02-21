@@ -528,6 +528,50 @@ const CommentListener = () => {
       lnkWhatsapp:lnkWAP,
       timestamp,
     };
+    let email = import.meta.env.VITE_EMAIL;
+    if(import.meta.env.VITE_OPT_CITA == "1" && displayCita.display === "none" && stepCita === 3 && curCita1.contact === ""){
+      wap = import.meta.env.VITE_WHATSAPP;
+      lnkWAP = "https://wa.me/" + phone + "?text=" + chatResponse;
+      setCurCita1({
+        labelService: curCita1.labelService,
+        dateCita: curCita1.dateCita,
+        nombre:chatInput,
+        contact:""
+      });
+      newMessage.sender = curAI;
+      newMessage.lines = [];
+      newMessage.text = selLang === 'es' ? "Finalmente, por favor, ingrese su número de WhatsApp o su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : (selLang === 'en' ? 'Finally, please enter your WhatsApp number or your email ( click "Send" to save it ) to confirm the appointment.' : "Enfin, veuillez, s'il vous plaît, saisir votre numéro WhatsApp ou votre email ( cliquer sur 'Envoyer' pour l'enregistrer ) pour confirmer le rendez-vous.");
+      newMessage.whatsapp = "";
+      newMessage.lnkWhatsapp = "";
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setStepCita(4);
+      return;
+    }else{
+      if(import.meta.env.VITE_OPT_CITA == "1" && displayCita.display === "none" && stepCita === 4 && curCita1.contact === ""){
+        setCurCita1({
+          labelService: curCita1.labelService,
+          dateCita: curCita1.dateCita,
+          nombre:curCita1.nombre,
+          contact:chatInput
+        });
+        const timeCita1 = curCita1.dateCita.toLocaleString(curFormat, {
+          month: 'long',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: 'numeric',
+          hour24: true,
+        });
+        newMessage.sender = curAI;
+        newMessage.lines = [];
+        newMessage.text = selLang === 'es' ? "Finalmente, por favor, ingrese su número de WhatsApp o su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : 
+        (selLang === 'en' ? 'Finally, please enter your WhatsApp number or your email ( click "Send" to save it ) to confirm the appointment.' : 
+          "Date et heure de votre rendez-vous : " + timeCita1 + "\nType de service : " + curCita1.labelService + "\nWhatsApp d'Edilmita : " + wap + "\nE-mail d'Edilmita : " + lnkWAP);
+        newMessage.whatsapp = "";
+        newMessage.lnkWhatsapp = "";
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        setStepCita(0);
+      }
+    }
 
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     const phone = import.meta.env.VITE_WHATSAPP;
@@ -757,23 +801,31 @@ const CommentListener = () => {
         if(e.target.value.length === 5){
           const firstTwo = Number(str.slice(0, 2));
           const lastTwo = Number(str.slice(-2));
-          if(today >= curCita1.dateCita){          
+          let datTarget = new Date();
+    
+          if(curCita1.contact === ""){
+            datTarget = curCita1.dateCita;
+            datTarget.setHours(firstTwo);
+            datTarget.setMinutes(lastTwo);
             setCurCita1({
               labelService: curCita1.labelService,
               dateCita: datTarget,
               nombre:"",
               contact:""
-            });          
+            });     
           }else{
-            if(curCita2.labelService !== "" && today >= curCita2.dateCita && curCita1.contact !== ""){            
+            if(curCita2.contact === ""){
+              datTarget = curCita2.dateCita;
+              datTarget.setHours(firstTwo);
+              datTarget.setMinutes(lastTwo);
               setCurCita2({
-                labelService: curCita2.labelService,
+                labelService: curCita1.labelService,
                 dateCita: datTarget,
                 nombre:"",
                 contact:""
-              });            
+              }); 
             }
-          }
+          }         
         }
         msg = selLang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su número de WhatsApp o su dirección de correo electrónico (a elección). Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : (selLang === 'en' ? "To confirm the appointment, you must register your first name and your WhatsApp number or email address (your choice). First, enter your first name, then click 'Send' to save it." : "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre numéro WhatsApp ou votre adresse e-mail (au choix). Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer.");
         console.log('sel email ' + idService);        
