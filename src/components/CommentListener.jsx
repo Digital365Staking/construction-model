@@ -51,6 +51,22 @@ const CommentListener = () => {
     }).catch(err => console.error("Failed to copy:", err));
   };
 
+  const sendMessage = async (to) => {
+    const response = await fetch('https://wap.nuriaevento.workers.dev/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to }),
+    });
+  
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Message sent with SID:', data.messageSid);
+    } else {
+      console.error('Failed to send message');
+    }
+  };
+  
+
   useEffect(() => {
     const fetchAvailability = async () => {
       const { data, error } = await supabase.from('AVAILABILITY').select('cur_date,slot').eq('id_client',Number(import.meta.env.VITE_ID_CLIENT));
@@ -604,6 +620,8 @@ const CommentListener = () => {
   };
 
   const handleClearChat = () => {
+    sendMessage("+34644680446");
+    return;
     setStepCita(0);
     setIdService(0);
     const cita1 = {
