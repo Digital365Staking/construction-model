@@ -531,7 +531,7 @@ const CommentListener = () => {
     let email = import.meta.env.VITE_EMAIL;
     if(import.meta.env.VITE_OPT_CITA == "1" && displayCita.display === "none" && stepCita === 3 && curCita1.contact === ""){
       wap = import.meta.env.VITE_WHATSAPP;
-      lnkWAP = "https://wa.me/" + phone + "?text=" + chatResponse;
+      lnkWAP = "https://wa.me/" + wap + "?text=TT";
       setCurCita1({
         labelService: curCita1.labelService,
         dateCita: curCita1.dateCita,
@@ -565,7 +565,7 @@ const CommentListener = () => {
         newMessage.lines = [];
         newMessage.text = selLang === 'es' ? "Finalmente, por favor, ingrese su número de WhatsApp o su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : 
         (selLang === 'en' ? 'Finally, please enter your WhatsApp number or your email ( click "Send" to save it ) to confirm the appointment.' : 
-          "Date et heure de votre rendez-vous : " + timeCita1 + "\nType de service : " + curCita1.labelService + "\nWhatsApp d'Edilmita : " + wap + "\nE-mail d'Edilmita : " + lnkWAP);
+          "Date et heure de votre rendez-vous : " + timeCita1 + "\nType de service : " + curCita1.labelService + "\nWhatsApp d'Edilmita : " + lnkWAP + "\nE-mail d'Edilmita : " + email);
         newMessage.whatsapp = "";
         newMessage.lnkWhatsapp = "";
         setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -799,8 +799,8 @@ const CommentListener = () => {
       case 2:
         console.log('hour selected ' + e.target.value);
         if(e.target.value.length === 5){
-          const firstTwo = Number(str.slice(0, 2));
-          const lastTwo = Number(str.slice(-2));
+          const firstTwo = Number(e.target.value.slice(0, 2));
+          const lastTwo = Number(e.target.value.slice(-2));
           let datTarget = new Date();
     
           if(curCita1.contact === ""){
