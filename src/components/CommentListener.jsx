@@ -572,6 +572,7 @@ const CommentListener = () => {
   };
 
   const manageCita = async (e) => {
+    //console.log(curCita1.labelService);
     let msg = "";
     localStorage.clear();
     setMessages([]); 
@@ -582,10 +583,12 @@ const CommentListener = () => {
       hour: 'numeric',
       minute: 'numeric',
       hour24: true,
-    });    
+    });   
+    const today = new Date(); 
     switch (stepCita) {
       case 0:
-        const today = new Date();
+        
+        const filteredData = services.filter(item => item.id === Number(e.target.value));
         if(curCita1.labelService !== "" && today < curCita1.dateCita){
           if(curCita2.labelService !== "" && today < curCita2.dateCita){
             msg = selLang === 'es' ? 'Usted no puede reservar otra cita porque ya ha reservado dos.' : (selLang === 'en' ? 'You cannot book another appointment because you have already booked two.' : "Vous ne pouvez pas prendre un autre rendez-vous, car vous en avez déjà pris deux.");
@@ -600,11 +603,23 @@ const CommentListener = () => {
             setMessages((prevMessages) => [...prevMessages, newMsg]);
             setMessageSender(curMe);
             return;
+          }else{            
+            setCurCita2({
+              labelService: filteredData[0][selLang],
+              dateCita: new Date(),
+              nombre:"",
+              contact:""
+            });
           }
         }else{
-          const filteredData = services.filter(item => item.id === Number(e.target.value));
-          console.log(filteredData)
+          setCurCita1({
+            labelService: filteredData[0][selLang],
+            dateCita: new Date(),
+            nombre:"",
+            contact:""
+          });
         }
+        
         msg = selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
         console.log(e.target.value);
         setIdService(Number(e.target.value));
@@ -622,8 +637,24 @@ const CommentListener = () => {
         console.log(e.target.value);
         const datTarget = new Date(e.target.value);
         setCurDate(datTarget);
-        if(curCita2.labelService === ""){
+        if(today >= curCita1.dateCita){          
+          setCurCita1({
+            labelService: curCita1.labelService,
+            dateCita: datTarget,
+            nombre:"",
+            contact:""
+          });          
+        }else{
+          if(curCita2.labelService !== "" && today >= curCita2.dateCita && curCita1.contact !== ""){            
+            setCurCita2({
+              labelService: curCita2.labelService,
+              dateCita: datTarget,
+              nombre:"",
+              contact:""
+            });            
+          }
         }
+        
         console.log("VITE_ID_CLIENT:", import.meta.env.VITE_ID_CLIENT);
         console.log("VITE_START_SLOT_AM:", import.meta.env.VITE_START_SLOT_AM);
         console.log("VITE_END_SLOT_AM:", import.meta.env.VITE_END_SLOT_AM);
@@ -683,6 +714,7 @@ const CommentListener = () => {
         setLinesDay(arr);
         break;
       case 2:
+        console.log('hour selected ' + e.target.value);
         msg = selLang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su número de WhatsApp o su dirección de correo electrónico (a elección). Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : (selLang === 'en' ? "To confirm the appointment, you must register your first name and your WhatsApp number or email address (your choice). First, enter your first name, then click 'Send' to save it." : "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre numéro WhatsApp ou votre adresse e-mail (au choix). Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer.");
         console.log('sel email ' + idService);        
         setLinesDay([[]]);
