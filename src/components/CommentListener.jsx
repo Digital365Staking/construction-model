@@ -148,7 +148,8 @@ const CommentListener = () => {
       contact: ""
     }
   );
-  
+  //localStorage.clear();
+  console.log("curCita1 : " + curCita1.labelService);
   const [curCita2, setCurCita2] = useState(
     () => JSON.parse(localStorage.getItem('curCita2')) ||
     {
@@ -561,7 +562,35 @@ const CommentListener = () => {
   const handleClearChat = () => {
     setStepCita(0);
     setIdService(0);
+    const cita1 = {
+      labelService: curCita1.labelService,
+      dateCita: curCita1.dateCita,
+      nombre: curCita1.nombre,
+      contact: curCita1.contact
+    }
+    const cita2 = {
+      labelService: curCita2.labelService,
+      dateCita: curCita2.dateCita,
+      nombre: curCita2.nombre,
+      contact: curCita2.contact
+    }
     localStorage.clear();
+    setCurCita1(
+      {
+        labelService: cita1.labelService,
+        dateCita: cita1.dateCita,
+        nombre: cita1.nombre,
+        contact: cita1.contact
+      }
+    );
+    setCurCita2(
+      {
+        labelService: cita2.labelService,
+        dateCita: cita2.dateCita,
+        nombre: cita2.nombre,
+        contact: cita2.contact
+      }
+    );
     setMessages([]);   
     setDisplayBudget(
       {
@@ -725,6 +754,27 @@ const CommentListener = () => {
         break;
       case 2:
         console.log('hour selected ' + e.target.value);
+        if(e.target.value.length === 5){
+          const firstTwo = Number(str.slice(0, 2));
+          const lastTwo = Number(str.slice(-2));
+          if(today >= curCita1.dateCita){          
+            setCurCita1({
+              labelService: curCita1.labelService,
+              dateCita: datTarget,
+              nombre:"",
+              contact:""
+            });          
+          }else{
+            if(curCita2.labelService !== "" && today >= curCita2.dateCita && curCita1.contact !== ""){            
+              setCurCita2({
+                labelService: curCita2.labelService,
+                dateCita: datTarget,
+                nombre:"",
+                contact:""
+              });            
+            }
+          }
+        }
         msg = selLang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su número de WhatsApp o su dirección de correo electrónico (a elección). Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : (selLang === 'en' ? "To confirm the appointment, you must register your first name and your WhatsApp number or email address (your choice). First, enter your first name, then click 'Send' to save it." : "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre numéro WhatsApp ou votre adresse e-mail (au choix). Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer.");
         console.log('sel email ' + idService);        
         setLinesDay([[]]);
@@ -871,7 +921,7 @@ const CommentListener = () => {
 
   const handleChangeLang = (lang) => {
     setSelLang(lang);
-    localStorage.clear();
+    //localStorage.clear();
     setMessages([]);
     let msg = lang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?");
     console.log("changeLang : " + stepCita);
