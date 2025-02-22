@@ -7,6 +7,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createPerplexity } from '@ai-sdk/perplexity';
 import { generateText } from 'ai';
 import { HfInference } from "@huggingface/inference";
+import emailjs from 'emailjs-com';
 
 const perplexity = createPerplexity({
   apiKey: import.meta.env.VITE_PERPLEXITY_API_KEY,
@@ -51,21 +52,29 @@ const CommentListener = () => {
     }).catch(err => console.error("Failed to copy:", err));
   };
 
-  const sendMessage = async (to) => {
-    const response = await fetch('https://wap.nuriaevento.workers.dev/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ to }),
+  const [name, setName] = useState('ADF');
+  const [message, setMessage] = useState('');
+
+  const sendMessage = () => {
+    //e.preventDefault();
+
+    const templateParams = {
+      from_name: name,
+      to_name: 'nuriaevento@gmail.com',
+      message: 'TOTOTOTOOTOT',
+    };
+
+    emailjs.send(
+      'your_service_id',         // Service ID (from EmailJS)
+      'your_template_id',        // Template ID (from EmailJS)
+      templateParams,
+      'your_user_id'             // Your user ID (from EmailJS)
+    ).then((response) => {
+      console.log('SUCCESS!', response.status, response.text);
+    }, (err) => {
+      console.log('FAILED...', err);
     });
-  
-    if (response.ok) {
-      const data = await response.json();
-      console.log('Message sent with SID:', data.messageSid);
-    } else {
-      console.error('Failed to send message');
-    }
   };
-  
 
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -620,7 +629,7 @@ const CommentListener = () => {
   };
 
   const handleClearChat = () => {
-    sendMessage("+34644680446");
+    sendMessage();
     return;
     setStepCita(0);
     setIdService(0);

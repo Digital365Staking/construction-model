@@ -259,16 +259,35 @@ textarea:disabled {
   width: 100%;
 }
 
-.fixed-bottom {
-  position: fixed;
-  border-radius: 0.5em 0.5em 0.5em 0.5em;
-  box-shadow: 0 0 0.75em 0.5em #c3c3c333;
-  width: 38%;
-  bottom: 8px;
-  padding: 0.5em 0.5em;
-  background: #333;
-  color: white;
+/* Styles for mobile devices  */
+@media screen and (max-width: 768px) {
+  .fixed-bottom {
+    position: fixed;
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    box-shadow: 0 0 0.75em 0.5em #c3c3c333;
+    width: 88%;
+    bottom: 8px;
+    padding: 0.5em 0.5em;
+    background: #333;
+    color: white;
+  }
 }
+
+/* Styles for PC */
+@media screen and (min-width: 768px) {
+  .fixed-bottom {
+    position: fixed;
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    box-shadow: 0 0 0.75em 0.5em #c3c3c333;
+    width: 38%;
+    bottom: 8px;
+    padding: 0.5em 0.5em;
+    background: #333;
+    color: white;
+  }
+}
+
+
 
 .header-container {
   display: flex;
