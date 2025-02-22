@@ -52,27 +52,24 @@ const CommentListener = () => {
     }).catch(err => console.error("Failed to copy:", err));
   };
 
-  const [name, setName] = useState('ADF');
-  const [message, setMessage] = useState('');
-
-  const sendMessage = () => {
-    //e.preventDefault();
+  const sendMessage = (emailClient,emailAdmin,subject,msg) => {
 
     const templateParams = {
-      from_name: name,
-      to_name: 'nuriaevento@gmail.com',
-      message: 'TOTOTOTOOTOT',
+      from_name: subject,
+      to_name: emailClient, // email client
+      message: msg,
+      reply_to: emailAdmin // email admin
     };
 
     emailjs.send(
-      'your_service_id',         // Service ID (from EmailJS)
-      'your_template_id',        // Template ID (from EmailJS)
+      import.meta.env.VITE_EMAIL_SERVICE_ID,         // Service ID (from EmailJS)
+      import.meta.env.VITE_EMAIL_TEMPLATE_ID,        // Template ID (from EmailJS)
       templateParams,
-      'your_user_id'             // Your user ID (from EmailJS)
+      import.meta.env.VITE_EMAIL_USER_ID             // Your user ID (from EmailJS)
     ).then((response) => {
-      console.log('SUCCESS!', response.status, response.text);
+      console.log('SUCCESS Mail !', response.status, response.text);
     }, (err) => {
-      console.log('FAILED...', err);
+      console.log('FAILED Mail ...', err);
     });
   };
 
