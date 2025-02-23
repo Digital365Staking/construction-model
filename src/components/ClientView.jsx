@@ -34,10 +34,6 @@ const ClientView = () => {
   const [messages, setMessages] = useState([]);
   //useState(() => JSON.parse(localStorage.getItem('messages')) || []);
   const [linesDay, setLinesDay] = useState([[]]);
-  /*useState(() => {
-    const savedLinesDay = localStorage.getItem('linesDay');
-    return savedLinesDay ? JSON.parse(savedLinesDay) : [[]];
-  });*/
   const isDisabled = messages.length === 0;
   const [usrValue, setUsrValue] = useState(import.meta.env.VITE_HUGGING_KEY);
   const [chatInput, setChatInput] = useState('');
@@ -171,7 +167,14 @@ const ClientView = () => {
     }
   );
   //localStorage.clear();
-  console.log("curCita1 : " + curCita1.labelService);
+  
+  useEffect(() => {
+    console.log("curCita1 : " + curCita1.contact);
+    if(curCita1.contact != ""){
+      generateCita1();
+    }
+  }, []);
+
   const [curCita2, setCurCita2] = useState(
     () => JSON.parse(localStorage.getItem('curCita2')) ||
     {
@@ -560,9 +563,10 @@ const ClientView = () => {
         nombre:chatInput,
         contact:""
       });
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
       newMessage.sender = curAI;
       newMessage.lines = [];
-      newMessage.text = selLang === 'es' ? "Finalmente, por favor, ingrese su número de WhatsApp o su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : (selLang === 'en' ? 'Finally, please enter your WhatsApp number or your email ( click "Send" to save it ) to confirm the appointment.' : "Enfin, veuillez, s'il vous plaît, saisir votre numéro WhatsApp ou votre email ( cliquer sur 'Envoyer' pour l'enregistrer ) pour confirmer le rendez-vous.");
+      newMessage.text = selLang === 'es' ? "Finalmente, por favor, ingrese su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : (selLang === 'en' ? 'Finally, please enter your email ( click "Send" to save it ) to confirm the appointment.' : "Enfin, veuillez, s'il vous plaît, saisir votre email ( cliquer sur 'Envoyer' pour l'enregistrer ) pour confirmer le rendez-vous.");
       newMessage.whatsapp = "";
       newMessage.lnkWhatsapp = "";
       setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -576,18 +580,12 @@ const ClientView = () => {
           nombre:curCita1.nombre,
           contact:chatInput
         });
-        const timeCita1 = curCita1.dateCita.toLocaleString(curFormat, {
-          month: 'long',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: 'numeric',
-          hour24: true,
-        });
-        newMessage.sender = curAI;
-        newMessage.lines = [];
-        newMessage.text = selLang === 'es' ? "Finalmente, por favor, ingrese su número de WhatsApp o su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : 
-        (selLang === 'en' ? 'Finally, please enter your WhatsApp number or your email ( click "Send" to save it ) to confirm the appointment.' : 
-          "Date et heure de votre rendez-vous : " + timeCita1 + "\nType de service : " + curCita1.labelService + "\nWhatsApp d'Edilmita : " + lnkWAP + "\nE-mail d'Edilmita : " + email);
+        
+        //newMessage.sender = curAI;
+        //newMessage.lines = ["Date et heure de votre rendez-vous : " + timeCita1,"\nType de service : " + curCita1.labelService,"\nWhatsApp d'Edilmita : " + lnkWAP,"\nE-mail d'Edilmita : "];
+        //newMessage.text = selLang === 'es' ? "Finalmente, por favor, ingrese su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : 
+        //(selLang === 'en' ? 'Finally, please enter your email ( click "Send" to save it ) to confirm the appointment.' : 
+        //   +  +  +  + email);
         newMessage.whatsapp = "";
         newMessage.lnkWhatsapp = "";
         setMessages((prevMessages) => [...prevMessages, newMessage]);
@@ -625,9 +623,34 @@ const ClientView = () => {
     setChatInput('');
   };
 
+  const generateCita1 = () => {
+    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
+    const timeCita1 = curCita1.dateCita.toLocaleString(curFormat, {
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour24: true,
+    });
+    let txt = "Date et heure de votre rendez-vous : " + new Date(curCita1.dateCita).toLocaleDateString(codeLang, { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"});
+    txt += "\nType de service : " + curCita1.labelService;
+    txt += "\nNom du client : " + curCita1.nombre;
+    txt += "\nEmail du client : " + curCita1.nombre;
+    txt += "\nEmail d'Edilmita : " + curCita1.contact;
+    txt += "\nWhatsApp d'Edilmita : ";
+    const newMessage = {
+      sender: curAI,
+      text: txt,
+      lines: txt.split('\n'),
+      whatsapp: "+" + import.meta.env.VITE_WHATSAPP,
+      lnkWhatsapp: "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + txt,
+      timeCita1,
+    };
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+  };
+
   const handleClearChat = () => {
-    sendMessage();
-    return;
+    
     setStepCita(0);
     setIdService(0);
     const cita1 = {
@@ -1152,7 +1175,8 @@ const ClientView = () => {
                 {message.lines && message.lines.length > 0
                   ? message.lines.map((line, lineIndex) => (
                       <span key={lineIndex}>
-                        {line}                        
+                        {line} 
+                      <br/>                       
                       </span>
                     ))
                   : message.text}
