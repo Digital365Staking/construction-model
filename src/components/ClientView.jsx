@@ -160,7 +160,7 @@ const ClientView = () => {
   const [curCita1, setCurCita1] = useState(
     () => JSON.parse(localStorage.getItem('curCita1')) ||
     {
-      labelService: "",
+      labelService: [],
       dateCita: new Date(),
       nombre: "",
       contact: ""
@@ -178,7 +178,7 @@ const ClientView = () => {
   const [curCita2, setCurCita2] = useState(
     () => JSON.parse(localStorage.getItem('curCita2')) ||
     {
-      labelService: "",
+      labelService: [],
       dateCita: new Date(),
       nombre: "",
       contact: ""
@@ -653,6 +653,7 @@ const ClientView = () => {
     
     setStepCita(0);
     setIdService(0);
+    
     const cita1 = {
       labelService: curCita1.labelService,
       dateCita: curCita1.dateCita,
@@ -735,7 +736,7 @@ const ClientView = () => {
             return;
           }else{            
             setCurCita2({
-              labelService: filteredData[0][selLang],
+              labelService: filteredData[0],
               dateCita: new Date(),
               nombre:"",
               contact:""
@@ -743,7 +744,7 @@ const ClientView = () => {
           }
         }else{
           setCurCita1({
-            labelService: filteredData[0][selLang],
+            labelService: filteredData[0],
             dateCita: new Date(),
             nombre:"",
             contact:""
@@ -1172,6 +1173,9 @@ const ClientView = () => {
       <span className={`copied-message ${copied ? "visible" : ""}`}>{labelCopied}</span>
               </div>               
               <div className="message-text">
+              <div style={{display : curCita1.contact === "" ? "none" : "block"}}>Date et heure de votre rendez-vous : <b style={{ color: '#062a4e' }}>25/02/2025 13:00</b><br/>
+              Type de service : <b style={{ color: '#062a4e' }}>{curCita1.labelService[selLang]}</b>
+              </div>                  
                 {message.lines && message.lines.length > 0
                   ? message.lines.map((line, lineIndex) => (
                       <span key={lineIndex}>
@@ -1179,7 +1183,7 @@ const ClientView = () => {
                       <br/>                       
                       </span>
                     ))
-                  : message.text}
+                  : message.text}                  
                   <br/><a style={{ color: 'white' }} href={message.lnkWhatsapp}>{message.whatsapp}</a>
               </div>      
               <div className="message-timestamp">{message.timestamp}</div>

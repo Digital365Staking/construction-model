@@ -88,12 +88,14 @@ textarea:disabled {
 .message-sender {
   font-weight: bold;
   margin-bottom: 0.31em;
+  color: #062a4e;
 }
 
 .message-text {
   font-size: 1em;
   margin-bottom: 0.31em;
   word-wrap: break-word;
+  color: #062a4e;
 }
 
 .message-timestamp {
@@ -106,7 +108,7 @@ textarea:disabled {
 }
 
 .gray-bg {
-  background-color: #3d5365;
+  background-color: #96bfe3;
 }
 
 .chat-input-form {
