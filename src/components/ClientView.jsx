@@ -1194,12 +1194,12 @@ const ClientView = () => {
           />
           <button type="submit" disabled={isDisabled} className="button send-button">{curSend}</button>
         </form>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <div className='displayElements1'>
           {/* Left-aligned button */}
           <button className="button send-button" onClick={handleClearChat}>
             {curClear}
           </button>
-          <div style={{ display: "flex", gap: "20px", alignItems: "center", color: "white", fontWeight: "bold" }}>
+          <div>
             {/* Radio Button 1 */}
             <input
               type="radio"
@@ -1238,9 +1238,10 @@ const ClientView = () => {
               <span className={`radio ${selLang === "es" ? "selected" : ""}`}></span>
               ES
             </label>
-          </div>
-          {/* Right-aligned buttons */}
-          <div style={{ display: 'flex', gap: '20px' }}>
+          </div>          
+        </div>
+        {/* Right-aligned buttons */}
+        <div className="displayElements2">
             <button style={displayInfo} className="button send-button" onClick={() => handleChat(2)}>
               {curInfo}
             </button>
@@ -1251,7 +1252,6 @@ const ClientView = () => {
               {curCita}
             </button>
           </div>
-        </div>
         </div>
         
         

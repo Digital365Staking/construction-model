@@ -266,6 +266,21 @@ textarea:disabled {
     border-radius: 0.5em 0.5em 0.5em 0.5em;
     box-shadow: 0 0 0.75em 0.5em #c3c3c333;
     width: 88%;
+    height: 30vh;
+    bottom: 3px;
+    padding: 0.5em 0.5em;
+    background: #333;
+    color: white;
+  }
+}
+
+/* Styles for Tablet */
+@media screen and (min-width: 768px) and (max-width: 930px) {
+  .fixed-bottom {
+    position: fixed;
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    box-shadow: 0 0 0.75em 0.5em #c3c3c333;
+    width: 63%;
     bottom: 8px;
     padding: 0.5em 0.5em;
     background: #333;
@@ -274,7 +289,7 @@ textarea:disabled {
 }
 
 /* Styles for PC */
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 930px) {
   .fixed-bottom {
     position: fixed;
     border-radius: 0.5em 0.5em 0.5em 0.5em;
@@ -287,7 +302,40 @@ textarea:disabled {
   }
 }
 
+/* Styles for PC + Tablet */
+.displayElements2 {
+  display: flex;
+  width: 100%; /* Ensures the container spans full width */
+  gap: 20px; /* Adds spacing between buttons */
+  justify-content: center; /* Centers buttons horizontally */
+  margin-top: 7px;
+}
 
+.displayElements2 .button {
+  flex: 1; /* Makes buttons equal width */
+  max-width: 200px; /* Optional: Prevents buttons from becoming too wide */
+}
+
+.displayElements1 {
+  display: flex;
+  align-items: left; /* Aligns button and labels vertically */
+  justify-content: space-between; /* Ensures proper spacing */
+  width: 100%;
+  gap: 20px; /* Space between elements */
+}
+
+.displayElements1 button {
+  flex-shrink: 0; /* Prevents button from shrinking */
+  flex: 1;
+  max-width: 100px;
+}
+
+.displayElements1 div {
+  display: flex;
+  gap: 10px; /* Space between radio buttons */
+  align-items: center;
+  flex: 1;
+}
 
 .header-container {
   display: flex;
