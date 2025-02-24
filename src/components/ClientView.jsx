@@ -40,6 +40,9 @@ const ClientView = () => {
   const [displayHeader, setDisplayHeader] = useState('none');
   const [copied, setCopied] = useState(false);
   const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
+  const MSG_INIT_CITA = selLang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (selLang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?");
+  const MSG_INIT_INFO = selLang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (selLang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?");
+  const MSG_INIT_BUDGET = selLang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (selLang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?');
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
@@ -133,26 +136,25 @@ const ClientView = () => {
   const handleFocus = () => {
     setUserInteracted(true);
   };
-
+  const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 2);
   const [displayBudget, setDisplayBudget] = useState(
     {
-      display: (import.meta.env.VITE_OPT_BUDGET === "1" ? "block" : "none")
+      display: (import.meta.env.VITE_OPT_BUDGET === "1" && curCateg !== 1 ? "block" : "none")
     }
   );
   const [displayInfo, setDisplayInfo] = useState(
     {
-      display: "block"
+      display: (curCateg !== 0 ? "block" : "none")
     }
   );
   const [displayCita, setDisplayCita] = useState(
     {
-      display: (import.meta.env.VITE_OPT_CITA === "1" ? "block" : "none")
+      display: (import.meta.env.VITE_OPT_CITA === "1" && curCateg !== 2 ? "block" : "none")
     }
   );
   const labelCopied = selLang === 'es' ? 'Copiado !' : (selLang === 'en' ? 'Copied !' : 'Copié !');
   const codeLang = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR'); 
   const curMe = selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
-  const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 2);
   const [curCita1, setCurCita1] = useState(
     () => JSON.parse(localStorage.getItem('curCita1')) ||
     {
@@ -873,7 +875,7 @@ const ClientView = () => {
     if(typeChat === 1){
       
       setLinesDay([[]]);
-      msg = selLang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (selLang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?');
+      msg = MSG_INIT_BUDGET;
       if(import.meta.env.VITE_OPT_BUDGET === "1"){
         setDisplayBudget(
           {
@@ -897,7 +899,7 @@ const ClientView = () => {
     if(typeChat === 0){
       
       setLinesDay([[]]);
-      msg = selLang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (selLang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?");
+      msg = MSG_INIT_INFO;
       if(import.meta.env.VITE_OPT_BUDGET === "1"){
         setDisplayBudget(
           {
@@ -919,7 +921,7 @@ const ClientView = () => {
       ); 
     }     
     if(typeChat === 2){      
-      msg = selLang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (selLang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?");
+      msg = MSG_INIT_CITA;
       if(import.meta.env.VITE_OPT_BUDGET === "1"){
         setDisplayBudget(
           {
