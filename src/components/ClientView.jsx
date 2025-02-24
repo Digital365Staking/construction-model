@@ -175,22 +175,13 @@ const ClientView = () => {
     }
   }, []);
 
-  const [curCita2, setCurCita2] = useState(
-    () => JSON.parse(localStorage.getItem('curCita2')) ||
-    {
-      labelService: [],
-      dateCita: new Date(),
-      nombre: "",
-      contact: ""
-    }
-  );
 
   const [messageSender, setMessageSender] = useState(curMe);
   const curAI = selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
   const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
   const curClear = selLang === 'es' ? 'Borrar' : (selLang === 'en' ? 'Clear' : 'Effacer');
   const curInfo = selLang === 'es' ? 'Información' : 'Information';
-  const curCita = selLang === 'es' ? 'Cita' : (selLang === 'en' ? '📅​' : 'Rdv');
+  const curLabelCita = selLang === 'es' ? 'Cita' : (selLang === 'en' ? '📅​' : 'Rdv');
   const curBudget = selLang === 'es' ? 'Presupuesto' : 'Budget';
   const curTypeHere = selLang === 'es' ? 'Escribe aquí' : (selLang === 'en' ? 'Type here' : 'Tapez ici'); 
 
@@ -499,9 +490,6 @@ const ClientView = () => {
     localStorage.setItem('curCita1', JSON.stringify(curCita1));
   }, [curCita1]);
 
-  useEffect(() => {
-    localStorage.setItem('curCita2', JSON.stringify(curCita2));
-  }, [curCita2]);
 
   // Scroll to the bottom whenever messages are updated
   useEffect(() => {
@@ -653,34 +641,14 @@ const ClientView = () => {
     
     setStepCita(0);
     setIdService(0);
-    
-    const cita1 = {
-      labelService: curCita1.labelService,
-      dateCita: curCita1.dateCita,
-      nombre: curCita1.nombre,
-      contact: curCita1.contact
-    }
-    const cita2 = {
-      labelService: curCita2.labelService,
-      dateCita: curCita2.dateCita,
-      nombre: curCita2.nombre,
-      contact: curCita2.contact
-    }
+     
     localStorage.clear();
     setCurCita1(
       {
-        labelService: cita1.labelService,
-        dateCita: cita1.dateCita,
-        nombre: cita1.nombre,
-        contact: cita1.contact
-      }
-    );
-    setCurCita2(
-      {
-        labelService: cita2.labelService,
-        dateCita: cita2.dateCita,
-        nombre: cita2.nombre,
-        contact: cita2.contact
+        labelService: [],
+        dateCita: new Date(),
+        nombre: "",
+        contact: ""
       }
     );
     setMessages([]);   
@@ -721,8 +689,7 @@ const ClientView = () => {
         
         const filteredData = services.filter(item => item.id === Number(e.target.value));
         if(curCita1.labelService !== "" && today < curCita1.dateCita){
-          if(curCita2.labelService !== "" && today < curCita2.dateCita){
-            msg = selLang === 'es' ? 'Usted no puede reservar otra cita porque ya ha reservado dos.' : (selLang === 'en' ? 'You cannot book another appointment because you have already booked two.' : "Vous ne pouvez pas prendre un autre rendez-vous, car vous en avez déjà pris deux.");
+          msg = selLang === 'es' ? 'Usted no puede reservar otra cita porque ya ha reservado dos.' : (selLang === 'en' ? 'You cannot book another appointment because you have already booked two.' : "Vous ne pouvez pas prendre un autre rendez-vous, car vous en avez déjà pris deux.");
             const newMsg = {
               sender: curAI,
               text: msg,
@@ -734,14 +701,6 @@ const ClientView = () => {
             setMessages((prevMessages) => [...prevMessages, newMsg]);
             setMessageSender(curMe);
             return;
-          }else{            
-            setCurCita2({
-              labelService: filteredData[0],
-              dateCita: new Date(),
-              nombre:"",
-              contact:""
-            });
-          }
         }else{
           setCurCita1({
             labelService: filteredData[0],
@@ -861,18 +820,6 @@ const ClientView = () => {
               nombre:"",
               contact:""
             });     
-          }else{
-            if(curCita2.contact === ""){
-              datTarget = curCita2.dateCita;
-              datTarget.setHours(firstTwo);
-              datTarget.setMinutes(lastTwo);
-              setCurCita2({
-                labelService: curCita1.labelService,
-                dateCita: datTarget,
-                nombre:"",
-                contact:""
-              }); 
-            }
           }         
         }
         msg = selLang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su número de WhatsApp o su dirección de correo electrónico (a elección). Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : (selLang === 'en' ? "To confirm the appointment, you must register your first name and your WhatsApp number or email address (your choice). First, enter your first name, then click 'Send' to save it." : "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre numéro WhatsApp ou votre adresse e-mail (au choix). Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer.");
@@ -1173,7 +1120,9 @@ const ClientView = () => {
       <span className={`copied-message ${copied ? "visible" : ""}`}>{labelCopied}</span>
               </div>               
               <div className="message-text">
-              <div style={{display : curCita1.contact === "" ? "none" : "block"}}>Date et heure de votre rendez-vous : <b style={{ color: '#062a4e' }}>25/02/2025 13:00</b><br/>
+              <div style={{display : curCita1.contact === "" ? "none" : "block"}}>
+              <b style={{ color: '#062a4e' }}>Mi cita</b>
+              Date et heure de votre rendez-vous : <b style={{ color: '#062a4e' }}>25/02/2025 13:00</b><br/>
               Type de service : <b style={{ color: '#062a4e' }}>{curCita1.labelService[selLang]}</b>
               </div>                  
                 {message.lines && message.lines.length > 0
@@ -1224,7 +1173,7 @@ const ClientView = () => {
         </form>
         <div className='displayElements1'>
           {/* Left-aligned button */}
-          <button className="button send-button" onClick={handleClearChat}>
+          <button className="button send-button" onClick={handleClearChat} style={{ display: curLabelCita }}>
             {curClear}
           </button>
           <div>
@@ -1277,7 +1226,7 @@ const ClientView = () => {
               {curBudget}
             </button>
             <button style={displayCita} className="button send-button" onClick={() => handleChat(3)}>
-              {curCita}
+              {curLabelCita}
             </button>
           </div>
         </div>
