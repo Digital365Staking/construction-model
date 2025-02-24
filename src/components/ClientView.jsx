@@ -180,6 +180,7 @@ const ClientView = () => {
   const curAI = selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
   const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
   const curClear = selLang === 'es' ? 'Borrar' : (selLang === 'en' ? 'Clear' : 'Effacer');
+  const curCancel = selLang === 'es' ? 'Cancelar' : (selLang === 'en' ? 'Cancel' : 'Annuler');
   const curInfo = selLang === 'es' ? 'Información' : 'Information';
   const curLabelCita = selLang === 'es' ? 'Cita' : (selLang === 'en' ? '📅​' : 'Rdv');
   const curBudget = selLang === 'es' ? 'Presupuesto' : 'Budget';
@@ -1173,8 +1174,8 @@ const ClientView = () => {
         </form>
         <div className='displayElements1'>
           {/* Left-aligned button */}
-          <button className="button send-button" onClick={handleClearChat} style={{ display: curLabelCita }}>
-            {curClear}
+          <button className="button send-button" onClick={handleClearChat}>
+            {curCita1.contact === "" ? curClear : curCancel}
           </button>
           <div>
             {/* Radio Button 1 */}
