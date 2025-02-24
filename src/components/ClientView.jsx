@@ -149,11 +149,7 @@ const ClientView = () => {
   const labelCopied = selLang === 'es' ? 'Copiado !' : (selLang === 'en' ? 'Copied !' : 'Copié !');
   const codeLang = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR'); 
   const curMe = selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
-  const [categ, setCateg] = useState(1);
-  const [idService, setIdService] = useState(0);
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const [curDate, setCurDate] = useState(tomorrow);
+  const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 2);
   const [curCita1, setCurCita1] = useState(
     () => JSON.parse(localStorage.getItem('curCita1')) ||
     {
@@ -167,10 +163,14 @@ const ClientView = () => {
   //localStorage.clear();
   
   useEffect(() => {
-    console.log("curCita1 : " + curCita1.contact);
-    if(curCita1.contact != ""){
+    console.log("curCita1 lbl : " + curCita1.labelService[selLang]);
+    console.log("curCita1 date : " + curCita1.dateCita);
+    console.log("curCita1 name : " + curCita1.nombre);
+    console.log("curCita1 contact : " + curCita1.contact);
+    console.log("curCita1 Step : " + curCita1.stepCita);
+    /*if(curCita1.contact != ""){
       generateCita1();
-    }
+    }*/
   }, []);
 
 
@@ -726,7 +726,8 @@ const ClientView = () => {
         msg = selLang === 'es' ? '¿ A qué hora ?' : (selLang === 'en' ? 'At what time ?' : "À quelle heure ?");
         console.log(targetValue);
         const datTarget = new Date(targetValue);
-        setCurDate(datTarget);
+        /*const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);*/
         if(today >= curCita1.dateCita){          
           setCurCita1({
             labelService: curCita1.labelService,
@@ -735,15 +736,6 @@ const ClientView = () => {
             contact:"",
             stepCita: curCita1.stepCita + 1
           });          
-        }else{
-          if(curCita2.labelService !== "" && today >= curCita2.dateCita && curCita1.contact !== ""){            
-            setCurCita2({
-              labelService: curCita2.labelService,
-              dateCita: datTarget,
-              nombre:"",
-              contact:""
-            });            
-          }
         }
         
         console.log("VITE_ID_CLIENT:", import.meta.env.VITE_ID_CLIENT);
