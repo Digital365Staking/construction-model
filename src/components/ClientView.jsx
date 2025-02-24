@@ -88,7 +88,10 @@ const ClientView = () => {
         console.error("Error fetching data:", error);
       } else {
         setServices(data);
+        if(curCateg === 2 && curCita1.stepCita === 0)
+          loadServices(data);
       }
+      
             
     };
     fetchServices();
@@ -687,7 +690,7 @@ const ClientView = () => {
       case 0:
         
         const filteredData = services.filter(item => item.id === Number(targetValue));
-        if(curCita1.labelService !== "" && today < curCita1.dateCita){
+        if(curCita1.labelService.length === 0 && today < curCita1.dateCita){
           msg = selLang === 'es' ? 'Usted no puede reservar otra cita porque ya ha reservado dos.' : (selLang === 'en' ? 'You cannot book another appointment because you have already booked two.' : "Vous ne pouvez pas prendre un autre rendez-vous, car vous en avez déjà pris deux.");
             const newMsg = {
               sender: curAI,
@@ -935,17 +938,7 @@ const ClientView = () => {
         }
       );
       console.log("serv nb : " + services.length);
-      const array = [[]];
-      let c=0;
-      let line=-1;
-      services.forEach(item => {
-        if (c % 4 === 0) {
-          array.push([]);
-          line++;           
-        }
-        array[line].push(item.id + "-" + item[selLang]);
-        c++;
-      });
+      loadServices([[]]);
       setLinesDay(array);
     }
     const newMsg = {
@@ -960,13 +953,30 @@ const ClientView = () => {
     setMessageSender(curMe);
   };
 
-  const formatDate = (date) => {
+  const loadServices = (data) => {
+    const array = [[]];
+    let c=0;
+    let line=-1;
+    let tmpArr = data[0].length === 0 ? services : data;
+    tmpArr.forEach(item => {
+      if (c % 4 === 0) {
+        array.push([]);
+        line++;           
+      }
+      array[line].push(item.id + "-" + item[selLang]);
+      c++;
+    });
+    console.log("Arr l : " + tmpArr.length);
+    setLinesDay(array);
+  };
+
+  /*const formatDate = (date) => {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
     const day = date.getDate().toString().padStart(2, '0');
     
     return `${year}-${month}-${day}`;
-  };
+  };*/
 
   const handleUsr = (e) => {
     setUsrValue(e.target.value);
