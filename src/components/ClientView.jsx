@@ -168,6 +168,7 @@ const ClientView = () => {
     console.log("curCita1 name : " + curCita1.nombre);
     console.log("curCita1 contact : " + curCita1.contact);
     console.log("curCita1 Step : " + curCita1.stepCita);
+    console.log("curCateg : " + curCateg);
     /*if(curCita1.contact != ""){
       generateCita1();
     }*/
@@ -278,7 +279,7 @@ const ClientView = () => {
   async function prepareQuery(message, tableName, procedureName, headers) {
     try {
       let csv = "";
-      if(categ === 1){          
+      if(curCateg === 1){          
         
         const { data, error } = await supabase.rpc(procedureName);
         if (error) {
@@ -640,8 +641,6 @@ const ClientView = () => {
 
   const handleClearChat = () => {
     
-    setIdService(0);
-     
     localStorage.clear();
     setCurCita1(
       {
@@ -854,7 +853,7 @@ const ClientView = () => {
 
   const handleChat = (typeChat) => {
     
-    setCateg(typeChat);
+    setCurCateg(typeChat);
     //localStorage.clear();
     setMessages([]);
     let wap = "";
@@ -869,7 +868,7 @@ const ClientView = () => {
     });
     let msg = "";
     if(typeChat === 1){
-      setStepCita(0);
+      
       setLinesDay([[]]);
       msg = selLang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (selLang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?');
       if(import.meta.env.VITE_OPT_BUDGET === "1"){
@@ -892,8 +891,8 @@ const ClientView = () => {
         }
       ); 
     }
-    if(typeChat === 2){
-      setStepCita(0);
+    if(typeChat === 0){
+      
       setLinesDay([[]]);
       msg = selLang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (selLang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?");
       if(import.meta.env.VITE_OPT_BUDGET === "1"){
@@ -916,7 +915,7 @@ const ClientView = () => {
         }
       ); 
     }     
-    if(typeChat === 3){      
+    if(typeChat === 2){      
       msg = selLang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (selLang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?");
       if(import.meta.env.VITE_OPT_BUDGET === "1"){
         setDisplayBudget(
@@ -1227,13 +1226,13 @@ const ClientView = () => {
         </div>
         {/* Right-aligned buttons */}
         <div className="displayElements2">
-            <button style={displayInfo} className="button send-button" onClick={() => handleChat(2)}>
+            <button style={displayInfo} className="button send-button" onClick={() => handleChat(0)}>
               {curInfo}
             </button>
             <button style={displayBudget} className="button send-button" onClick={() => handleChat(1)}>
               {curBudget}
             </button>
-            <button style={displayCita} className="button send-button" onClick={() => handleChat(3)}>
+            <button style={displayCita} className="button send-button" onClick={() => handleChat(2)}>
               {curLabelCita}
             </button>
           </div>
