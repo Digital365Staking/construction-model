@@ -92,7 +92,7 @@ const ClientView = () => {
       } else {
         setServices(data);
         if(curCateg === 2 && curCita1.stepCita === 0)
-          loadServices(data);
+          loadServices(data,"");
       }
       
             
@@ -168,7 +168,7 @@ const ClientView = () => {
   //localStorage.clear();
   
   useEffect(() => {
-    console.log("curCita1 lbl : " + curCita1.labelService[selLang]);
+    console.log("curCita1 lbl : " + curCita1.labelService.length);
     console.log("curCita1 date : " + curCita1.dateCita);
     console.log("curCita1 name : " + curCita1.nombre);
     console.log("curCita1 contact : " + curCita1.contact);
@@ -181,7 +181,13 @@ const ClientView = () => {
 
 
   const [messageSender, setMessageSender] = useState(curMe);
-  const curAI = selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
+  const curAI = (lang) =>{
+    if(lang === ""){
+      return selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
+    }else{
+      return lang === 'es' ? 'Asistente virtual' : (lang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
+    }     
+  };
   const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
   const curClear = selLang === 'es' ? 'Borrar' : (selLang === 'en' ? 'Clear' : 'Effacer');
   const curCancel = selLang === 'es' ? 'Cancelar' : (selLang === 'en' ? 'Cancel' : 'Annuler');
@@ -558,7 +564,7 @@ const ClientView = () => {
         stepCita: curCita1.stepCita + 1
       });
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-      newMessage.sender = curAI;
+      newMessage.sender = curAI("");
       newMessage.lines = [];
       newMessage.text = selLang === 'es' ? "Finalmente, por favor, ingrese su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : (selLang === 'en' ? 'Finally, please enter your email ( click "Send" to save it ) to confirm the appointment.' : "Enfin, veuillez, s'il vous plaît, saisir votre email ( cliquer sur 'Envoyer' pour l'enregistrer ) pour confirmer le rendez-vous.");
       newMessage.whatsapp = "";
@@ -605,7 +611,7 @@ const ClientView = () => {
       const pattern = new RegExp(`\\+${wap}\\.`, "g");
       chatResponse = chatResponse.replace(pattern, ":");
       const newMessage2 = {
-        sender: curAI,
+        sender: curAI(""),
         text: chatResponse,
         lines: chatResponse.split('\n'),
         whatsapp:wap,
@@ -618,7 +624,7 @@ const ClientView = () => {
     setChatInput('');
   };
 
-  const generateCita1 = () => {
+  /*const generateCita1 = () => {
     const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
     const timeCita1 = curCita1.dateCita.toLocaleString(curFormat, {
       month: 'long',
@@ -642,7 +648,7 @@ const ClientView = () => {
       timeCita1,
     };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
-  };
+  };*/
 
   const handleClearChat = () => {
     
@@ -695,7 +701,7 @@ const ClientView = () => {
         if(curCita1.labelService.length === 0 && today < curCita1.dateCita){
           msg = selLang === 'es' ? 'Usted no puede reservar otra cita porque ya ha reservado dos.' : (selLang === 'en' ? 'You cannot book another appointment because you have already booked two.' : "Vous ne pouvez pas prendre un autre rendez-vous, car vous en avez déjà pris deux.");
             const newMsg = {
-              sender: curAI,
+              sender: curAI(""),
               text: msg,
               lines: [],
               whatsapp:"",
@@ -839,16 +845,7 @@ const ClientView = () => {
         stepCita: curCita1.stepCita + 1
       }
     );*/
-    const newMsg = {
-      sender: curAI,
-      text: msg,
-      lines: [],
-      whatsapp:"",
-      lnkWhatsapp:"",
-      timestamp,
-    };
-    setMessages((prevMessages) => [...prevMessages, newMsg]);
-    setMessageSender(curMe);
+    loadMessage(curAI(""),msg,selLang);
   }
 
   const manageCita = async (e) => {
@@ -940,22 +937,16 @@ const ClientView = () => {
         }
       );
       console.log("serv nb : " + services.length);
-      loadServices([[]]);
-      setLinesDay(array);
+      loadMessage(curAI(selLang),msg,"");
+      loadServices([[]],"","");
+      //setLinesDay(array);
+    }else{
+      loadMessage(curAI(""),msg,"");
     }
-    const newMsg = {
-      sender: curAI,
-      text: msg,
-      lines: [],
-      whatsapp:wap,
-      lnkWhatsapp:lnkWAP,
-      timestamp,
-    };
-    setMessages((prevMessages) => [...prevMessages, newMsg]);
-    setMessageSender(curMe);
+    
   };
 
-  const loadServices = (data) => {
+  const loadServices = (data, lang) => {
     const array = [[]];
     let c=0;
     let line=-1;
@@ -965,7 +956,7 @@ const ClientView = () => {
         array.push([]);
         line++;           
       }
-      array[line].push(item.id + "-" + item[selLang]);
+      array[line].push(item.id + "-" + item[lang === "" ? selLang : lang]);
       c++;
     });
     console.log("Arr l : " + tmpArr.length);
@@ -984,31 +975,34 @@ const ClientView = () => {
     setUsrValue(e.target.value);
   };
 
+  const GetCurrentService = () => { 
+    if(curCita1.labelService == null){
+      curCita1.labelService = [];
+    }
+    console.log("curCita3 lbl : " + curCita1.labelService.length);
+    return curCita1.labelService.length > 0 ? curCita1.labelService[selLang] : "";
+  };
+
   const handleChangeLang = (lang) => {
+    
     setSelLang(lang);
     //localStorage.clear();
     setMessages([]);
+    console.log("curCita2 lbl : " + curCita1.labelService.length);
     let msg = lang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?");
-    console.log("changeLang : " + curCita1.stepCita);
-      let etp = curCita1.stepCita;
-      etp -= 1;
-      let c=0;
-      let line=-1;
+    
+      //let etp = curCita1.stepCita;
+      //etp -= 1;
+      //let c=0;
+      //let line=-1;
       
-      console.log("changeLang2 : " + etp);  
-      switch (etp) {
-        case 0:
-          let array = [[]];
-          services.forEach(item => {
-          if (c % 4 === 0) {
-            array.push([]);
-            line++;           
-          }
-          array[line].push(item.id + "-" + item[lang]);
-          c++;
-          });
-          setLinesDay(array);
-          initSetCita(curCita1.labelService[lang]);
+      //console.log("changeLang2 : " + etp);  
+      switch (curCita1.stepCita) {
+        case 0:          
+          loadServices([[]], lang);   
+          console.log("changeLang : " + curCita1.labelService.length); 
+          if(curCita1.labelService.length > 0)      
+            initSetCita(curCita1.labelService[lang]);
           /*msg = lang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (lang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
           const tomorrow = new Date();
           tomorrow.setDate(tomorrow.getDate() + 1);
@@ -1084,8 +1078,13 @@ const ClientView = () => {
         default:
           // Code to execute if none of the cases match
       }
+    //curCita1.stepCita--;
+    loadMessage(curAI(lang),msg,"");
     
-    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
+  };
+
+  const loadMessage = (sender,msg,lang) => {
+    const curFormat = lang === "" ? (selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR')) : (lang === 'es' ? 'es-ES' : (lang === 'en' ? 'en-US' : 'fr-FR'));
     const timestamp = new Date().toLocaleString(curFormat, {
       month: 'long',
       day: 'numeric',
@@ -1094,7 +1093,7 @@ const ClientView = () => {
       hour24: true,
     });
     const newMsg = {
-      sender: curAI,
+      sender: sender,
       text: msg,
       lines: [],
       whatsapp:"",
@@ -1103,7 +1102,6 @@ const ClientView = () => {
     };
     setMessages((prevMessages) => [...prevMessages, newMsg]);
     setMessageSender(curMe);
-    
   };
 
   return (
@@ -1142,7 +1140,7 @@ const ClientView = () => {
               <div style={{display : curCita1.contact === "" ? "none" : "block"}}>
               <b style={{ color: '#062a4e' }}>Mi cita</b>
               Date et heure de votre rendez-vous : <b style={{ color: '#062a4e' }}>25/02/2025 13:00</b><br/>
-              Type de service : <b style={{ color: '#062a4e' }}>{curCita1.labelService[selLang]}</b>
+              Type de service : <b style={{ color: '#062a4e' }}>{GetCurrentService()}</b>
               </div>                  
                 {message.lines && message.lines.length > 0
                   ? message.lines.map((line, lineIndex) => (
