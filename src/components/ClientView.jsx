@@ -103,7 +103,7 @@ const ClientView = () => {
   };
 
   const sendCita = (emailClient,emailAdmin,subject,msg,lbl_headerCita,lbl_datehour,val_datehour,lbl_service,val_service,
-    lbl_name,val_name,email_client,lbl_wap, val_wap
+    lbl_name,val_name,lbl_wap, val_wap
   ) => {
 
     const templateParams = {
@@ -115,7 +115,7 @@ const ClientView = () => {
       lbl_service: lbl_service,
       val_service: val_service,
       lbl_name:val_name,
-      email:email_client, 
+      email:emailClient, 
       lbl_wap: lbl_wap,
       val_wap: val_wap,
       reply_to: emailAdmin // email admin
@@ -650,10 +650,12 @@ const ClientView = () => {
         let dathour = new Date(curCita1.dateCita).toLocaleDateString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' }); 
         txtMail += dathour + '\n';
         txtMail += GetMsgTypeCita('') + curCita1.labelService + '\n';
-        txtMail += GetMsgContactCita('') + "<a href=https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=>+" + import.meta.env.VITE_WHATSAPP + "</a>\n";
+        txtMail += GetMsgContactCita('') + " +" + import.meta.env.VITE_WHATSAPP + "\n";
         
         let subject = selLang == 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous");
-        sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,txtMail,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour);
+        let name = selLang == 'es' ? "Nombre" : (selLang === 'en' ? "Name" : "Nom");
+        sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,txtMail,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
+        GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP);
         return;
       }
     }
