@@ -102,12 +102,19 @@ const ClientView = () => {
     }).catch(err => console.error("Failed to copy:", err));
   };
 
-  const sendMessage = (emailClient,emailAdmin,subject,msg) => {
+  const sendCita = (emailClient,emailAdmin,subject,msg,lbl_headerCita,lbl_datehour,val_datehour) => {
 
     const templateParams = {
       from_name: subject,
       to_name: emailClient, // email client
       message: msg,
+      lbl_headerCita: lbl_headerCita,
+      lbl_datehour: lbl_datehour,
+      val_datehour: val_datehour,
+      /*lbl_service: ,
+      val_service: ,
+      lbl_wap: ,
+      val_wap: ,*/
       reply_to: emailAdmin // email admin
     };
 
@@ -636,13 +643,14 @@ const ClientView = () => {
         //(selLang === 'en' ? 'Finally, please enter your email ( click "Send" to save it ) to confirm the appointment.' : 
         //   +  +  +  + email);        
         setMessages([]);
-        let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n'; 
-        txtMail += new Date(curCita1.dateCita).toLocaleDateString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' }) + '\n';
+        let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n';
+        let dathour = new Date(curCita1.dateCita).toLocaleDateString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' }); 
+        txtMail += dathour + '\n';
         txtMail += GetMsgTypeCita('') + curCita1.labelService + '\n';
         txtMail += GetMsgContactCita('') + "<a href=https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=>+" + import.meta.env.VITE_WHATSAPP + "</a>\n";
         
         let subject = selLang == 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous");
-        sendMessage("snowchamonix@gmail.com","adrien012014@gmail.com",subject,txtMail);
+        sendCita("snowchamonix@gmail.com","adrien012014@gmail.com",subject,txtMail,GetMsgDateHourCita(''),dathour);
         return;
       }
     }
