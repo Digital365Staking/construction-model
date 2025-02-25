@@ -101,6 +101,7 @@ textarea:disabled {
 .message-timestamp {
   font-size: 0.75em;
   text-align: right;
+  color: #062a4e;
 }
 
 .blue-bg {
@@ -301,6 +302,15 @@ textarea:disabled {
     padding: 0.5em 0.5em;
     background: #333;
     color: white;
+    background-image: linear-gradient(
+    23deg,
+    hsl(320deg 60% 45%) 0%,
+    hsl(280deg 50% 40%) 20%,
+    hsl(240deg 50% 35%) 40%,
+    hsl(200deg 40% 30%) 60%,
+    hsl(160deg 30% 25%) 80%,
+    hsl(120deg 20% 20%) 100%
+);
   }
 }
 
