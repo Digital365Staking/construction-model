@@ -626,6 +626,7 @@ const ClientView = () => {
       lnkWAP = "https://wa.me/" + wap + "?text=TT";
       setCurCita1(prevState => ({
         ...prevState,  // Keep existing properties
+        nombre:chatInput,
         stepCita: prevState.stepCita + 1  // Update stepCita
       }));
       loadMessage(curMe,chatInput,selLang);
@@ -656,6 +657,8 @@ const ClientView = () => {
         
         let subject = selLang == 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous");
         let name = selLang == 'es' ? "Nombre : " : (selLang === 'en' ? "Name : " : "Nom : ");
+        console.log("Nom :" + curCita1.nombre);
+        
         sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,txtMail,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
         GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP);
         return;
