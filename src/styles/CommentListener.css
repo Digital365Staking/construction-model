@@ -85,6 +85,10 @@ textarea:disabled {
   color: #fff;
 }
 
+.color-cita{
+  color: #062a4e;
+}
+
 .message-sender {
   font-weight: bold;
   margin-bottom: 0.31em;

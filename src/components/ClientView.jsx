@@ -40,6 +40,42 @@ const ClientView = () => {
   const [displayHeader, setDisplayHeader] = useState('none');
   const [copied, setCopied] = useState(false);
   const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
+  const GetMsgResumeCita = (lang) => {
+    if(lang === "")
+      return selLang === 'es' ? 'Resumen de mi cita' : (selLang === 'en' ? 'Summary of my appointment' : "Résumé de mon rendez-vous");
+    else
+      return lang === 'es' ? 'Resumen de mi cita' : (lang === 'en' ? 'Summary of my appointment' : "Résumé de mon rendez-vous");
+  };
+  const GetMsgDateHourCita = (lang) => {
+    if(lang === "")
+      return selLang === 'es' ? 'Fecha y hora de mi cita : ' : (selLang === 'en' ? 'Date and time of my appointment : ' : "Date et heure de mon rendez-vous : ");
+    else
+      return lang === 'es' ? 'Fecha y hora de mi cita : ' : (lang === 'en' ? 'Date and time of my appointment : ' : "Date et heure de mon rendez-vous : ");
+  };
+  const GetMsgTypeCita = (lang) => {
+    if(lang === "")
+      return selLang === 'es' ? 'Tipo de servicio : ' : (selLang === 'en' ? 'Type of service : ' : "Type de service : ");
+    else
+      return lang === 'es' ? 'Tipo de servicio : ' : (lang === 'en' ? 'Type of service : ' : "Type de service : ");
+  };
+  const GetMsgContactCita = (lang) => {
+    if(lang === "")
+      return (selLang === 'en' ? 'WhatsApp of the manager : ' : "WhatsApp de la responsable : ");
+    else
+      return (selLang === 'en' ? 'WhatsApp of the manager : ' : "WhatsApp de la responsable : ");
+  };
+  const GetMsgUpdateCita = (lang) => {
+    if(lang === "")
+      return selLang === 'es' ? "Para cancelar su cita, haga clic en el botón 'Cancelar' en la parte inferior izquierda de la página. Para cualquier modificación, por favor contacte a la responsable a través de WhatsApp." : (selLang === 'en' ? "To cancel your appointment, click on the 'Cancel' button at the bottom left of the page. For any changes, please contact the manager via WhatsApp." : "Pour annuler votre rendez-vous, cliquez sur le bouton 'Annuler' en bas à gauche de la page. Pour toute modification, veuillez contacter la responsable via WhatsApp.");
+    else
+      return selLang === 'es' ? "Para cancelar su cita, haga clic en el botón 'Cancelar' en la parte inferior izquierda de la página. Para cualquier modificación, por favor contacte a la responsable a través de WhatsApp." : (selLang === 'en' ? "To cancel your appointment, click on the 'Cancel' button at the bottom left of the page. For any changes, please contact the manager via WhatsApp." : "Pour annuler votre rendez-vous, cliquez sur le bouton 'Annuler' en bas à gauche de la page. Pour toute modification, veuillez contacter la responsable via WhatsApp.");
+  };
+  /*const GetMsgNameClient = (lang) => {
+    if(lang === "")
+      return selLang === 'es' ? 'Tipo de servicio : ' : (selLang === 'en' ? 'Type of service : ' : "Type de service : ");
+    else
+      return lang === 'es' ? 'Tipo de servicio : ' : (lang === 'en' ? 'Type of service : ' : "Type de service : ");
+  };*/
   const GetMsgInitCita = (lang) => {
     if(lang === "")
       return selLang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (selLang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?");
@@ -167,7 +203,12 @@ const ClientView = () => {
     }
   );
   const labelCopied = selLang === 'es' ? 'Copiado !' : (selLang === 'en' ? 'Copied !' : 'Copié !');
-  const codeLang = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR'); 
+  const codeLang = (lang) => {
+    if(lang == "")
+      return selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
+    else
+      return lang === 'es' ? 'es-ES' : (lang === 'en' ? 'en-US' : 'fr-FR');
+  } 
   const curMe = selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
   const [curIdService, setCurIdService] = useState(0);
   const [curCita1, setCurCita1] = useState(
@@ -593,11 +634,9 @@ const ClientView = () => {
         //newMessage.lines = ["Date et heure de votre rendez-vous : " + timeCita1,"\nType de service : " + curCita1.labelService,"\nWhatsApp d'Edilmita : " + lnkWAP,"\nE-mail d'Edilmita : "];
         //newMessage.text = selLang === 'es' ? "Finalmente, por favor, ingrese su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : 
         //(selLang === 'en' ? 'Finally, please enter your email ( click "Send" to save it ) to confirm the appointment.' : 
-        //   +  +  +  + email);
-        newMessage.whatsapp = "";
-        newMessage.lnkWhatsapp = "";
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
-        setStepCita(0);
+        //   +  +  +  + email);        
+        setMessages([]);
+        return;
       }
     }
 
@@ -631,39 +670,8 @@ const ClientView = () => {
     setChatInput('');
   };
 
-  /*const generateCita1 = () => {
-    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
-    const timeCita1 = curCita1.dateCita.toLocaleString(curFormat, {
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour24: true,
-    });
-    let txt = "Date et heure de votre rendez-vous : " + new Date(curCita1.dateCita).toLocaleDateString(codeLang, { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"});
-    txt += "\nType de service : " + curCita1.labelService;
-    txt += "\nNom du client : " + curCita1.nombre;
-    txt += "\nEmail du client : " + curCita1.nombre;
-    txt += "\nEmail d'Edilmita : " + curCita1.contact;
-    txt += "\nWhatsApp d'Edilmita : ";
-    const newMessage = {
-      sender: curAI,
-      text: txt,
-      lines: txt.split('\n'),
-      whatsapp: "+" + import.meta.env.VITE_WHATSAPP,
-      lnkWhatsapp: "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + txt,
-      timeCita1,
-    };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-  };*/
-
   const handleClearChat = () => {
     if(curCita1.contact !== ""){
-      /*setCurCita1(
-      {
-        
-      }
-      );*/
       setCurCita1(
         {
           labelService: "",
@@ -886,7 +894,6 @@ const ClientView = () => {
     console.log(e.target.value + "-" + msg);
     setMessages([]);
     loadMessage(curAI(""),msg,"");
-    
   };
 
   const handleChat = (typeChat) => {
@@ -1006,13 +1013,13 @@ const ClientView = () => {
     setUsrValue(e.target.value);
   };
 
-  const GetCurrentService = () => { 
+  /*const GetCurrentService = () => { 
     if(curCita1.labelService == null){
       curCita1.labelService = [];
     }
     console.log("curCita3 lbl : " + curCita1.labelService.length);
     return curCita1.labelService.length > 0 ? curCita1.labelService[selLang] : "";
-  };
+  };*/
 
   const handleChangeLang = (lang) => {
     
@@ -1099,9 +1106,11 @@ const ClientView = () => {
         <div ref={lstMsgRef} className="chat-messages">
             <div > 
               <div className="message blue-bg" style={{display : curCita1.contact === "" ? "none" : "block"}}>
-              <b style={{ color: '#062a4e' }}>Mi cita</b><br/>
-              Date et heure de votre rendez-vous : <b style={{ color: '#062a4e' }}>25/02/2025 13:00</b><br/>
-              Type de service : <b style={{ color: '#062a4e' }}>{GetCurrentService()}</b>
+              <b>{GetMsgResumeCita('')}</b><br/><br/>
+              {GetMsgDateHourCita('')}<b className='color-cita'>{new Date(curCita1.dateCita).toLocaleDateString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' })}</b><br/>
+              {GetMsgTypeCita('')}<b className='color-cita'>{curCita1.labelService}</b><br/>
+              {GetMsgContactCita('')}<b className='color-cita'><a href={"https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text="}>{"+" + import.meta.env.VITE_WHATSAPP}</a></b><br/><br/>
+              {GetMsgUpdateCita('')}
               </div>
             </div>
           {messages.map((message, index) => (            
@@ -1140,7 +1149,7 @@ const ClientView = () => {
                     className="cita-button button send-button"
                     onClick={(e) => manageCita(e)} value={col.split("-").length > 2 ? col.split("-")[0] + "-" + col.split("-")[1] + "-" + col.split("-")[2] : col.split("-")[0] }
                   >
-                    {col.split("-").length > 2 ? new Date(col).toLocaleDateString(codeLang, { weekday: "short", day: "2-digit", month: "2-digit" }) : (col.split("-").length > 1 ? col.split("-")[1] : new Date('2000-01-01T' + col + ":00").toLocaleTimeString(selLang, { hour: '2-digit', minute: '2-digit' })) } 
+                    {col.split("-").length > 2 ? new Date(col).toLocaleDateString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit" }) : (col.split("-").length > 1 ? col.split("-")[1] : new Date('2000-01-01T' + col + ":00").toLocaleTimeString(selLang, { hour: '2-digit', minute: '2-digit' })) } 
                   </button>
                 ))}
                 <br/>
