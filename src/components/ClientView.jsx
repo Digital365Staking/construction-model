@@ -158,7 +158,7 @@ const ClientView = () => {
   const [curCita1, setCurCita1] = useState(
     () => JSON.parse(localStorage.getItem('curCita1')) ||
     {
-      labelService: [],
+      labelService: "",
       dateCita: new Date(),
       nombre: "",
       contact: "",
@@ -168,7 +168,7 @@ const ClientView = () => {
   //localStorage.clear();
   
   useEffect(() => {
-    console.log("curCita1 lbl : " + curCita1.labelService.length);
+    console.log("curCita1 lbl : " + curCita1.labelService);
     console.log("curCita1 date : " + curCita1.dateCita);
     console.log("curCita1 name : " + curCita1.nombre);
     console.log("curCita1 contact : " + curCita1.contact);
@@ -655,7 +655,7 @@ const ClientView = () => {
     localStorage.clear();
     setCurCita1(
       {
-        labelService: [],
+        labelService: "",
         dateCita: new Date(),
         nombre: "",
         contact: "",
@@ -681,7 +681,7 @@ const ClientView = () => {
     setLinesDay([[]]);
   };
 
-  const initSetCita = (targetValue) => {
+  const initSetCita = (targetValue, step, lang) => {
     let msg = "";
     //localStorage.clear();
     setMessages([]); 
@@ -693,35 +693,43 @@ const ClientView = () => {
       minute: 'numeric',
       hour24: true,
     });   
-    const today = new Date(); 
-    switch (curCita1.stepCita) {
+    const today = new Date();
+    let etp = step >= 0 ? step : curCita1.stepCita;
+    switch (etp) {
       case 0:
-        
-        const filteredData = services.filter(item => item.id === Number(targetValue));
-        if(curCita1.labelService.length === 0 && today < curCita1.dateCita){
-          msg = selLang === 'es' ? 'Usted no puede reservar otra cita porque ya ha reservado dos.' : (selLang === 'en' ? 'You cannot book another appointment because you have already booked two.' : "Vous ne pouvez pas prendre un autre rendez-vous, car vous en avez déjà pris deux.");
-            const newMsg = {
-              sender: curAI(""),
-              text: msg,
-              lines: [],
-              whatsapp:"",
-              lnkWhatsapp:"",
-              timestamp,
-            };
-            setMessages((prevMessages) => [...prevMessages, newMsg]);
-            setMessageSender(curMe);
-            return;
+        if(step < 0){
+          const filteredData = services.filter(item => item.id === Number(targetValue));
+          if(curCita1.labelService.length === 0 && today < curCita1.dateCita){
+            msg = selLang === 'es' ? 'Usted no puede reservar otra cita porque ya ha reservado dos.' : (selLang === 'en' ? 'You cannot book another appointment because you have already booked two.' : "Vous ne pouvez pas prendre un autre rendez-vous, car vous en avez déjà pris deux.");
+              const newMsg = {
+                sender: curAI(""),
+                text: msg,
+                lines: [],
+                whatsapp:"",
+                lnkWhatsapp:"",
+                timestamp,
+              };
+              setMessages((prevMessages) => [...prevMessages, newMsg]);
+              setMessageSender(curMe);
+              return;
+          }else{
+            console.log("filteredData" + filteredData[0]);
+            setCurCita1(prevState => ({
+              ...prevState,  // Keep existing properties
+              labelService: filteredData[0][selLang],
+              dateCita: new Date(),
+              stepCita: prevState.stepCita + 1  // Update stepCita
+            }));
+          }
+          msg = selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
         }else{
-          setCurCita1({
-            labelService: filteredData[0],
-            dateCita: new Date(),
-            nombre:"",
-            contact:"",
-            stepCita: curCita1.stepCita + 1
-          });
+          setCurCita1(prevState => ({
+            ...prevState,  // Keep existing properties
+            labelService: filteredData[0][lang]            
+          }));
+          msg = lang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (lang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
         }
-        
-        msg = selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
+       
         console.log(targetValue);
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -731,21 +739,27 @@ const ClientView = () => {
         console.log(public_holidays);
         let array = getWorkingDays(startDate, endDate, public_holidays, 29);
         setLinesDay(array);
+        
         break;
       case 1:
-        msg = selLang === 'es' ? '¿ A qué hora ?' : (selLang === 'en' ? 'At what time ?' : "À quelle heure ?");
+        
+        if(etp < 0){
+          msg = selLang === 'es' ? '¿ A qué hora ?' : (selLang === 'en' ? 'At what time ?' : "À quelle heure ?");
+          //loadMessage(curAI(lang),msg,lang);
+        }else{
+          msg = lang === 'es' ? '¿ A qué hora ?' : (lang === 'en' ? 'At what time ?' : "À quelle heure ?");          
+        }
+          
         console.log(targetValue);
         const datTarget = new Date(targetValue);
         /*const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);*/
-        if(today >= curCita1.dateCita){          
-          setCurCita1({
-            labelService: curCita1.labelService,
+        if(today >= curCita1.dateCita){ 
+          setCurCita1(prevState => ({
+            ...prevState,  // Keep existing properties
             dateCita: datTarget,
-            nombre:"",
-            contact:"",
-            stepCita: curCita1.stepCita + 1
-          });          
+            stepCita: prevState.stepCita + 1  // Update stepCita
+          }));         
         }
         
         console.log("VITE_ID_CLIENT:", import.meta.env.VITE_ID_CLIENT);
@@ -771,37 +785,37 @@ const ClientView = () => {
         });
         console.log("arr l = " + arr[0].length);
         if(arr[0].length === 0){
-          if(selLang !== "en"){
-            arr[0].push("11:00");  
-            arr[0].push("11:15");
-            arr[0].push("11:30");
-            arr[0].push("11:45");
+          let lg = step < 0 ? selLang : lang;
+          console.log("lg " + lg);
+          arr[0].push("11:00");
+            arr[0].push("11:15" + (lg !== "en" ? "" : " AM"));
+            arr[0].push("11:30" + (lg !== "en" ? "" : " AM"));
+            arr[0].push("11:45" + (lg !== "en" ? "" : " AM"));
             arr.push([]);
-            arr[1].push("12:00");
-            arr[1].push("12:15");
-            arr[1].push("12:30");
-            arr[1].push("12:45");
+            arr[1].push("12:00" + (lg !== "en" ? "" : " AM"));
+            arr[1].push("12:15" + (lg !== "en" ? "" : " AM"));
+            arr[1].push("12:30" + (lg !== "en" ? "" : " AM"));
+            arr[1].push("12:45" + (lg !== "en" ? "" : " AM"));
             arr.push([]);
-            arr[2].push("13:00");
-            arr[2].push("13:15");
-            arr[2].push("13:30");
-            arr[2].push("13:45");
+            arr[2].push("13:00" + (lg !== "en" ? "" : " AM"));
+            arr[2].push("13:15" + (lg !== "en" ? "" : " AM"));
+            arr[2].push("13:30" + (lg !== "en" ? "" : " AM"));
+            arr[2].push("13:45" + (lg !== "en" ? "" : " AM"));
             arr.push([]);
-            arr[3].push("17:00");  
-            arr[3].push("17:15");
-            arr[3].push("17:30");
-            arr[3].push("17:45");
+            arr[3].push("17:00" + (lg !== "en" ? "" : " AM"));  
+            arr[3].push("17:15" + (lg !== "en" ? "" : " AM"));
+            arr[3].push("17:30" + (lg !== "en" ? "" : " AM"));
+            arr[3].push("17:45" + (lg !== "en" ? "" : " AM"));
             arr.push([]);
-            arr[4].push("18:00");
-            arr[4].push("18:15");
-            arr[4].push("18:30");
-            arr[4].push("18:45");
+            arr[4].push("18:00" + (lg !== "en" ? "" : " AM"));
+            arr[4].push("18:15" + (lg !== "en" ? "" : " AM"));
+            arr[4].push("18:30" + (lg !== "en" ? "" : " AM"));
+            arr[4].push("18:45" + (lg !== "en" ? "" : " AM"));
             arr.push([]);
-            arr[5].push("19:00");
-            arr[5].push("19:15");
-            arr[5].push("19:30");
-            arr[5].push("19:45");
-          }
+            arr[5].push("19:00" + (lg !== "en" ? "" : " AM"));
+            arr[5].push("19:15" + (lg !== "en" ? "" : " AM"));
+            arr[5].push("19:30" + (lg !== "en" ? "" : " AM"));
+            arr[5].push("19:45" + (lg !== "en" ? "" : " AM"));
         }
 
         setLinesDay(arr);
@@ -810,13 +824,13 @@ const ClientView = () => {
         console.log('hour selected ' + targetValue);
         if(targetValue.length === 5){
           const firstTwo = Number(targetValue.slice(0, 2));
-          const lastTwo = Number(targetValue.slice(-2));
+          const lastTwo = Number(targetValue.slice(-2));          
           let datTarget = new Date();
     
           if(curCita1.contact === ""){
             datTarget = curCita1.dateCita;
-            datTarget.setHours(firstTwo);
-            datTarget.setMinutes(lastTwo);
+            datTarget.setUTCHours(firstTwo);
+            datTarget.setUTCMinutes(lastTwo);
             setCurCita1({
               labelService: curCita1.labelService,
               dateCita: datTarget,
@@ -827,7 +841,8 @@ const ClientView = () => {
           }         
         }
         msg = selLang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su número de WhatsApp o su dirección de correo electrónico (a elección). Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : (selLang === 'en' ? "To confirm the appointment, you must register your first name and your WhatsApp number or email address (your choice). First, enter your first name, then click 'Send' to save it." : "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre numéro WhatsApp ou votre adresse e-mail (au choix). Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer.");
-             
+        if(etp < 0)
+          loadMessage(curAI(""),msg,"");     
         setLinesDay([[]]);
         
         break;
@@ -836,21 +851,15 @@ const ClientView = () => {
       default:
         // Code to execute if none of the cases match
     }
-    /*setCurCita1(
-      {
-        labelService: curCita1.labelService,
-        dateCita: curCita1.dateCita,
-        nombre: curCita1.nombre,
-        contact: curCita1.contact,
-        stepCita: curCita1.stepCita + 1
-      }
-    );*/
-    loadMessage(curAI(""),msg,selLang);
+    return msg;
+    
   }
 
   const manageCita = async (e) => {
     console.log(curCita1.labelService);
-    initSetCita(e.target.value);
+    let msg = initSetCita(e.target.value, -1, selLang);
+    loadMessage(curAI(""),msg,"");
+    
   };
 
   const handleChat = (typeChat) => {
@@ -988,21 +997,22 @@ const ClientView = () => {
     setSelLang(lang);
     //localStorage.clear();
     setMessages([]);
-    console.log("curCita2 lbl : " + curCita1.labelService.length);
+    console.log("stepCita : " + curCita1.stepCita);
     let msg = lang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?");
     
-      //let etp = curCita1.stepCita;
-      //etp -= 1;
+      let etp = curCita1.stepCita;
+      //if(etp > 0)
+      //  etp -= 1;
       //let c=0;
       //let line=-1;
       
-      //console.log("changeLang2 : " + etp);  
+      //console.log("changeLang2 : " + curCita1.stepCita);  
       switch (curCita1.stepCita) {
         case 0:          
           loadServices([[]], lang);   
-          console.log("changeLang : " + curCita1.labelService.length); 
+          
           if(curCita1.labelService.length > 0)      
-            initSetCita(curCita1.labelService[lang]);
+            initSetCita(curCita1.labelService[lang], -1, lang);
           /*msg = lang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (lang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
           const tomorrow = new Date();
           tomorrow.setDate(tomorrow.getDate() + 1);
@@ -1013,7 +1023,11 @@ const ClientView = () => {
           setLinesDay(array);*/
           break;
         case 1:
-          initSetCita(curCita1.dateCita);
+          console.log("changeLang : " + curCita1.dateCita);
+          const msg2 = initSetCita(curCita1.dateCita, 0, lang);
+          console.log("GGGGG" + msg2);
+          loadMessage(curAI(lang),msg2,lang);
+          return;
           /*msg = lang === 'es' ? '¿ A qué hora ?' : (lang === 'en' ? 'At what time ?' : "À quelle heure ?");
           console.log(availability);       
           const arr = [[]];
@@ -1069,7 +1083,10 @@ const ClientView = () => {
           */
           break;
         case 2:
-          initSetCita(curCita1.nombre);
+          let msg3 = initSetCita(curCita1.nombre, 1, lang);
+          
+          loadMessage(curAI(lang),msg3,lang);
+          return;
           /*msg = lang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su número de WhatsApp o su dirección de correo electrónico (a elección). Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : (lang === 'en' ? "To confirm the appointment, you must register your first name and your WhatsApp number or email address (your choice). First, enter your first name, then click 'Send' to save it." : "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre numéro WhatsApp ou votre adresse e-mail (au choix). Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer.");
           console.log('sel email ' + idService);        
           setLinesDay([[]]);
