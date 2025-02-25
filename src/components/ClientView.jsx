@@ -102,19 +102,22 @@ const ClientView = () => {
     }).catch(err => console.error("Failed to copy:", err));
   };
 
-  const sendCita = (emailClient,emailAdmin,subject,msg,lbl_headerCita,lbl_datehour,val_datehour) => {
+  const sendCita = (emailClient,emailAdmin,subject,msg,lbl_headerCita,lbl_datehour,val_datehour,lbl_service,val_service,
+    lbl_name,val_name,email_client,lbl_wap, val_wap
+  ) => {
 
     const templateParams = {
       from_name: subject,
       to_name: emailClient, // email client
-      message: msg,
       lbl_headerCita: lbl_headerCita,
       lbl_datehour: lbl_datehour,
       val_datehour: val_datehour,
-      /*lbl_service: ,
-      val_service: ,
-      lbl_wap: ,
-      val_wap: ,*/
+      lbl_service: lbl_service,
+      val_service: val_service,
+      lbl_name:val_name,
+      email:email_client, 
+      lbl_wap: lbl_wap,
+      val_wap: val_wap,
       reply_to: emailAdmin // email admin
     };
 
@@ -650,7 +653,7 @@ const ClientView = () => {
         txtMail += GetMsgContactCita('') + "<a href=https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=>+" + import.meta.env.VITE_WHATSAPP + "</a>\n";
         
         let subject = selLang == 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous");
-        sendCita("snowchamonix@gmail.com","adrien012014@gmail.com",subject,txtMail,GetMsgDateHourCita(''),dathour);
+        sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,txtMail,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour);
         return;
       }
     }
