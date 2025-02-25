@@ -227,7 +227,7 @@ const ClientView = () => {
     () => JSON.parse(localStorage.getItem('curCita1')) ||
     {
       labelService: "",
-      dateCita: new Date(),
+      dateCita: new Date(new Date().toISOString()),
       nombre: "",
       contact: "",
       stepCita: 0
@@ -700,7 +700,7 @@ const ClientView = () => {
       setCurCita1(
         {
           labelService: "",
-          dateCita: new Date(),
+          dateCita: new Date(new Date().toISOString()),
           nombre: "",
           contact: "",
           stepCita: 0
@@ -740,7 +740,7 @@ const ClientView = () => {
       minute: 'numeric',
       hour24: true,
     });   
-    const today = new Date();
+    const today = new Date(new Date().toISOString());
     let etp = step >= 0 ? step : curCita1.stepCita;
     switch (etp) {
       case 0:
@@ -766,8 +766,7 @@ const ClientView = () => {
             console.log("filteredData" + filteredData[0]);
             setCurCita1(prevState => ({
               ...prevState,  // Keep existing properties
-              labelService: filteredData[0][selLang],
-              dateCita: new Date(),
+              labelService: filteredData[0][selLang],              
               stepCita: prevState.stepCita + 1  // Update stepCita
             }));
           }
@@ -802,7 +801,7 @@ const ClientView = () => {
         }
           
         console.log(targetValue);
-        const datTarget = new Date(targetValue);
+        const datTarget = new Date(new Date(targetValue).toISOString());
         /*const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);*/
         if(today >= curCita1.dateCita){ 
@@ -879,7 +878,7 @@ const ClientView = () => {
           let datTarget = new Date();
     
           if(curCita1.contact === ""){
-            datTarget = curCita1.dateCita;
+            datTarget = new Date(curCita1.dateCita.toISOString());
             datTarget.setUTCHours(firstTwo);
             datTarget.setUTCMinutes(lastTwo);
             setCurCita1({
