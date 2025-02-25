@@ -636,6 +636,13 @@ const ClientView = () => {
         //(selLang === 'en' ? 'Finally, please enter your email ( click "Send" to save it ) to confirm the appointment.' : 
         //   +  +  +  + email);        
         setMessages([]);
+        let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n'; 
+        txtMail += new Date(curCita1.dateCita).toLocaleDateString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' }) + '\n';
+        txtMail += GetMsgTypeCita('') + curCita1.labelService + '\n';
+        txtMail += GetMsgContactCita('') + "<a href=https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=>+" + import.meta.env.VITE_WHATSAPP + "</a>\n";
+        
+        let subject = selLang == 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous");
+        sendMessage("snowchamonix@gmail.com","adrien012014@gmail.com",subject,txtMail);
         return;
       }
     }
