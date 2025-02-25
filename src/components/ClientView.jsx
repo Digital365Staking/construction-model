@@ -114,10 +114,12 @@ const ClientView = () => {
       val_datehour: val_datehour,
       lbl_service: lbl_service,
       val_service: val_service,
-      lbl_name:val_name,
+      lbl_name:lbl_name,
+      val_name:val_name,
       email:emailClient, 
       lbl_wap: lbl_wap,
       val_wap: val_wap,
+      msg: msg,
       reply_to: emailAdmin // email admin
     };
 
@@ -653,7 +655,7 @@ const ClientView = () => {
         txtMail += GetMsgContactCita('') + " +" + import.meta.env.VITE_WHATSAPP + "\n";
         
         let subject = selLang == 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous");
-        let name = selLang == 'es' ? "Nombre" : (selLang === 'en' ? "Name" : "Nom");
+        let name = selLang == 'es' ? "Nombre : " : (selLang === 'en' ? "Name : " : "Nom : ");
         sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,txtMail,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
         GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP);
         return;
