@@ -68,8 +68,8 @@ textarea:disabled {
   display: flex;
   flex-direction: column; /* Arranges messages vertically */
   justify-content: flex-start; /* Aligns messages to the top */
-  height: 27em; /* Ensures the container takes up its allocated space */
-  overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
+  height: 23em; /* Ensures the container takes up its allocated space */
+  overflow-y: 99999; /* Allows scrolling if the messages exceed the container's height */
 }
 
 .chat-messages::-webkit-scrollbar {
