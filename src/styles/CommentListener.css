@@ -263,17 +263,50 @@ textarea:disabled {
 }
 
 /* Styles for mobile devices  */
+
 @media screen and (max-width: 768px) {
   .fixed-bottom {
     position: fixed;
     border-radius: 0.5em 0.5em 0.5em 0.5em;
     box-shadow: 0 0 0.75em 0.5em #c3c3c333;
-    width: 88%;
-    height: 30vh;
-    bottom: 3px;
+    width: 87%;
+    height: 25vh;
+    bottom: 8px;
     padding: 0.5em 0.5em;
     background: #333;
     color: white;
+    background-image: linear-gradient(
+      23deg,
+      hsl(320deg 60% 45%) 0%,
+      hsl(280deg 50% 40%) 20%,
+      hsl(240deg 50% 35%) 40%,
+      hsl(200deg 40% 30%) 60%,
+      hsl(160deg 30% 25%) 80%,
+      hsl(120deg 20% 20%) 100%
+      );
+  }
+}
+
+@media screen and (max-width: 620px) {
+  .fixed-bottom {
+    position: fixed;
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    box-shadow: 0 0 0.75em 0.5em #c3c3c333;
+    width: 82%;
+    height: 29vh;
+    bottom: 39px;
+    padding: 0.5em 0.5em;
+    background: #333;
+    color: white;
+    background-image: linear-gradient(
+      23deg,
+      hsl(320deg 60% 45%) 0%,
+      hsl(280deg 50% 40%) 20%,
+      hsl(240deg 50% 35%) 40%,
+      hsl(200deg 40% 30%) 60%,
+      hsl(160deg 30% 25%) 80%,
+      hsl(120deg 20% 20%) 100%
+      );
   }
 }
 
@@ -283,11 +316,21 @@ textarea:disabled {
     position: fixed;
     border-radius: 0.5em 0.5em 0.5em 0.5em;
     box-shadow: 0 0 0.75em 0.5em #c3c3c333;
-    width: 63%;
+    width: 87%;
+    height: 25vh;
     bottom: 8px;
     padding: 0.5em 0.5em;
     background: #333;
     color: white;
+    background-image: linear-gradient(
+      23deg,
+      hsl(320deg 60% 45%) 0%,
+      hsl(280deg 50% 40%) 20%,
+      hsl(240deg 50% 35%) 40%,
+      hsl(200deg 40% 30%) 60%,
+      hsl(160deg 30% 25%) 80%,
+      hsl(120deg 20% 20%) 100%
+      );
   }
 }
 
@@ -310,7 +353,7 @@ textarea:disabled {
     hsl(200deg 40% 30%) 60%,
     hsl(160deg 30% 25%) 80%,
     hsl(120deg 20% 20%) 100%
-);
+    );
   }
 }
 
