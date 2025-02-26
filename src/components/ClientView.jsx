@@ -8,6 +8,7 @@ import { createPerplexity } from '@ai-sdk/perplexity';
 import { generateText } from 'ai';
 import { HfInference } from "@huggingface/inference";
 import emailjs from 'emailjs-com';
+import { saveAs } from "file-saver";
 
 const perplexity = createPerplexity({
   apiKey: import.meta.env.VITE_PERPLEXITY_API_KEY,
@@ -105,7 +106,7 @@ const ClientView = () => {
   const sendCita = (emailClient,emailAdmin,subject,msg,lbl_headerCita,lbl_datehour,val_datehour,lbl_service,val_service,
     lbl_name,val_name,lbl_wap, val_wap
   ) => {
-
+    generateICSFile(msg);
     const templateParams = {
       from_name: subject,
       to_name: emailClient, // email client
@@ -122,7 +123,7 @@ const ClientView = () => {
       msg: msg,
       reply_to: emailAdmin // email admin
     };
-
+    //generateICSFile
     emailjs.send(
       import.meta.env.VITE_EMAIL_SERVICE_ID,         // Service ID (from EmailJS)
       import.meta.env.VITE_EMAIL_TEMPLATE_ID,        // Template ID (from EmailJS)
@@ -650,16 +651,16 @@ const ClientView = () => {
         //   +  +  +  + email);        
         setMessages([]);
         let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n';
-        let dathour = new Date(curCita1.dateCita).toLocaleDateString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' }); 
+        let dathour = GetUTCDate(new Date(curCita1.dateCita)).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' }); 
         txtMail += dathour + '\n';
         txtMail += GetMsgTypeCita('') + curCita1.labelService + '\n';
         txtMail += GetMsgContactCita('') + " +" + import.meta.env.VITE_WHATSAPP + "\n";
         
-        let subject = selLang == 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous");
-        let name = selLang == 'es' ? "Nombre : " : (selLang === 'en' ? "Name : " : "Nom : ");
+        let subject = selLang === 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous");
+        let name = selLang === 'es' ? "Nombre : " : (selLang === 'en' ? "Name : " : "Nom : ");
         console.log("Nom :" + curCita1.nombre);
-        return;
-        sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,txtMail,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
+        const encodedMessage = encodeURIComponent(txtMail);
+        sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,encodedMessage,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
         GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP);
         return;
       }
@@ -1115,6 +1116,54 @@ const ClientView = () => {
     return utcDate;
   };
 
+  /*const generateICSFile = () => {
+    const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Your Company//NONSGML Event//EN
+BEGIN:VEVENT
+UID:12345
+DTSTAMP:20250226T090000Z
+DTSTART:20250301T100000Z
+DTEND:20250301T110000Z
+SUMMARY:Meeting with Client
+DESCRIPTION:Discuss project details
+LOCATION:Online
+END:VEVENT
+END:VCALENDAR`;
+
+    // Convert to Base64
+    return btoa(new TextEncoder().encode(icsContent).reduce((data, byte) => data + String.fromCharCode(byte), ""));
+  };*/
+
+  const generateICSFile = (txtMail) => {
+    let curDate = new Date(curCita1.dateCita);
+    curDate = new Date(curDate.getTime() - 60 * 60 * 1000); // - 1 hour
+    let dateEnd = new Date(curDate.getTime() + 30 * 60 * 1000);
+    const icsContent = 
+    `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//YourCompany//YourProduct//EN
+BEGIN:VEVENT
+UID:${Date.now()}@yourdomain.com
+DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z"}
+DTSTART:${curDate.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z"}
+DTEND:${dateEnd.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z"}
+SUMMARY:${curCita1.labelService}
+DESCRIPTION:${GetMsgContactCita() + "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + txtMail}
+LOCATION:${import.meta.env.VITE_GOOGLEMAPS}
+END:VEVENT
+END:VCALENDAR`;
+  
+    const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+
+    // Save file locally
+    saveAs(blob, selLang === "es" ? "cita.ics" : "event.ics"); // Triggers download
+    // Generate a temporary URL for the file
+    //const fileUrl = URL.createObjectURL(blob);
+
+    //return "http://localhost:5173/event.ics"; // Return the URL to use in the email
+  };
+
   return (
     <div className="app-container">      
       <div class="header-container">
@@ -1179,7 +1228,7 @@ const ClientView = () => {
                     className="cita-button button send-button"
                     onClick={(e) => manageCita(e)} value={col.split("-").length > 2 ? col.split("-")[0] + "-" + col.split("-")[1] + "-" + col.split("-")[2] : col.split("-")[0] }
                   >
-                    {col.split("-").length > 2 ? GetUTCDate(new Date(col)).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit" }) : (col.split("-").length > 1 ? col.split("-")[1] : GetUTCDate(new Date('2000-01-01T' + col + ":00")).toLocaleString(selLang, { hour: '2-digit', minute: '2-digit' })) } 
+                    {col.split("-").length > 2 ? GetUTCDate(new Date(col)).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit" }) : (col.split("-").length > 1 ? col.split("-")[1] : new Date('2000-01-01T' + col + ":00").toLocaleString(selLang, { hour: '2-digit', minute: '2-digit' })) } 
                   </button>
                 ))}
                 <br/>
