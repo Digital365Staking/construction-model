@@ -227,7 +227,7 @@ const ClientView = () => {
     () => JSON.parse(localStorage.getItem('curCita1')) ||
     {
       labelService: "",
-      dateCita: new Date(new Date().toISOString()),
+      dateCita: new Date(),
       nombre: "",
       contact: "",
       stepCita: 0
@@ -658,7 +658,7 @@ const ClientView = () => {
         let subject = selLang == 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous");
         let name = selLang == 'es' ? "Nombre : " : (selLang === 'en' ? "Name : " : "Nom : ");
         console.log("Nom :" + curCita1.nombre);
-        
+        return;
         sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,txtMail,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
         GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP);
         return;
@@ -700,7 +700,7 @@ const ClientView = () => {
       setCurCita1(
         {
           labelService: "",
-          dateCita: new Date(new Date().toISOString()),
+          dateCita: new Date(),
           nombre: "",
           contact: "",
           stepCita: 0
@@ -740,7 +740,7 @@ const ClientView = () => {
       minute: 'numeric',
       hour24: true,
     });   
-    const today = new Date(new Date().toISOString());
+    const today = new Date();
     let etp = step >= 0 ? step : curCita1.stepCita;
     switch (etp) {
       case 0:
@@ -801,7 +801,7 @@ const ClientView = () => {
         }
           
         console.log(targetValue);
-        const datTarget = new Date(new Date(targetValue).toISOString());
+        const datTarget = new Date(targetValue);
         /*const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);*/
         if(today >= curCita1.dateCita){ 
@@ -878,7 +878,7 @@ const ClientView = () => {
           let datTarget = new Date();
     
           if(curCita1.contact === ""){
-            datTarget = new Date(curCita1.dateCita.toISOString());
+            datTarget = curCita1.dateCita;
             datTarget.setUTCHours(firstTwo);
             datTarget.setUTCMinutes(lastTwo);
             setCurCita1({
@@ -1109,6 +1109,12 @@ const ClientView = () => {
     setMessageSender(curMe);
   };
 
+  const GetUTCDate = (date) =>{
+    const utcDate = date;
+    utcDate.setUTCHours(utcDate.getUTCHours() - 1); // Subtract 1 hour in UTC
+    return utcDate;
+  };
+
   return (
     <div className="app-container">      
       <div class="header-container">
@@ -1131,7 +1137,7 @@ const ClientView = () => {
             <div > 
               <div className="message blue-bg" style={{display : curCita1.contact === "" ? "none" : "block"}}>
               <b>{GetMsgResumeCita('')}</b><br/><br/>
-              {GetMsgDateHourCita('')}<b className='color-cita'>{new Date(curCita1.dateCita).toLocaleDateString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' })}</b><br/>
+              {GetMsgDateHourCita('')}<b className='color-cita'>{GetUTCDate(new Date(curCita1.dateCita)).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' })}</b><br/>
               {GetMsgTypeCita('')}<b className='color-cita'>{curCita1.labelService}</b><br/>
               {GetMsgContactCita('')}<b className='color-cita'><a href={"https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text="}>{"+" + import.meta.env.VITE_WHATSAPP}</a></b><br/><br/>
               {GetMsgUpdateCita('')}
@@ -1173,7 +1179,7 @@ const ClientView = () => {
                     className="cita-button button send-button"
                     onClick={(e) => manageCita(e)} value={col.split("-").length > 2 ? col.split("-")[0] + "-" + col.split("-")[1] + "-" + col.split("-")[2] : col.split("-")[0] }
                   >
-                    {col.split("-").length > 2 ? new Date(col).toLocaleDateString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit" }) : (col.split("-").length > 1 ? col.split("-")[1] : new Date('2000-01-01T' + col + ":00").toLocaleTimeString(selLang, { hour: '2-digit', minute: '2-digit' })) } 
+                    {col.split("-").length > 2 ? GetUTCDate(new Date(col)).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit" }) : (col.split("-").length > 1 ? col.split("-")[1] : GetUTCDate(new Date('2000-01-01T' + col + ":00")).toLocaleString(selLang, { hour: '2-digit', minute: '2-digit' })) } 
                   </button>
                 ))}
                 <br/>
