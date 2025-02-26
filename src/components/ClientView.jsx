@@ -31,11 +31,11 @@ const ClientView = () => {
   //localStorage.clear();
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
+  const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 2);
   const [availability, setAvailability] = useState([]);
   const [messages, setMessages] = useState([]);
   //useState(() => JSON.parse(localStorage.getItem('messages')) || []);
   const [linesDay, setLinesDay] = useState([[]]);
-  const isDisabled = messages.length === 0;
   const [usrValue, setUsrValue] = useState(import.meta.env.VITE_HUGGING_KEY);
   const [chatInput, setChatInput] = useState('');
   const [displayHeader, setDisplayHeader] = useState('none');
@@ -199,7 +199,7 @@ const ClientView = () => {
   const handleFocus = () => {
     setUserInteracted(true);
   };
-  const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 2);
+  
   const [displayBudget, setDisplayBudget] = useState(
     {
       display: (import.meta.env.VITE_OPT_BUDGET === "1" && curCateg !== 1 ? "block" : "none")
@@ -234,6 +234,7 @@ const ClientView = () => {
       stepCita: 0
     }
   );
+  const [isDisabled, setIsDisabled]  = useState((curCateg === 2 && curCita1.stepCita < 3) || (curCita1.contact !== ""));
   //localStorage.clear();
   
   useEffect(() => {
@@ -697,6 +698,7 @@ const ClientView = () => {
   };
 
   const handleClearChat = () => {
+    setIsDisabled(true); 
     if(curCita1.contact !== ""){
       setCurCita1(
         {
@@ -805,13 +807,11 @@ const ClientView = () => {
         const datTarget = new Date(targetValue);
         /*const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);*/
-        if(today >= curCita1.dateCita){ 
-          setCurCita1(prevState => ({
-            ...prevState,  // Keep existing properties
-            dateCita: datTarget,
-            stepCita: prevState.stepCita + 1  // Update stepCita
-          }));         
-        }
+        setCurCita1(prevState => ({
+          ...prevState,  // Keep existing properties
+          dateCita: datTarget,
+          stepCita: prevState.stepCita + 1  // Update stepCita
+        }));
         
         console.log("VITE_ID_CLIENT:", import.meta.env.VITE_ID_CLIENT);
         console.log("VITE_START_SLOT_AM:", import.meta.env.VITE_START_SLOT_AM);
@@ -914,7 +914,7 @@ const ClientView = () => {
 
   const manageCita = async (e) => {
     e.preventDefault();
-    console.log(curCita1.labelService);
+    console.log("manageCita" + curCita1.labelService);
     let msg = initSetCita(e.target.value, -1, selLang);
     console.log(e.target.value + "-" + msg);
     setMessages([]);
@@ -922,7 +922,7 @@ const ClientView = () => {
   };
 
   const handleChat = (typeChat) => {
-    
+    setIsDisabled(typeChat === 2);
     setCurCateg(typeChat);
     //localStorage.clear();
     setMessages([]);
@@ -1239,7 +1239,7 @@ END:VCALENDAR`;
         </div>
         <div class="fixed-bottom">
         <form className="chat-input-form" onSubmit={handleSendMessage}>
-          <textarea id="message" name="message" rows="5" cols="50" disabled={isDisabled} className="chat-input" value={chatInput} placeholder={`${curTypeHere}, ${messageSender}...`} onFocus={handleFocus} onChange={(e) => setChatInput(e.target.value)}></textarea>          
+          <textarea id="message" name="message" rows="5" cols="50" disabled={(curCateg === 2 && curCita1.stepCita < 3) || (curCita1.contact !== "")} className="chat-input" value={chatInput} placeholder={`${curTypeHere}, ${messageSender}...`} onFocus={handleFocus} onChange={(e) => setChatInput(e.target.value)}></textarea>          
           <input
             type="text"
             name="usr"
@@ -1250,7 +1250,7 @@ END:VCALENDAR`;
             tabIndex="-1" // Avoid focus by keyboard users
             autoComplete="off"
           />
-          <button type="submit" disabled={isDisabled} className="button send-button">{curSend}</button>
+          <button type="submit" disabled={(curCateg === 2 && curCita1.stepCita < 3) || (curCita1.contact !== "")} className="button send-button">{curSend}</button>
         </form>
         <div className='displayElements1'>
           {/* Left-aligned button */}
