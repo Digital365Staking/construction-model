@@ -223,10 +223,10 @@ const ClientView = () => {
       return lang === 'es' ? 'es-ES' : (lang === 'en' ? 'en-US' : 'fr-FR');
   } 
   const curMe = selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
-  const [curIdService, setCurIdService] = useState(0);
   const [curCita1, setCurCita1] = useState(
     () => JSON.parse(localStorage.getItem('curCita1')) ||
     {
+      idService: 0,
       labelService: "",
       dateCita: new Date(),
       nombre: "",
@@ -637,19 +637,12 @@ const ClientView = () => {
       return;
     }else{
       if(import.meta.env.VITE_OPT_CITA == "1" && displayCita.display === "none" && curCita1.stepCita === 4 && curCita1.contact === ""){
-        setCurCita1({
-          labelService: curCita1.labelService,
-          dateCita: curCita1.dateCita,
-          nombre:curCita1.nombre,
+        setCurCita1(prevState => ({
+          ...prevState,  // Keep existing properties
           contact:chatInput,
-          stepCita: curCita1.stepCita + 1
-        });
-        
-        //newMessage.sender = curAI;
-        //newMessage.lines = ["Date et heure de votre rendez-vous : " + timeCita1,"\nType de service : " + curCita1.labelService,"\nWhatsApp d'Edilmita : " + lnkWAP,"\nE-mail d'Edilmita : "];
-        //newMessage.text = selLang === 'es' ? "Finalmente, por favor, ingrese su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : 
-        //(selLang === 'en' ? 'Finally, please enter your email ( click "Send" to save it ) to confirm the appointment.' : 
-        //   +  +  +  + email);        
+          stepCita: prevState.stepCita + 1  // Update stepCita
+        }));
+              
         setMessages([]);
         let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n';
         let dathour = GetUTCDate(new Date(curCita1.dateCita)).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' }); 
@@ -661,6 +654,7 @@ const ClientView = () => {
         let name = selLang === 'es' ? "Nombre : " : (selLang === 'en' ? "Name : " : "Nom : ");
         console.log("Nom :" + curCita1.nombre);
         const encodedMessage = encodeURIComponent(txtMail);
+        handleInsertCita();
         sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,encodedMessage,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
         GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP);
         return;
@@ -697,11 +691,12 @@ const ClientView = () => {
     setChatInput('');
   };
 
-  const handleClearChat = () => {
+  const handleClearChat = async () => {
     setIsDisabled(true); 
-    if(curCita1.contact !== ""){
+    /*if(curCita1.contact !== ""){
       setCurCita1(
         {
+          idService: 0,
           labelService: "",
           dateCita: new Date(),
           nombre: "",
@@ -709,8 +704,25 @@ const ClientView = () => {
           stepCita: 0
         }
       );
+    }*/
+    if(curCateg !== 2){
+      setCurCita1(prevState => ({
+        ...prevState,  // Keep existing properties              
+        stepCita: 0  // Update stepCita
+      }));
+    }else{
+      const { error } = await supabase
+        .from("CITA")
+        .delete()
+        .eq("id", curCita1.idService); // Filter by id
+
+      if (error) {
+        console.error("Error deleting data:", error.message);        
+      } else {
+        console.log(`Cita with ID ${curCita1.idService} deleted successfully!`);
+      }
+      localStorage.clear();
     }
-    localStorage.clear();
     
     setMessages([]);   
     setDisplayBudget(
@@ -751,7 +763,7 @@ const ClientView = () => {
         if(step < 0){    
           let idServ = Number(targetValue);
           filteredData = services.filter(item => item.id === idServ);
-          setCurIdService(idServ);      
+              
           if(curCita1.labelService.length === 0 && today < curCita1.dateCita){
             msg = selLang === 'es' ? 'Usted no puede reservar otra cita porque ya ha reservado dos.' : (selLang === 'en' ? 'You cannot book another appointment because you have already booked two.' : "Vous ne pouvez pas prendre un autre rendez-vous, car vous en avez déjà pris deux.");
               const newMsg = {
@@ -769,13 +781,14 @@ const ClientView = () => {
             console.log("filteredData" + filteredData[0]);
             setCurCita1(prevState => ({
               ...prevState,  // Keep existing properties
+              idService: idServ,
               labelService: filteredData[0][selLang],              
               stepCita: prevState.stepCita + 1  // Update stepCita
             }));
           }
           msg = selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
         }else{
-          filteredData = services.filter(item => item.id === curIdService);
+          filteredData = services.filter(item => item.id === curCita1.idService);
           setCurCita1(prevState => ({
             ...prevState,  // Keep existing properties
             labelService: filteredData[0][lang]            
@@ -882,13 +895,14 @@ const ClientView = () => {
             datTarget = curCita1.dateCita;
             datTarget.setUTCHours(firstTwo);
             datTarget.setUTCMinutes(lastTwo);
-            setCurCita1({
-              labelService: curCita1.labelService,
+            setCurCita1(prevState => ({
+              ...prevState,  // Keep existing properties
               dateCita: datTarget,
               nombre:"",
               contact:"",
-              stepCita: curCita1.stepCita + 1
-            });     
+              stepCita: prevState.stepCita + 1
+            }));
+                
           }         
         }
         
@@ -1037,14 +1051,31 @@ const ClientView = () => {
   const handleUsr = (e) => {
     setUsrValue(e.target.value);
   };
+ 
+  const handleInsertCita = async () => {
+    const { data, error } = await supabase
+      .from("CITA")
+      .insert([
+        {
+          id_service: curCita1.idService,
+          whatsapp: curCita1.whatsapp,
+          name: curCita1.nombre,
+          id_client: Number(import.meta.env.VITE_ID_CLIENT),
+          start_date: curCita1.dateCita,
+        },
+      ]).select();
 
-  /*const GetCurrentService = () => { 
-    if(curCita1.labelService == null){
-      curCita1.labelService = [];
+    if (error) {
+      console.error("Error inserting data:", error.message);      
+    } else {
+      setCurCita1(prevState => ({
+        ...prevState,  // Keep existing properties
+        idService:data[0].id,        
+        stepCita: 0
+      }));
+      console.log(`Cita inserted successfully! ID: ${data[0].id}`);      
     }
-    console.log("curCita3 lbl : " + curCita1.labelService.length);
-    return curCita1.labelService.length > 0 ? curCita1.labelService[selLang] : "";
-  };*/
+  };
 
   const handleChangeLang = (lang) => {
     
