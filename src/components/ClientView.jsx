@@ -9,6 +9,10 @@ import { generateText } from 'ai';
 import { HfInference } from "@huggingface/inference";
 import emailjs from 'emailjs-com';
 import { saveAs } from "file-saver";
+import { Swiper, SwiperSlide } from 'swiper/react';
+
+// Import Swiper styles
+import 'swiper/css';
 
 const perplexity = createPerplexity({
   apiKey: import.meta.env.VITE_PERPLEXITY_API_KEY,
@@ -684,8 +688,14 @@ const ClientView = () => {
         return;
       }
     }
-
+    setMessages([]);
     setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    if(curCateg == 0){
+      loadMessage(curAI(""),"Les envio toda la informacion que tengo : ","");
+      return;
+    }
+
     const phone = import.meta.env.VITE_WHATSAPP;
     if(messageSender === curMe){
       console.log('msg : ' + chatInput);
@@ -717,18 +727,7 @@ const ClientView = () => {
 
   const handleClearChat = async () => {
     setIsDisabled(true); 
-    /*if(curCita1.contact !== ""){
-      setCurCita1(
-        {
-          idService: 0,
-          labelService: "",
-          dateCita: new Date(),
-          nombre: "",
-          contact: "",
-          stepCita: 0
-        }
-      );
-    }*/
+   
     if(curCateg !== 2){
       setCurCita1(prevState => ({
         ...prevState,  // Keep existing properties              
@@ -758,6 +757,16 @@ const ClientView = () => {
 
       if (response.delete_CITA.affected_rows > 0) {
         console.log('Cita deleted successfully.');
+        setCurCita1(
+          {
+            idService: 0,
+            labelService: "",
+            dateCita: new Date(),
+            nombre: "",
+            contact: "",
+            stepCita: 0
+          }
+        );
       } else {
         console.log('No cita found with that ID.');
       }      
@@ -1335,6 +1344,19 @@ END:VCALENDAR`;
                   <br/><a style={{ color: 'white' }} href={message.lnkWhatsapp}>{message.whatsapp}</a>
               </div>      
               <div className="message-timestamp">{message.timestamp}</div>
+              <div style={{display : message.sender === curAI("") ? "block" : "none"}}>
+              <Swiper
+                spaceBetween={50}
+                slidesPerView={3}
+                onSlideChange={() => console.log('slide change')}
+                onSwiper={(swiper) => console.log(swiper)}
+              >
+                <SwiperSlide>Slide 1</SwiperSlide>
+                <SwiperSlide>Slide 2</SwiperSlide>
+                <SwiperSlide>Slide 3</SwiperSlide>
+                <SwiperSlide>Slide 4</SwiperSlide>                
+              </Swiper>
+              </div>
             </div>
           ))}
           <div class="cita-container">
