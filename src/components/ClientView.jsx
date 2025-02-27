@@ -39,7 +39,7 @@ const ClientView = () => {
   //localStorage.clear();
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
-  const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 2);
+  const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 0);
   const [availability, setAvailability] = useState([]);
   const [messages, setMessages] = useState([]);
   //useState(() => JSON.parse(localStorage.getItem('messages')) || []);
@@ -168,24 +168,17 @@ const ClientView = () => {
     }
   `;
 
+  const fetchServices = async () => {
+    try {
+      const data = await client.request(QUERY);
+      //console.log("A" + data.SERVICE.length);
+      setServices(data.SERVICE); 
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }      
+  };
+
   useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const data = await client.request(QUERY);
-        setServices(data.SERVICE); 
-      } catch (err) {
-        console.error("Error fetching data:", error);
-      }
-      /*const { data, error } = await supabase.from("SERVICE").select("id,en,es,fr").eq("cat", Number(import.meta.env.VITE_CATEG_CITA));
-      
-      if (error) {
-        console.error("Error fetching data:", error);
-      } else {
-        setServices(data);        
-      }*/
-      
-            
-    };
     fetchServices();
   }, []);
 
@@ -193,7 +186,6 @@ const ClientView = () => {
     let workingDays = [];
     let currentDate = new Date(startDate);
     let d = 0;
-    //let dayGroup = [];
   
     // Collect all valid working days
     while (currentDate <= endDate) {
@@ -589,9 +581,15 @@ const ClientView = () => {
     return text;
   };
 
-  /*useEffect(() => {
-    localStorage.setItem('messages', JSON.stringify(messages));
-  }, [messages]);*/
+  useEffect(() => {
+    localStorage.setItem('curCateg', JSON.stringify(curCateg));
+    setMessages([]);
+    loadMessage(curAI(""),GetMsgInitInfo(""),"");
+    
+    /*if(import.meta.env.VITE_OPT_CITA === "1" && curCateg == 2){
+      InitDispoCita();
+    } */   
+  }, [curCateg]);
 
   useEffect(() => {
     localStorage.setItem('curCita1', JSON.stringify(curCita1));
@@ -736,7 +734,18 @@ const ClientView = () => {
         ...prevState,  // Keep existing properties              
         stepCita: 0  // Update stepCita
       }));
+      setMessages([]);
+      const timer = setTimeout(() => {
+        if(curCateg === 0){          
+          loadMessage(curAI(""),GetMsgInitInfo(""),"");
+        }
+        if(curCateg === 1){          
+          loadMessage(curAI(""),GetMsgInitBudget(""),"");
+        }
+      }, 1000);
+      
     }else{
+      
       const query = `
         mutation DeleteCitaById($id: Int!) {
           delete_CITA(where: { id: { _eq: $id } }) {
@@ -751,21 +760,15 @@ const ClientView = () => {
         console.log('Cita deleted successfully.');
       } else {
         console.log('No cita found with that ID.');
-      }
-      /*const { error } = await supabase
-        .from("CITA")
-        .delete()
-        .eq("id", curCita1.idService); // Filter by id
-
-      if (error) {
-        console.error("Error deleting data:", error.message);        
-      } else {
-        console.log(`Cita with ID ${curCita1.idService} deleted successfully!`);
-      }*/
+      }      
       localStorage.clear();
+
+      const timer = setTimeout(() => {
+        InitDispoCita(import.meta.env.VITE_OPT_CITA === "1");
+      }, 1000);
+      
     }
-    
-    setMessages([]);   
+       
     setDisplayBudget(
       {
         display: "block"
@@ -827,7 +830,7 @@ const ClientView = () => {
               stepCita: prevState.stepCita + 1  // Update stepCita
             }));
           }
-          msg = selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?");
+          msg = GetMsgTypeCita(selLang) + filteredData[0][selLang] + "  " + (selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?"));
         }else{
           filteredData = services.filter(item => item.id === curCita1.idService);
           setCurCita1(prevState => ({
@@ -979,8 +982,9 @@ const ClientView = () => {
   const handleChat = (typeChat) => {
     setIsDisabled(typeChat === 2);
     setCurCateg(typeChat);
+    //setLinesDay([[]]);
     //localStorage.clear();
-    setMessages([]);
+    
     let wap = "";
     let lnkWAP = "";
     const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
@@ -991,11 +995,11 @@ const ClientView = () => {
       minute: 'numeric',
       hour24: true,
     });
-    let msg = "";
+    
     if(typeChat === 1){
       
-      setLinesDay([[]]);
-      msg = GetMsgInitBudget("");
+      
+      
       if(import.meta.env.VITE_OPT_BUDGET === "1"){
         setDisplayBudget(
           {
@@ -1018,8 +1022,7 @@ const ClientView = () => {
     }
     if(typeChat === 0){
       
-      setLinesDay([[]]);
-      msg = GetMsgInitInfo("");
+      
       if(import.meta.env.VITE_OPT_BUDGET === "1"){
         setDisplayBudget(
           {
@@ -1040,23 +1043,42 @@ const ClientView = () => {
         }
       ); 
     }     
-    if(typeChat === 2){      
-      msg = GetMsgInitCita("");
-      if(import.meta.env.VITE_OPT_BUDGET === "1"){
-        setDisplayBudget(
-          {
-            display: "block"
-          }
-        );
+    const timer = setTimeout(() => {
+      let msg = "";
+      setMessages([]);
+      if(typeChat === 2){
+        InitDispoCita(false);
+      }else{
+        if(typeChat === 0){
+          msg = GetMsgInitInfo("");
+        }
+        if(typeChat === 1){
+          msg = GetMsgInitBudget("");
+        }
+        loadMessage(curAI(""),msg,"");
       }
+      
+    }, 1000);
+    
+  };
+
+  const InitDispoCita = (citaDisplayed) => {
+    let msg = GetMsgInitCita("");
+     
+      setDisplayBudget(
+          {
+            display: import.meta.env.VITE_OPT_BUDGET === "1" ? "block" : "none"
+          }
+      );
+      
       setDisplayInfo(
         {
           display: "block"
         }
-      ); 
+      );
       setDisplayCita(
         {
-          display: "none"
+          display: citaDisplayed ? "block" : "none"
         }
       );
       if(curCita1.contact !== ""){
@@ -1064,19 +1086,15 @@ const ClientView = () => {
       }
       console.log("serv nb : " + services.length);
       loadMessage(curAI(selLang),msg,"");
-      loadServices([[]],"","");
-      //setLinesDay(array);
-    }else{
-      loadMessage(curAI(""),msg,"");
-    }
-    
+      loadServices([[]],"");
   };
 
   const loadServices = (data, lang) => {
     const array = [[]];
     let c=0;
     let line=-1;
-    console.log("load serv - " + services.length);
+    console.log("lentgh services - " + services.length);
+    console.log("lentgh data : " + data[0].length);
     let tmpArr = data[0].length === 0 ? services : data;
     tmpArr.forEach(item => {
       if (c % 4 === 0) {
@@ -1085,8 +1103,7 @@ const ClientView = () => {
       }
       array[line].push(item.id + "-" + item[lang === "" ? selLang : lang]);
       c++;
-    });
-    console.log("Arr l : " + tmpArr.length);
+    });    
     setLinesDay(array);
   };
 
@@ -1116,11 +1133,11 @@ const ClientView = () => {
       date: curCita1.dateCita
     };
     const response = await client.request(INSERT_CITA_MUTATION, variables);
-
-    if (response.insert_citas.returning.length > 0) {
+    
+    if (response.insert_CITA.returning.length > 0) {
       setCurCita1(prevState => ({
         ...prevState,  // Keep existing properties
-        idService:response.insert_citas.returning[0].id,        
+        idService:response.insert_CITA.returning[0].id,        
         stepCita: 0
       }));
       console.log('Cita inserted successfully.');

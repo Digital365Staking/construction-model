@@ -248,8 +248,8 @@ textarea:disabled {
 
 .cita-button {
   padding: 10px; /* Adjust padding as needed */
-  margin: 0 5px; /* Optional: space between buttons */
-  margin-bottom: 5px;
+  margin: 0 1px; /* Optional: space between buttons */
+  margin-bottom: 2px;
   border: none;
   background-color: #007bff;
   color: white;

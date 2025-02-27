@@ -6,3 +6,6 @@ psql -h localhost -U myuser -d mydatabase -f backup.sql
 
 pg_restore -h localhost -U myuser -d mydatabase -F c backup.dump
 
+// copy from CSV
+\copy "public"."SERVICE" (en,duration,es,fr,cat) FROM 'C:\Users\noreply\OneDrive - Digital 365 Staking\Documents\BackupPostgres\serv.csv' DELIMITER ',' CSV HEADER;
+
