@@ -14,6 +14,14 @@ const perplexity = createPerplexity({
   apiKey: import.meta.env.VITE_PERPLEXITY_API_KEY,
 });
 
+import { GraphQLClient } from 'graphql-request';
+
+const client = new GraphQLClient(import.meta.env.VITE_GRAPHQL_URL, {
+  headers: {
+    "x-hasura-admin-secret": import.meta.env.VITE_GRAPHQL_KEY,
+  },
+});
+
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
@@ -148,15 +156,33 @@ const ClientView = () => {
     fetchAvailability();
   }, []);
 
+  const QUERY = `
+    query GetSERVICE {
+      SERVICE {
+        id
+        en
+        es
+        fr
+        cat
+      }
+    }
+  `;
+
   useEffect(() => {
     const fetchServices = async () => {
-      const { data, error } = await supabase.from("SERVICE").select("id,en,es,fr").eq("cat", Number(import.meta.env.VITE_CATEG_CITA));
+      try {
+        const data = await client.request(QUERY);
+        setServices(data.SERVICE); 
+      } catch (err) {
+        console.error("Error fetching data:", error);
+      }
+      /*const { data, error } = await supabase.from("SERVICE").select("id,en,es,fr").eq("cat", Number(import.meta.env.VITE_CATEG_CITA));
       
       if (error) {
         console.error("Error fetching data:", error);
       } else {
         setServices(data);        
-      }
+      }*/
       
             
     };
@@ -711,7 +737,22 @@ const ClientView = () => {
         stepCita: 0  // Update stepCita
       }));
     }else{
-      const { error } = await supabase
+      const query = `
+        mutation DeleteCitaById($id: Int!) {
+          delete_CITA(where: { id: { _eq: $id } }) {
+            affected_rows
+          }
+        }
+      `;
+      const variables = { id: curCita1.idService };
+      const response = await client.request(query, variables);
+
+      if (response.delete_CITA.affected_rows > 0) {
+        console.log('Cita deleted successfully.');
+      } else {
+        console.log('No cita found with that ID.');
+      }
+      /*const { error } = await supabase
         .from("CITA")
         .delete()
         .eq("id", curCita1.idService); // Filter by id
@@ -720,7 +761,7 @@ const ClientView = () => {
         console.error("Error deleting data:", error.message);        
       } else {
         console.log(`Cita with ID ${curCita1.idService} deleted successfully!`);
-      }
+      }*/
       localStorage.clear();
     }
     
@@ -1035,6 +1076,7 @@ const ClientView = () => {
     const array = [[]];
     let c=0;
     let line=-1;
+    console.log("load serv - " + services.length);
     let tmpArr = data[0].length === 0 ? services : data;
     tmpArr.forEach(item => {
       if (c % 4 === 0) {
@@ -1051,9 +1093,41 @@ const ClientView = () => {
   const handleUsr = (e) => {
     setUsrValue(e.target.value);
   };
+
+  // Define the mutation for inserting a cita
+  const INSERT_CITA_MUTATION = `
+    mutation InsertCita($id_client: Int!, $id_service: Int!, $name: String!, $date: timestamp!) {
+      insert_CITA(objects: {id_client : $id_client,id_service : $id_service,name: $name,start_date: $date}) {
+        returning {
+          id
+          id_service
+          name
+          start_date
+        }
+      }
+    }
+    `;
  
   const handleInsertCita = async () => {
-    const { data, error } = await supabase
+    const variables = {
+      id_client: Number(import.meta.env.VITE_ID_CLIENT),
+      id_service: curCita1.idService,
+      name: curCita1.nombre,
+      date: curCita1.dateCita
+    };
+    const response = await client.request(INSERT_CITA_MUTATION, variables);
+
+    if (response.insert_citas.returning.length > 0) {
+      setCurCita1(prevState => ({
+        ...prevState,  // Keep existing properties
+        idService:response.insert_citas.returning[0].id,        
+        stepCita: 0
+      }));
+      console.log('Cita inserted successfully.');
+    } else {
+      console.log('Failed to insert cita.');
+    }
+    /*const { data, error } = await supabase
       .from("CITA")
       .insert([
         {
@@ -1068,13 +1142,9 @@ const ClientView = () => {
     if (error) {
       console.error("Error inserting data:", error.message);      
     } else {
-      setCurCita1(prevState => ({
-        ...prevState,  // Keep existing properties
-        idService:data[0].id,        
-        stepCita: 0
-      }));
+      
       console.log(`Cita inserted successfully! ID: ${data[0].id}`);      
-    }
+    }*/
   };
 
   const handleChangeLang = (lang) => {

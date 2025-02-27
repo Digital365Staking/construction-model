@@ -1,0 +1,8 @@
+// Backup
+pg_dump -h irkwbvxjbynhlcascmrk.db.eu-central-1.nhost.run -p 5432 -U postgres -d irkwbvxjbynhlcascmrk -F c -f backup.sql
+
+// Restore
+psql -h localhost -U myuser -d mydatabase -f backup.sql
+
+pg_restore -h localhost -U myuser -d mydatabase -F c backup.dump
+

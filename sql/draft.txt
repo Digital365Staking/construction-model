@@ -1,2 +1,0 @@
-return the public holidays from the following Json in the string format "2015-01-01,2025-04-01,..." where counties is None or 'ES-MD' :  
-

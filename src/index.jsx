@@ -5,6 +5,8 @@ import App from './App'; // Import the main App component
 
 // Create a root and render the app
 const root = ReactDOM.createRoot(document.getElementById('root')); // Matches the div in index.html
+
+
 root.render(
   <React.StrictMode>
     <BrowserRouter basename="/">
