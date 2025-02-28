@@ -1349,9 +1349,9 @@ END:VCALENDAR`;
                   <br/><a style={{ color: 'white' }} href={message.lnkWhatsapp}>{message.whatsapp}</a>
               </div>      
               <div className="message-timestamp">{message.timestamp}</div>
-              <div style={{height: "40vh",display : message.sender === curAI("") ? "block" : "none"}}>
-              <img src="/images/ed0.jpg" alt="My Image"/>
-              <img src="/assets/ed1.jpg" alt="My Image"/>
+              <div style={{marginTop: "10px",height: "40vh",display : message.sender === curAI("") ? "block" : "none"}}>
+              
+              
               <Swiper
                   slidesPerView={1}
                   spaceBetween={30}
@@ -1366,9 +1366,11 @@ END:VCALENDAR`;
                   className="mySwiper"
                 >
                   <SwiperSlide>
-                  
+                  <img src="https://www.dropbox.com/scl/fi/99txh27z4jk70pue85rmb/ed0.JPG?rlkey=jgtbu2w4b8yj5h1q50tf0zbbm&st=wgj33nd1&dl=1" alt="My Image"/>
                   </SwiperSlide>
-                  <SwiperSlide>Slide 2</SwiperSlide>
+                  <SwiperSlide>
+                  <img src="https://www.dropbox.com/scl/fi/tgs1kree3eyy3gulvbs2w/ed1.JPG?rlkey=ltc68nbcxz5rg7anw75cdt9wm&st=fcd8l4dt&dl=1" alt="My Image"/>
+                  </SwiperSlide>
                   <SwiperSlide>Slide 3</SwiperSlide>
                   <SwiperSlide>Slide 4</SwiperSlide>
                   <SwiperSlide>Slide 5</SwiperSlide>
