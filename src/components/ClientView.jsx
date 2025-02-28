@@ -616,7 +616,7 @@ const ClientView = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();  
-      
+    setChatInput('');  
     if (usrValue !== import.meta.env.VITE_HUGGING_KEY){
       console.log("Bot detected! Submission blocked.");
       return;
@@ -727,12 +727,12 @@ const ClientView = () => {
       setMessages((prevMessages) => [...prevMessages, newMessage2]);     
       setDisplayHeader('none');
     }
-    setChatInput('');
+    
   };
 
   const handleClearChat = async () => {
     setIsDisabled(true); 
-   
+    setChatInput('');
     if(curCateg !== 2){
       setCurCita1(prevState => ({
         ...prevState,  // Keep existing properties              
@@ -1158,24 +1158,7 @@ const ClientView = () => {
     } else {
       console.log('Failed to insert cita.');
     }
-    /*const { data, error } = await supabase
-      .from("CITA")
-      .insert([
-        {
-          id_service: curCita1.idService,
-          whatsapp: curCita1.whatsapp,
-          name: curCita1.nombre,
-          id_client: Number(import.meta.env.VITE_ID_CLIENT),
-          start_date: curCita1.dateCita,
-        },
-      ]).select();
-
-    if (error) {
-      console.error("Error inserting data:", error.message);      
-    } else {
-      
-      console.log(`Cita inserted successfully! ID: ${data[0].id}`);      
-    }*/
+    
   };
 
   const handleChangeLang = (lang) => {
@@ -1295,16 +1278,47 @@ END:VCALENDAR`;
 
     //return "http://localhost:5173/event.ics"; // Return the URL to use in the email
   };
-
+  const [isFormSendOpen, setIsFormSendOpen] = useState(true);
   return (
-    <div className="app-container">      
+    <div className="app-container"> 
+      <div id="popup" className='popup'>  
+      <a href="#" class="close" onClick={() => setIsFormSendOpen(true)}>&times;</a>    
+      <Swiper
+                  slidesPerView={1}
+                  spaceBetween={30}
+                  keyboard={{
+                    enabled: true,
+                  }}
+                  pagination={{
+                    clickable: true,
+                  }}
+                  navigation={true}
+                  modules={[Keyboard, Pagination, Navigation]}
+                  className="mySwiper"
+                > 
+      <SwiperSlide>
+      <img src="https://www.dropbox.com/scl/fi/99txh27z4jk70pue85rmb/ed0.JPG?rlkey=jgtbu2w4b8yj5h1q50tf0zbbm&st=wgj33nd1&dl=1" alt="My Image"/> 
+                   
+                  </SwiperSlide>
+                  <SwiperSlide>
+                  <img src="https://www.dropbox.com/scl/fi/tgs1kree3eyy3gulvbs2w/ed1.JPG?rlkey=ltc68nbcxz5rg7anw75cdt9wm&st=fcd8l4dt&dl=1" alt="My Image"/>
+                  </SwiperSlide>
+                  <SwiperSlide>Slide 3</SwiperSlide>
+                  <SwiperSlide>Slide 4</SwiperSlide>
+                  <SwiperSlide>Slide 5</SwiperSlide>
+                  <SwiperSlide>Slide 6</SwiperSlide>
+                  <SwiperSlide>Slide 7</SwiperSlide>
+                  <SwiperSlide>Slide 8</SwiperSlide>
+                  <SwiperSlide>Slide 9</SwiperSlide>
+                </Swiper>  
+                </div>
       <div class="header-container">
           <div class="header-left">
-              <img src="logo.png" alt="Logo"/>
+              <img style={{maxHeight: "10vh"}} src="https://www.dropbox.com/scl/fi/lccrgcysg3qb2uo9vie2y/edilma.png?rlkey=jl23sxixt613juv24jmdfezce&st=atcivgd1&dl=1" alt="Logo"/>
           </div>
           <div class="header-right">
-              <div class="header-top">Top 50%</div>
-              <div class="header-bottom">Bottom 50%</div>
+              <div class="header-top"><h4>EDILMITA PELU</h4></div>
+              <div class="header-bottom">C. de Miguel Arredondo, 4, Local 7, Arganzuela, 28045 Madrid</div>
           </div>
       </div>
       <div className="chat-container">        
@@ -1349,36 +1363,14 @@ END:VCALENDAR`;
                   <br/><a style={{ color: 'white' }} href={message.lnkWhatsapp}>{message.whatsapp}</a>
               </div>      
               <div className="message-timestamp">{message.timestamp}</div>
-              <div style={{marginTop: "10px",height: "40vh",display : message.sender === curAI("") ? "block" : "none"}}>
+              <div style={{marginTop: "10px",height: "20vh",display : (message.sender === curAI("") && curCateg === 0 && message.text !== GetMsgInitInfo("")) ? "block" : "none"}}>
               
               
-              <Swiper
-                  slidesPerView={1}
-                  spaceBetween={30}
-                  keyboard={{
-                    enabled: true,
-                  }}
-                  pagination={{
-                    clickable: true,
-                  }}
-                  navigation={true}
-                  modules={[Keyboard, Pagination, Navigation]}
-                  className="mySwiper"
-                >
-                  <SwiperSlide>
-                  <img src="https://www.dropbox.com/scl/fi/99txh27z4jk70pue85rmb/ed0.JPG?rlkey=jgtbu2w4b8yj5h1q50tf0zbbm&st=wgj33nd1&dl=1" alt="My Image"/>
-                  </SwiperSlide>
-                  <SwiperSlide>
-                  <img src="https://www.dropbox.com/scl/fi/tgs1kree3eyy3gulvbs2w/ed1.JPG?rlkey=ltc68nbcxz5rg7anw75cdt9wm&st=fcd8l4dt&dl=1" alt="My Image"/>
-                  </SwiperSlide>
-                  <SwiperSlide>Slide 3</SwiperSlide>
-                  <SwiperSlide>Slide 4</SwiperSlide>
-                  <SwiperSlide>Slide 5</SwiperSlide>
-                  <SwiperSlide>Slide 6</SwiperSlide>
-                  <SwiperSlide>Slide 7</SwiperSlide>
-                  <SwiperSlide>Slide 8</SwiperSlide>
-                  <SwiperSlide>Slide 9</SwiperSlide>
-                </Swiper>
+              
+                  <a href="#popup" onClick={() => setIsFormSendOpen(false)}>
+                    <img style={{height:"20vh"}} src="https://www.dropbox.com/scl/fi/99txh27z4jk70pue85rmb/ed0.JPG?rlkey=jgtbu2w4b8yj5h1q50tf0zbbm&st=wgj33nd1&dl=1" alt="My Image"/>
+                   </a>
+                  
               </div>
             </div>
           ))}
@@ -1400,6 +1392,7 @@ END:VCALENDAR`;
             
             </div>
         </div>
+        {isFormSendOpen && (
         <div class="fixed-bottom">
         <form className="chat-input-form" onSubmit={handleSendMessage}>
           <textarea id="message" name="message" rows="5" cols="50" disabled={(curCateg === 2 && curCita1.stepCita < 3) || (curCita1.contact !== "")} className="chat-input" value={chatInput} placeholder={`${curTypeHere}, ${messageSender}...`} onFocus={handleFocus} onChange={(e) => setChatInput(e.target.value)}></textarea>          
@@ -1474,7 +1467,7 @@ END:VCALENDAR`;
             </button>
           </div>
         </div>
-        
+        )}
         
       </div>
     </div>
