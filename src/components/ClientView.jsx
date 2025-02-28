@@ -13,6 +13,11 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 
 // Import Swiper styles
 import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
+
+// import required modules
+import { Keyboard, Pagination, Navigation } from 'swiper/modules';
 
 const perplexity = createPerplexity({
   apiKey: import.meta.env.VITE_PERPLEXITY_API_KEY,
@@ -1344,18 +1349,34 @@ END:VCALENDAR`;
                   <br/><a style={{ color: 'white' }} href={message.lnkWhatsapp}>{message.whatsapp}</a>
               </div>      
               <div className="message-timestamp">{message.timestamp}</div>
-              <div style={{display : message.sender === curAI("") ? "block" : "none"}}>
+              <div style={{height: "40vh",display : message.sender === curAI("") ? "block" : "none"}}>
+              <img src="/images/ed0.jpg" alt="My Image"/>
+              <img src="/assets/ed1.jpg" alt="My Image"/>
               <Swiper
-                spaceBetween={50}
-                slidesPerView={3}
-                onSlideChange={() => console.log('slide change')}
-                onSwiper={(swiper) => console.log(swiper)}
-              >
-                <SwiperSlide>Slide 1</SwiperSlide>
-                <SwiperSlide>Slide 2</SwiperSlide>
-                <SwiperSlide>Slide 3</SwiperSlide>
-                <SwiperSlide>Slide 4</SwiperSlide>                
-              </Swiper>
+                  slidesPerView={1}
+                  spaceBetween={30}
+                  keyboard={{
+                    enabled: true,
+                  }}
+                  pagination={{
+                    clickable: true,
+                  }}
+                  navigation={true}
+                  modules={[Keyboard, Pagination, Navigation]}
+                  className="mySwiper"
+                >
+                  <SwiperSlide>
+                  
+                  </SwiperSlide>
+                  <SwiperSlide>Slide 2</SwiperSlide>
+                  <SwiperSlide>Slide 3</SwiperSlide>
+                  <SwiperSlide>Slide 4</SwiperSlide>
+                  <SwiperSlide>Slide 5</SwiperSlide>
+                  <SwiperSlide>Slide 6</SwiperSlide>
+                  <SwiperSlide>Slide 7</SwiperSlide>
+                  <SwiperSlide>Slide 8</SwiperSlide>
+                  <SwiperSlide>Slide 9</SwiperSlide>
+                </Swiper>
               </div>
             </div>
           ))}
