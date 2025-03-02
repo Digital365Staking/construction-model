@@ -1314,10 +1314,10 @@ END:VCALENDAR`;
                 </div>
       <div class="header-container">
           <div class="header-left">
-              <img style={{maxHeight: "10vh"}} src="https://www.dropbox.com/scl/fi/lccrgcysg3qb2uo9vie2y/edilma.png?rlkey=jl23sxixt613juv24jmdfezce&st=atcivgd1&dl=1" alt="Logo"/>
+              <img style={{maxHeight: import.meta.env.VITE_MAX_HEIGHT_LOGO}} src={import.meta.env.VITE_LOGO_URL} alt="Logo"/>
           </div>
           <div class="header-right">
-              <div class="header-top"><h4>EDILMITA PELU</h4></div>
+              <div class="header-top"><h4></h4></div>
               <div class="header-bottom">C. de Miguel Arredondo, 4, Local 7, Arganzuela, 28045 Madrid</div>
           </div>
       </div>
