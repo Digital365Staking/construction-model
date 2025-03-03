@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import "../styles/CommentListener.css";
+import "../styles/ClientView.css";
 import * as pdfjsLib from "pdfjs-dist";
 import Papa from 'papaparse';
 import { GoogleGenerativeAI } from '@google/generative-ai';

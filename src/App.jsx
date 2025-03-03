@@ -1,14 +1,14 @@
 // App.jsx
 import React from 'react';
-import ClientView from './components/ClientView';
-import InsertCommentButton from './components/InsertCommentButton';
+//import ClientView from './components/ClientView';
+import AdminView from './components/AdminView';
 
 
 const App = () => {
   return (
     <div>      
       <main>  
-        <ClientView />        
+        <AdminView />        
       </main>      
     </div>
   );
