@@ -14,7 +14,16 @@ const AdminView = () => {
 
     useEffect(() => {
         setMessages([]);
-        loadMessage(curAI,"ttree","");
+        let fruits = [
+            "Apple", "Banana", "Cherry", "Mango", "Pineapple", 
+            "Strawberry", "Blueberry", "Grapes", "Orange", "Pear", 
+            "Peach", "Plum", "Kiwi", "Watermelon", "Papaya", 
+            "Pomegranate", "Lemon", "Lime", "Fig", import.meta.env.VITE_LIMIT_LIST_ADMIN
+        ];
+        for (let fruit of fruits) {
+            loadMessage(curAI,fruit,"");
+        }
+        
     }, []);
 
     const loadMessage = (sender,msg,lang) => {

@@ -70,7 +70,7 @@ body{
     display: flex;
     flex-direction: column; /* Arranges messages vertically */
     justify-content: flex-start; /* Aligns messages to the top */
-    height: 24.5em; /* Ensures the container takes up its allocated space */
+    height: 100vh; /* Ensures the container takes up its allocated space */
     overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
   }
   
@@ -79,9 +79,9 @@ body{
   }
   
   .message {
-    padding: 0.625em;
+    padding: 0.3em;
     border-radius: 1em;
-    margin-bottom: 0.625em;
+    margin-bottom: 0.2em;
     display: flex;
     flex-direction: column;
     color: #fff;
@@ -93,7 +93,7 @@ body{
   
   .message-sender {
     font-weight: bold;
-    margin-bottom: 0.31em;
+    margin-bottom: 0.1em;
     color: #062a4e;
   }
   
@@ -105,7 +105,7 @@ body{
   }
   
   .message-timestamp {
-    font-size: 0.75em;
+    font-size: 0.7em;
     text-align: right;
     color: #062a4e;
     float: right;
