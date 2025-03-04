@@ -39,7 +39,7 @@ body{
     padding: 0.1em 0.1em;
     margin: auto;
     max-width: 37.5em;
-    height: 81.96vh;
+    height: 100vh;
     box-shadow: 0 0 1.25em 0.5em #c3c3c333;
     background-image: linear-gradient(
       23deg,
@@ -108,6 +108,7 @@ body{
     font-size: 0.75em;
     text-align: right;
     color: #062a4e;
+    float: right;
   }
   
   .blue-bg {
