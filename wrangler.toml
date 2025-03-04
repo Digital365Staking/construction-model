@@ -10,7 +10,7 @@ compatibility_date = "2025-02-22"
 # Set the entry point for the Worker (use `dist` for Vite builds)
 [site]
 bucket = "./dist"
-entry-point = "src/index.jsx"
+entry-point = "."
 
 # Environment variables for the Worker
 [env.production]
