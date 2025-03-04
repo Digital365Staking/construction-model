@@ -907,9 +907,18 @@ const ClientView = () => {
         });
         console.log("arr l = " + arr[0].length);
         if(arr[0].length === 0){
-          let lg = step < 0 ? selLang : lang;
-          console.log("lg " + lg);
-          arr[0].push("11:00");
+            let lg = step < 0 ? selLang : lang;
+            arr[0].push("09:00");
+            arr[0].push("09:15");
+            arr[0].push("09:30");
+            arr[0].push("09:45");
+            arr.push([]);
+            arr[0].push("10:00");
+            arr[0].push("10:15");
+            arr[0].push("10:30");
+            arr[0].push("10:45");
+            arr.push([]);
+            arr[0].push("11:00");
             arr[0].push("11:15");
             arr[0].push("11:30");
             arr[0].push("11:45");
