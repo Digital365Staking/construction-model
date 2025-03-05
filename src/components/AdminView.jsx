@@ -115,9 +115,13 @@ const AdminView = () => {
         `; 
 
     
-    const viewListComments = async (pseudo,idx) => {
+    const viewListComments = async (pseudo,viewed) => {
         setIsPopupOpen(true);
-        const data = await client.request(UPDATE_COMMENTS, { pseudo: pseudo });
+        if(!viewed){
+          const data = await client.request(UPDATE_COMMENTS, { pseudo: pseudo });          
+        }else{
+          console.log("Update no needed");
+        }         
         const data2 = await client.request(SUB_COMMENTS, { pseudo: pseudo });
         setSubComments([]);
         setSubComments(data2.comment_union);
@@ -129,12 +133,12 @@ const AdminView = () => {
     <div className="app-container"> 
       <div id="popup" className='popup' style={{display : isPopupOpen ? 'block' : 'none'}}>  
         <a href="#" class="close" onClick={() => setIsPopupOpen(false)}>&times;</a>    
-        <div ref={lstMsgRef} className="chat-messages">           
+        <div ref={lstMsgRef} className="chat-messages" style={{width:"97%"}}>           
             {subComments.map((item, index) => (            
               <div
                 key={index}
-                className='message blue-bg'>
-                <div className="message-sender">{item.type}{item.content}
+                className={`message ${item.type === 0 ? 'blue-bg' : 'gray-bg'}`}>
+                <div className="message-sender"><span style={{fontWeight:"bold"}}>{item.type  === 0 ? item.pseudo : curAI}</span> : {item.content}
                 <div className="message-timestamp">{new Date(item.created).toLocaleString(curFormat, {
                       month: 'long',
                       day: 'numeric',
@@ -156,7 +160,7 @@ const AdminView = () => {
             <div
               key={index}
               className='message blue-bg' style={{fontWeight : item.viewed ? 'normal' : 'bold'}}>
-              <div className="message-sender" onClick={() => viewListComments(item.pseudo)}>{item.viewed ? '' : '✉️'}​{item.pseudo} : <span style={{fontWeight:'normal'}}>{item.question.slice(0, 50)}...</span>
+              <div className="message-sender" onClick={() => viewListComments(item.pseudo,item.viewed)}>{item.viewed ? '' : '✉️'}​{item.pseudo} : <span style={{fontWeight:'normal'}}>{item.question.slice(0, 50)}...</span>
               <div className="message-timestamp">{new Date(item.created).toLocaleString(curFormat, {
                     month: 'long',
                     day: 'numeric',
