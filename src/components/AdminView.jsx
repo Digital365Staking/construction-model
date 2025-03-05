@@ -29,6 +29,7 @@ const AdminView = () => {
       order_by: [{ pseudo: asc }, { created: desc }]
       distinct_on: pseudo
           ) {
+              id
               pseudo
               question
               created
@@ -39,25 +40,17 @@ const AdminView = () => {
   
         const fetchComments = async () => {
             try {
+            setComments([]);
             const data = await client.request(QUERY_COMMENTS);
             const sortedComments = data.COMMENT.sort((a, b) => new Date(b.created) - new Date(a.created));
-            let i = 0;
-            for (const item of sortedComments) {
-                fWeight.push([]);
-                fWeight[i].push(item.pseudo)
-                fWeight[i].push(item.viewed ? 'normal' : 'bold');
-                console.log(fWeight[i][1]);
-                i++;
-            }
-            setComments(sortedComments); 
+            setComments(sortedComments);
             } catch (error) {
             console.error("Error fetching data:", error);
             }      
         };
 
     useEffect(() => { 
-        setComments([]);
-        fetchComments();
+      fetchComments();
         let fruits = [
             "Apple", "Banana", "Cherry", "Mango", "Pineapple", 
             "Strawberry", "Blueberry", "Grapes", "Orange", "Pear", 
@@ -106,12 +99,13 @@ const AdminView = () => {
         }
         `;  
 
-    const history = useHistory();
+    //const history = useHistory();
     const viewListComments = async (pseudo,idx) => {
         const data = await client.request(UPDATE_COMMENTS, { pseudo: pseudo });
-        console.log(pseudo);
-        history.push('/');  // Navigate to the home route, or current route
-        history.push(location.pathname);  // Navigate back to the same route       
+        console.log(pseudo); 
+        fetchComments();
+        //history.push('/');  // Navigate to the home route, or current route
+        //history.push(location.pathname);  // Navigate back to the same route       
     };
 
     return (
@@ -122,8 +116,8 @@ const AdminView = () => {
           {comments.map((item, index) => (            
             <div
               key={index}
-              className='message blue-bg' style={{fontWeight:fWeight[index][1]}}>
-              <div className="message-sender" onClick={() => viewListComments(item.pseudo)}>✉️​{item.pseudo} : <span style={{fontWeight:'normal'}}>{item.question.slice(0, 50)}...</span>
+              className='message blue-bg' style={{fontWeight : item.viewed ? 'normal' : 'bold'}}>
+              <div className="message-sender" onClick={() => viewListComments(item.pseudo)}>{item.viewed ? '' : '✉️'}​{item.pseudo} : <span style={{fontWeight:'normal'}}>{item.question.slice(0, 50)}...</span>
               <div className="message-timestamp">{new Date(item.created).toLocaleString(curFormat, {
                     month: 'long',
                     day: 'numeric',
