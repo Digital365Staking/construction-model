@@ -14,10 +14,14 @@ const AdminView = () => {
     const lstMsgRef = useRef(null);
     const [comments, setComments] = useState([]);
     const [subComments, setSubComments] = useState([]);
-    const [fWeight, setFWeight] = useState([[]]);
+    const [curPseudo, setCurPseudo] = useState('');
     const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [chatInput, setChatInput] = useState('');
+    
     
     const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
+    const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
+    const curTypeHere = selLang === 'es' ? 'Escribe aquí' : (selLang === 'en' ? 'Type here' : 'Tapez ici'); 
     const curAI = selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
     const curMe = selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
 
@@ -85,6 +89,79 @@ const AdminView = () => {
         //setMessageSender(curMe);
       };
 
+      const LAST_QUESTION = `
+      query GetLastQuestion($pseudo: String!) {
+        COMMENT(
+          where: { pseudo: { _eq: $pseudo } }
+          order_by: { created: desc }
+          limit: 1
+        ) {
+          question
+        }
+      }
+       `; 
+
+      const INSERT_COMMENT = `
+      mutation InsertComment(
+          $id_client: Int!, 
+          $pseudo: String!, 
+          $question: String!, 
+          $response: String!, 
+          $viewed: Boolean, 
+          $created: timestamp
+        ) {
+          insert_COMMENT_one(
+            object: { 
+              id_client: $id_client, 
+              pseudo: $pseudo, 
+              question: $question, 
+              response: $response, 
+              viewed: $viewed, 
+              created: $created 
+            }
+          ) {
+            id
+            id_client
+            pseudo
+            question
+            response
+            viewed
+            created
+          }
+        }
+       `;  
+
+      const handleSendMessage = async (e) => {
+        try {
+          e.preventDefault();  
+          // Step 1: Fetch the last question
+          const lastQuestionData = await client.request(LAST_QUESTION, { pseudo : curPseudo });
+    
+          // Check if there's a last question
+          if (lastQuestionData.COMMENT.length === 0) {
+            console.log('No questions found for the given pseudo : ' + curPseudo);
+            return;
+          }
+    
+          const lastQuestion = lastQuestionData.COMMENT[0].question;
+    
+          // Step 2: Insert the new comment with the last question
+          const result = await client.request(INSERT_COMMENT, {
+            id_client : Number(import.meta.env.VITE_ID_CLIENT),  // Replace with the actual client ID
+            pseudo : curPseudo,
+            question : lastQuestion,
+            response : chatInput,
+            viewed :true,
+            created : new Date()
+          });    
+          
+          console.log('Comment inserted successfully! ' + result);  // Log the result
+        } catch (error) {          
+          console.error("Error fetching data:", error);
+        }
+         
+      };
+
       const UPDATE_COMMENTS = `
       mutation UpdateComment($pseudo: String!) {
         update_COMMENT(
@@ -116,17 +193,22 @@ const AdminView = () => {
 
     
     const viewListComments = async (pseudo,viewed) => {
-        setIsPopupOpen(true);
-        if(!viewed){
-          const data = await client.request(UPDATE_COMMENTS, { pseudo: pseudo });          
-        }else{
-          console.log("Update no needed");
-        }         
-        const data2 = await client.request(SUB_COMMENTS, { pseudo: pseudo });
-        setSubComments([]);
-        setSubComments(data2.comment_union);
-        console.log(pseudo); 
-        fetchComments();     
+        try{
+          setIsPopupOpen(true);
+          setCurPseudo(pseudo);
+          if(!viewed){
+            const data = await client.request(UPDATE_COMMENTS, { pseudo: pseudo });          
+          }else{
+            console.log("Update no needed");
+          }         
+          const data2 = await client.request(SUB_COMMENTS, { pseudo: pseudo });
+          setSubComments([]);
+          setSubComments(data2.comment_union);
+          console.log(pseudo); 
+          fetchComments(); 
+        } catch (error) {
+        console.error("Error fetching data:", error);
+        }    
     };
 
     return (
@@ -175,7 +257,12 @@ const AdminView = () => {
           ))}
         
         </div>
-
+        <div class="fixed-bottom" style={{display : isPopupOpen ? 'block' : 'none'}}>
+          <form className="chat-input-form" onSubmit={handleSendMessage}>
+            <textarea id="message" name="message" rows="5" cols="50" className="chat-input" value={chatInput} placeholder={`${curTypeHere}...`} onChange={(e) => setChatInput(e.target.value)}></textarea>                    
+            <button type="submit" className="button send-button">{curSend}</button>
+          </form>
+        </div>
       </div>
     </div>
   );

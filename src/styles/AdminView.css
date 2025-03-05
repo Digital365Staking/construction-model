@@ -81,7 +81,8 @@ body{
   .message {
     padding: 0.3em;
     border-radius: 1em;
-    margin-bottom: 0.2em;
+    margin-top: 0.2em;
+    margin-left: 0.2em;
     display: flex;
     flex-direction: column;
     color: #fff;
@@ -105,10 +106,11 @@ body{
   }
   
   .message-timestamp {
-    font-size: 0.7em;
+    font-size: 0.9em;
     text-align: right;
     color: #062a4e;
     float: right;
+    width: 100%;
   }
   
   .blue-bg {

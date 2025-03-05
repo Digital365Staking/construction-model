@@ -80,20 +80,14 @@ const ClientView = () => {
     if(lang === "")
       return (selLang === 'en' ? 'WhatsApp of the manager : ' : "WhatsApp de la responsable : ");
     else
-      return (selLang === 'en' ? 'WhatsApp of the manager : ' : "WhatsApp de la responsable : ");
+      return (lang === 'en' ? 'WhatsApp of the manager : ' : "WhatsApp de la responsable : ");
   };
   const GetMsgUpdateCita = (lang) => {
     if(lang === "")
       return selLang === 'es' ? "Para cancelar su cita, haga clic en el botón 'Cancelar' en la parte inferior izquierda de la página. Para cualquier modificación, por favor contacte a la responsable a través de WhatsApp." : (selLang === 'en' ? "To cancel your appointment, click on the 'Cancel' button at the bottom left of the page. For any changes, please contact the manager via WhatsApp." : "Pour annuler votre rendez-vous, cliquez sur le bouton 'Annuler' en bas à gauche de la page. Pour toute modification, veuillez contacter la responsable via WhatsApp.");
     else
-      return selLang === 'es' ? "Para cancelar su cita, haga clic en el botón 'Cancelar' en la parte inferior izquierda de la página. Para cualquier modificación, por favor contacte a la responsable a través de WhatsApp." : (selLang === 'en' ? "To cancel your appointment, click on the 'Cancel' button at the bottom left of the page. For any changes, please contact the manager via WhatsApp." : "Pour annuler votre rendez-vous, cliquez sur le bouton 'Annuler' en bas à gauche de la page. Pour toute modification, veuillez contacter la responsable via WhatsApp.");
+      return lang === 'es' ? "Para cancelar su cita, haga clic en el botón 'Cancelar' en la parte inferior izquierda de la página. Para cualquier modificación, por favor contacte a la responsable a través de WhatsApp." : (selLang === 'en' ? "To cancel your appointment, click on the 'Cancel' button at the bottom left of the page. For any changes, please contact the manager via WhatsApp." : "Pour annuler votre rendez-vous, cliquez sur le bouton 'Annuler' en bas à gauche de la page. Pour toute modification, veuillez contacter la responsable via WhatsApp.");
   };
-  /*const GetMsgNameClient = (lang) => {
-    if(lang === "")
-      return selLang === 'es' ? 'Tipo de servicio : ' : (selLang === 'en' ? 'Type of service : ' : "Type de service : ");
-    else
-      return lang === 'es' ? 'Tipo de servicio : ' : (lang === 'en' ? 'Type of service : ' : "Type de service : ");
-  };*/
   const GetMsgInitCita = (lang) => {
     if(lang === "")
       return selLang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (selLang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?");
@@ -290,7 +284,7 @@ const ClientView = () => {
   const curCancel = selLang === 'es' ? 'Cancelar' : (selLang === 'en' ? 'Cancel' : 'Annuler');
   const curInfo = selLang === 'es' ? 'Información' : 'Information';
   const curLabelCita = selLang === 'es' ? 'Cita' : (selLang === 'en' ? 'Appointment​' : 'Rendez-vous');
-  const curBudget = selLang === 'es' ? 'Presupuesto' : 'Budget';
+  const curBudget = selLang === 'es' ? 'Presupuesto' : (selLang === 'en' ? 'Quote' : 'Devis');
   const curTypeHere = selLang === 'es' ? 'Escribe aquí' : (selLang === 'en' ? 'Type here' : 'Tapez ici'); 
 
   //Examples of CSV
