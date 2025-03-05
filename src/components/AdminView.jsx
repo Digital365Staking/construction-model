@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import "../styles/AdminView.css";
 import { GraphQLClient } from 'graphql-request';
-import { useHistory } from 'react-router-dom';
 
 
 const client = new GraphQLClient(import.meta.env.VITE_GRAPHQL_URL, {
@@ -14,7 +13,9 @@ const AdminView = () => {
     
     const lstMsgRef = useRef(null);
     const [comments, setComments] = useState([]);
+    const [subComments, setSubComments] = useState([]);
     const [fWeight, setFWeight] = useState([[]]);
+    const [isPopupOpen, setIsPopupOpen] = useState(false);
     
     const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
     const curAI = selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
@@ -23,25 +24,25 @@ const AdminView = () => {
     const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
 
     const QUERY_COMMENTS = `
-    query {
-    COMMENT(
-      where: { id_client: { _eq: 1 } }
-      order_by: [{ pseudo: asc }, { created: desc }]
-      distinct_on: pseudo
-          ) {
-              id
-              pseudo
-              question
-              created
-              viewed
-          }
+    query GetCommentsByClient($id_client: Int!) {
+      COMMENT(
+        where: { id_client: { _eq: $id_client } }
+        order_by: [{ pseudo: asc }, { created: desc }]
+        distinct_on: [pseudo]
+      ) {
+        id
+        pseudo
+        question
+        created
+        viewed
       }
+    }
       `;
   
         const fetchComments = async () => {
             try {
             setComments([]);
-            const data = await client.request(QUERY_COMMENTS);
+            const data = await client.request(QUERY_COMMENTS, { id_client : Number(import.meta.env.VITE_ID_CLIENT) });
             const sortedComments = data.COMMENT.sort((a, b) => new Date(b.created) - new Date(a.created));
             setComments(sortedComments);
             } catch (error) {
@@ -99,17 +100,55 @@ const AdminView = () => {
         }
         `;  
 
-    //const history = useHistory();
+        const SUB_COMMENTS = `
+      query GetCommentsByPseudo($pseudo: String!) {
+        comment_union(
+          where: { pseudo: { _eq: $pseudo } }
+          order_by: { created: desc, type: asc }
+        ) {
+          pseudo
+          content
+          created
+          type
+        }
+      }
+        `; 
+
+    
     const viewListComments = async (pseudo,idx) => {
+        setIsPopupOpen(true);
         const data = await client.request(UPDATE_COMMENTS, { pseudo: pseudo });
+        const data2 = await client.request(SUB_COMMENTS, { pseudo: pseudo });
+        setSubComments([]);
+        setSubComments(data2.comment_union);
         console.log(pseudo); 
-        fetchComments();
-        //history.push('/');  // Navigate to the home route, or current route
-        //history.push(location.pathname);  // Navigate back to the same route       
+        fetchComments();     
     };
 
     return (
-    <div className="app-container">      
+    <div className="app-container"> 
+      <div id="popup" className='popup' style={{display : isPopupOpen ? 'block' : 'none'}}>  
+        <a href="#" class="close" onClick={() => setIsPopupOpen(false)}>&times;</a>    
+        <div ref={lstMsgRef} className="chat-messages">           
+            {subComments.map((item, index) => (            
+              <div
+                key={index}
+                className='message blue-bg'>
+                <div className="message-sender">{item.type}{item.content}
+                <div className="message-timestamp">{new Date(item.created).toLocaleString(curFormat, {
+                      month: 'long',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                      hour24: true,
+                      })}</div>
+                </div> 
+                
+
+              </div>
+            ))}
+        </div>  
+      </div>   
       <div className="chat-container">       
         
         <div ref={lstMsgRef} className="chat-messages">           
