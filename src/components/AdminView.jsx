@@ -124,7 +124,8 @@ const AdminView = () => {
       const handleSendMessage = async (e) => {
         try {
           e.preventDefault();  
-          setChatInput('');
+          
+          if (chatInput.trim() === '') return;
           // Step 1: Fetch the last question
           const lastQuestionData = await client.request(LAST_QUESTION, { pseudo : curPseudo });
     
@@ -149,7 +150,7 @@ const AdminView = () => {
         } catch (error) {          
           console.error("Error fetching data:", error);
         }
-         
+        setChatInput(''); 
       };
 
       const UPDATE_COMMENTS = `

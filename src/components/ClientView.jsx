@@ -48,6 +48,8 @@ const ClientView = () => {
   //localStorage.clear();
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
+  const [curPseudo, setCurPseudo] = useState(0);
+  const [curIdClient, setCurIdClient] = useState(0);
   const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 0);
   const [availability, setAvailability] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -148,6 +150,7 @@ const ClientView = () => {
   };
 
   useEffect(() => {
+    setCurIdClient(Number(import.meta.env.VITE_ID_CLIENT));
     const fetchAvailability = async () => {
       const { data, error } = await supabase.from('AVAILABILITY').select('cur_date,slot').eq('id_client',Number(import.meta.env.VITE_ID_CLIENT));
       if (error) {
@@ -610,7 +613,6 @@ const ClientView = () => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();  
-    setChatInput('');  
     if (usrValue !== import.meta.env.VITE_HUGGING_KEY){
       console.log("Bot detected! Submission blocked.");
       return;
@@ -629,6 +631,7 @@ const ClientView = () => {
     }
     
     if (chatInput.trim() === '') return;
+    
     const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
     const timestamp = new Date().toLocaleString(curFormat, {
       month: 'long',
@@ -690,8 +693,60 @@ const ClientView = () => {
     setMessages([]);
     setMessages((prevMessages) => [...prevMessages, newMessage]);
 
+    const INSERT_COMMENT = `
+      mutation InsertComment(
+          $id_client: Int!, 
+          $pseudo: String!, 
+          $question: String!, 
+          $response: String!,
+          $created: timestamp
+        ) {
+          insert_COMMENT_one(
+            object: { 
+              id_client: $id_client, 
+              pseudo: $pseudo, 
+              question: $question, 
+              response: $response, 
+              viewed: false, 
+              created: $created,
+              isai: false 
+            }
+          ) {
+            id
+            id_client
+            pseudo
+            question
+            response
+            viewed
+            created
+          }
+        }
+       `;  
+
     if(curCateg == 0){
-      loadMessage(curAI(""),"Les envio toda la informacion que tengo : ","");
+      let m = `
+      This blog offers a comprehensive introduction to one of the most innovative blockchain platforms in the industry. 
+      It breaks down the Cardano project’s unique approach to decentralization, scalability, and sustainability. 
+      Whether you’re new to blockchain or a seasoned enthusiast, you’ll gain a deeper understanding of Cardano’s proof-of-stake consensus 
+      mechanism, its layered architecture, and its impact on global financial systems and smart contracts. 
+      This educational resource covers the core fundamentals, some technical aspects, and how Cardano is shaping the future of blockchain 
+      technology. It’s perfect for anyone interested in exploring the potential of Cardano and understanding how it stands out in the 
+      evolving blockchain landscape.
+      `;
+      let tim = Date.now();
+      if(curPseudo === 0){
+        setCurPseudo(tim);
+      }
+      const result = await client.request(INSERT_COMMENT, {
+        id_client : curIdClient,  // Replace with the actual client ID
+        pseudo : tim.toString(),
+        question : chatInput,
+        response : m,
+        created : new Date()
+      });    
+      
+      console.log('Comment inserted successfully! ' + result);  // Log the result
+      loadMessage(curAI(""),m,"");
       return;
     }
 
@@ -721,6 +776,7 @@ const ClientView = () => {
       setMessages((prevMessages) => [...prevMessages, newMessage2]);     
       setDisplayHeader('none');
     }
+    setChatInput(''); 
     
   };
 
