@@ -795,7 +795,7 @@ const ClientView = () => {
     setLinesDay([[]]);
   };
 
-  const initSetCita = (targetValue, step, lang) => {
+  const initSetCita = async (targetValue, step, lang) => {
     let msg = "";
     //localStorage.clear();
     setMessages([]); 
@@ -902,45 +902,23 @@ const ClientView = () => {
         console.log("arr l = " + arr[0].length);
         if(arr[0].length === 0){
             let lg = step < 0 ? selLang : lang;
-            arr[0].push("09:00");
-            arr[0].push("09:15");
-            arr[0].push("09:30");
-            arr[0].push("09:45");
-            arr.push([]);
-            arr[0].push("10:00");
-            arr[0].push("10:15");
-            arr[0].push("10:30");
-            arr[0].push("10:45");
-            arr.push([]);
-            arr[0].push("11:00");
-            arr[0].push("11:15");
-            arr[0].push("11:30");
-            arr[0].push("11:45");
-            arr.push([]);
-            arr[1].push("12:00");
-            arr[1].push("12:15");
-            arr[1].push("12:30");
-            arr[1].push("12:45");
-            arr.push([]);
-            arr[2].push("13:00");
-            arr[2].push("13:15");
-            arr[2].push("13:30");
-            arr[2].push("13:45");
-            arr.push([]);
-            arr[3].push("17:00");  
-            arr[3].push("17:15");
-            arr[3].push("17:30");
-            arr[3].push("17:45");
-            arr.push([]);
-            arr[4].push("18:00");
-            arr[4].push("18:15");
-            arr[4].push("18:30");
-            arr[4].push("18:45");
-            arr.push([]);
-            arr[5].push("19:00");
-            arr[5].push("19:15");
-            arr[5].push("19:30");
-            arr[5].push("19:45");
+            const queryClient = `
+              query GetClientSlots($id: Int!) {
+                CLIENT(where: { id: { _eq: $id } }) {
+                  start_slot_am
+                  end_slot_am
+                  start_slot_pm
+                  end_slot_pm
+                }
+              }
+            `;
+            const data = await client.request(queryClient, { id: Number(import.meta.env.VITE_ID_CLIENT) });
+            const clientSlots = data.CLIENT[0];
+
+            arr = [];
+            arr.push(...generateTimeSlots(clientSlots.start_slot_am, clientSlots.end_slot_am));
+            arr.push(...generateTimeSlots(clientSlots.start_slot_pm, clientSlots.end_slot_pm));
+            
         }
 
         setLinesDay(arr);
@@ -986,6 +964,25 @@ const ClientView = () => {
     return msg;
     
   }
+
+  const generateTimeSlots = (start, end) => {
+    let slots = [];
+    let current = new Date(`1970-01-01T${start}:00`);
+    let endTime = new Date(`1970-01-01T${end}:00`);
+  
+    while (current < endTime) {
+      let hourSlots = [];
+      let hourEnd = new Date(current);
+      hourEnd.setMinutes(current.getMinutes() + 60);
+  
+      while (current < hourEnd && current < endTime) {
+        hourSlots.push(current.toTimeString().slice(0, 5));
+        current.setMinutes(current.getMinutes() + 15);
+      }
+      slots.push(hourSlots);
+    }
+    return slots;
+  };
 
   const manageCita = async (e) => {
     e.preventDefault();
