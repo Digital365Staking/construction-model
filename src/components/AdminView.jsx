@@ -107,7 +107,7 @@ const AdminView = () => {
               response: $response, 
               viewed: true, 
               created: $created,
-              isAI: false 
+              isai: false 
             }
           ) {
             id

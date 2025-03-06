@@ -885,7 +885,7 @@ const ClientView = () => {
         console.log("VITE_END_SLOT_PM:", import.meta.env.VITE_END_SLOT_PM);
         console.log(availability);
         
-        const arr = [[]];
+        let arr = [[]];
         arr.push([]);
         let c=0;
         let line=-1;
