@@ -56,16 +56,6 @@ const AdminView = () => {
 
     useEffect(() => { 
       fetchComments();
-        let fruits = [
-            "Apple", "Banana", "Cherry", "Mango", "Pineapple", 
-            "Strawberry", "Blueberry", "Grapes", "Orange", "Pear", 
-            "Peach", "Plum", "Kiwi", "Watermelon", "Papaya", 
-            "Pomegranate", "Lemon", "Lime", "Fig", import.meta.env.VITE_LIMIT_LIST_ADMIN
-        ];
-        for (let fruit of fruits) {
-            //loadMessage(curAI,fruit,"");
-        }
-        
     }, []);
 
     const loadMessage = (sender,msg,lang) => {
@@ -106,8 +96,7 @@ const AdminView = () => {
           $id_client: Int!, 
           $pseudo: String!, 
           $question: String!, 
-          $response: String!, 
-          $viewed: Boolean, 
+          $response: String!,
           $created: timestamp
         ) {
           insert_COMMENT_one(
@@ -116,8 +105,9 @@ const AdminView = () => {
               pseudo: $pseudo, 
               question: $question, 
               response: $response, 
-              viewed: $viewed, 
-              created: $created 
+              viewed: true, 
+              created: $created,
+              isAI: false 
             }
           ) {
             id
@@ -134,6 +124,7 @@ const AdminView = () => {
       const handleSendMessage = async (e) => {
         try {
           e.preventDefault();  
+          setChatInput('');
           // Step 1: Fetch the last question
           const lastQuestionData = await client.request(LAST_QUESTION, { pseudo : curPseudo });
     
@@ -151,7 +142,6 @@ const AdminView = () => {
             pseudo : curPseudo,
             question : lastQuestion,
             response : chatInput,
-            viewed :true,
             created : new Date()
           });    
           
@@ -187,6 +177,7 @@ const AdminView = () => {
           content
           created
           type
+          isai
         }
       }
         `; 
@@ -220,7 +211,7 @@ const AdminView = () => {
               <div
                 key={index}
                 className={`message ${item.type === 0 ? 'blue-bg' : 'gray-bg'}`}>
-                <div className="message-sender"><span style={{fontWeight:"bold"}}>{item.type  === 0 ? item.pseudo : curAI}</span> : {item.content}
+                <div className="message-sender"><span style={{fontWeight:"bold"}}>{item.type  === 0 ? item.pseudo : (item.isai ? curAI : curMe)}</span> : {item.content}
                 <div className="message-timestamp">{new Date(item.created).toLocaleString(curFormat, {
                       month: 'long',
                       day: 'numeric',
