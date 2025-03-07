@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import "../styles/AdminView.css";
 import { GraphQLClient } from 'graphql-request';
-import { createClient } from '@nhost/graphql-client';
 import { createClient as createWSClient } from 'graphql-ws';
 import { print } from 'graphql';
 import gql from 'graphql-tag';
@@ -13,10 +12,6 @@ const client = new GraphQLClient(import.meta.env.VITE_GRAPHQL_URL, {
     },
   });
 
-  const nhost = createClient({
-    backendUrl: import.meta.env.VITE_GRAPHQL_URL.replace('/v1/graphql','')
-  });
-  
   // Create WebSocket client for real-time subscriptions
   const wsClient = createWSClient({
     url: import.meta.env.VITE_GRAPHQL_URL.replace('https','wss')
@@ -227,19 +222,21 @@ const AdminView = () => {
         id
         question
         response
+        created
         viewed
         isai
       }
     }
     `;
 
+    const id_client = Number(import.meta.env.VITE_ID_CLIENT);
+
     useEffect(() => {
-      const id_client = Number(import.meta.env.VITE_ID_CLIENT);
     
       const unsubscribe = wsClient.subscribe(
         {
           query: print(COMMENT_SUBSCRIPTION),
-          variables: { id_client }, // Pass id_client as a variable
+          variables: { id_client: id_client }, // Pass id_client as a variable
         },
         {
           next: (data) => {
