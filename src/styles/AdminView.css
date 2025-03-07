@@ -81,8 +81,8 @@ body{
   .message {
     padding: 0.3em;
     border-radius: 1em;
-    margin-top: 0.2em;
-    margin-left: 0.2em;
+    margin-top: 0.1em;
+    margin-left: 0.1em;
     display: flex;
     flex-direction: column;
     color: #fff;

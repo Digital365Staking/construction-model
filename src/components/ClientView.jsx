@@ -48,7 +48,7 @@ const ClientView = () => {
   //localStorage.clear();
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
-  const [curPseudo, setCurPseudo] = useState(0);
+  const [curPseudo, setCurPseudo] = useState(() => JSON.parse(localStorage.getItem('curPseudo')) || '');
   const [curIdClient, setCurIdClient] = useState(0);
   const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 0);
   const [availability, setAvailability] = useState([]);
@@ -268,6 +268,7 @@ const ClientView = () => {
     console.log("curCita1 contact : " + curCita1.contact);
     console.log("curCita1 Step : " + curCita1.stepCita);
     console.log("curCateg : " + curCateg);
+    console.log("curPseudo : " + curPseudo);
     /*if(curCita1.contact != ""){
       generateCita1();
     }*/
@@ -590,12 +591,14 @@ const ClientView = () => {
   useEffect(() => {
     localStorage.setItem('curCateg', JSON.stringify(curCateg));
     setMessages([]);
-    loadMessage(curAI(""),GetMsgInitInfo(""),"");
-    
-    /*if(import.meta.env.VITE_OPT_CITA === "1" && curCateg == 2){
-      InitDispoCita();
-    } */   
+    loadMessage(curAI(""),GetMsgInitInfo(""),""); 
   }, [curCateg]);
+
+  useEffect(() => {
+    localStorage.setItem('curPseudo', JSON.stringify(curPseudo));
+    setMessages([]);
+    loadMessage(curAI(""),GetMsgInitInfo(""),""); 
+  }, [curPseudo]);
 
   useEffect(() => {
     localStorage.setItem('curCita1', JSON.stringify(curCita1));
@@ -699,7 +702,8 @@ const ClientView = () => {
           $pseudo: String!, 
           $question: String!, 
           $response: String!,
-          $created: timestamp
+          $created: timestamp,
+          $isai: Boolean
         ) {
           insert_COMMENT_one(
             object: { 
@@ -709,7 +713,7 @@ const ClientView = () => {
               response: $response, 
               viewed: false, 
               created: $created,
-              isai: false 
+              isai: $isai 
             }
           ) {
             id
@@ -723,6 +727,18 @@ const ClientView = () => {
         }
        `;  
 
+       const LAST_HUMAN_COMMENT = `
+       query GetLastHumanComment($pseudo: String!) { 
+        COMMENT(
+          where: { pseudo: { _eq: $pseudo }, isai: { _eq: false } } 
+          order_by: { created: desc }
+          limit: 1
+        ) {
+          created
+        }
+      }
+      `;
+
     if(curCateg == 0){
       let m = `
       This blog offers a comprehensive introduction to one of the most innovative blockchain platforms in the industry. 
@@ -734,15 +750,43 @@ const ClientView = () => {
       evolving blockchain landscape.
       `;
       let tim = Date.now();
-      if(curPseudo === 0){
-        setCurPseudo(tim);
+      //console.log(new Date(Date.now()));
+      //return;
+      let isai = true;
+      if(curPseudo === ''){
+
+        setCurPseudo(tim.toString());
+        console.log("pseudo set");
+      }else{
+        const lastHumanData = await client.request(LAST_HUMAN_COMMENT, { pseudo : curPseudo });
+        if (lastHumanData.COMMENT.length > 0) {
+          const lastCommentDate = new Date(lastHumanData.COMMENT[0].created);
+          const now = new Date();
+  
+          // Calculate the difference in milliseconds
+          const diffInMs = now - lastCommentDate;
+  
+          // Convert milliseconds to hours
+          const diffInHours = diffInMs / (1000 * 60 * 60);
+  
+          // Check if the difference is more than 1 hour
+          if (diffInHours > 1) {
+              console.log("The last comment was more than 1 hour ago. pseudo " + curPseudo);              
+          } else {
+              console.log("The last comment was within the last hour. pseudo " + curPseudo);
+              isai = false;
+          }          
+        }
       }
+      
+
       const result = await client.request(INSERT_COMMENT, {
         id_client : curIdClient,  // Replace with the actual client ID
-        pseudo : tim.toString(),
+        pseudo : curPseudo === '' ? tim.toString() : curPseudo,
         question : chatInput,
         response : m,
-        created : new Date()
+        created : new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" }),
+        isai: isai
       });    
       
       console.log('Comment inserted successfully! ' + result);  // Log the result
@@ -783,16 +827,20 @@ const ClientView = () => {
   const handleClearChat = async () => {
     setIsDisabled(true); 
     setChatInput('');
+    
     if(curCateg !== 2){
       setCurCita1(prevState => ({
         ...prevState,  // Keep existing properties              
         stepCita: 0  // Update stepCita
       }));
       setMessages([]);
+      if(curCateg === 0){  
+        localStorage.clear();        
+        loadMessage(curAI(""),GetMsgInitInfo(""),"");
+        
+      }
       const timer = setTimeout(() => {
-        if(curCateg === 0){          
-          loadMessage(curAI(""),GetMsgInitInfo(""),"");
-        }
+        
         if(curCateg === 1){          
           loadMessage(curAI(""),GetMsgInitBudget(""),"");
         }

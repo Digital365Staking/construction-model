@@ -81,7 +81,7 @@ textarea:disabled {
 .message {
   padding: 0.625em;
   border-radius: 1em;
-  margin-bottom: 0.625em;
+  margin-bottom: 0.1em;
   display: flex;
   flex-direction: column;
   color: #fff;
