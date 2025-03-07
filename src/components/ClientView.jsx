@@ -785,12 +785,13 @@ const ClientView = () => {
         pseudo : curPseudo === '' ? tim.toString() : curPseudo,
         question : chatInput,
         response : m,
-        created : new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" }),
+        created : new Date(Date.now() + 60 * 60 * 1000),
         isai: isai
       });    
       
       console.log('Comment inserted successfully! ' + result);  // Log the result
       loadMessage(curAI(""),m,"");
+      setChatInput(''); 
       return;
     }
 

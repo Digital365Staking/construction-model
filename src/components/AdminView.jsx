@@ -1,12 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import "../styles/AdminView.css";
 import { GraphQLClient } from 'graphql-request';
+import { createClient } from '@nhost/graphql-client';
+import { createClient as createWSClient } from 'graphql-ws';
+import { print } from 'graphql';
+import gql from 'graphql-tag';
 
 
 const client = new GraphQLClient(import.meta.env.VITE_GRAPHQL_URL, {
     headers: {
       "x-hasura-admin-secret": import.meta.env.VITE_GRAPHQL_KEY,
     },
+  });
+
+  const nhost = createClient({
+    backendUrl: import.meta.env.VITE_GRAPHQL_URL.replace('/v1/graphql','')
+  });
+  
+  // Create WebSocket client for real-time subscriptions
+  const wsClient = createWSClient({
+    url: import.meta.env.VITE_GRAPHQL_URL.replace('https','wss')
   });
 
 const AdminView = () => {
@@ -143,10 +156,11 @@ const AdminView = () => {
             pseudo : curPseudo,
             question : lastQuestion,
             response : chatInput,
-            created : new Date()
+            created : new Date(Date.now() + 60 * 60 * 1000)
           });    
           
           console.log('Comment inserted successfully! ' + result);  // Log the result
+          fetchComments();
         } catch (error) {          
           console.error("Error fetching data:", error);
         }
@@ -202,6 +216,46 @@ const AdminView = () => {
         console.error("Error fetching data:", error);
         }    
     };
+
+    const COMMENT_SUBSCRIPTION = `
+    subscription CommentSubscription($id_client: Int!) {
+      COMMENT(
+        where: { id_client: { _eq: $id_client } } 
+        order_by: { created: desc } 
+        limit: 1
+      ) {
+        id
+        question
+        response
+        viewed
+        isai
+      }
+    }
+    `;
+
+    useEffect(() => {
+      const id_client = Number(import.meta.env.VITE_ID_CLIENT);
+    
+      const unsubscribe = wsClient.subscribe(
+        {
+          query: print(COMMENT_SUBSCRIPTION),
+          variables: { id_client }, // Pass id_client as a variable
+        },
+        {
+          next: (data) => {
+            if (data.data && data.data.COMMENT.length > 0) {
+              console.log('New row added:', data.data.COMMENT[0]);
+              //setCommentText(data.data.COMMENT[0].text);
+            }
+          },
+          error: (err) => console.error('Subscription error:', err),
+          complete: () => console.log('Subscription complete'),
+        }
+      );
+    
+      return () => unsubscribe(); // Unsubscribe on unmount
+    }, [wsClient, COMMENT_SUBSCRIPTION, id_client]); // Include id_client in dependencies
+    
 
     return (
     <div className="app-container"> 
