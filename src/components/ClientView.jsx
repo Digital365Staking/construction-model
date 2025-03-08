@@ -693,7 +693,7 @@ const ClientView = () => {
         return;
       }
     }
-    setMessages([]);
+    
     setMessages((prevMessages) => [...prevMessages, newMessage]);
 
     const INSERT_COMMENT = `
@@ -784,7 +784,7 @@ const ClientView = () => {
         id_client : curIdClient,  // Replace with the actual client ID
         pseudo : curPseudo === '' ? tim.toString() : curPseudo,
         question : chatInput,
-        response : m,
+        response : isai ? m : '-',
         created : new Date(Date.now() + 60 * 60 * 1000),
         isai: isai
       });    
@@ -1577,45 +1577,7 @@ END:VCALENDAR`;
       </div>
     </div>
   );
-  const [commentText, setCommentText] = useState('');
-
-  useEffect(() => {
-    // Subscribe to the "COMMENT" table for new row insertions
-    const channels = supabase.channel('custom-all-channel')
-    .on(
-      'postgres_changes',
-      { event: '*', schema: 'public', table: 'COMMENT' },
-      (payload) => {
-        console.log('Change received!', payload);
-        setCommentText(payload.new.text);
-      }
-    )
-    .subscribe()
-
-    /*const subscription = supabase
-      .channel('realtime:public:COMMENT')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'COMMENT' },
-        (payload) => {
-          console.log('New row added:', payload.new);
-          setCommentText(payload.new.text); // Update state with the new row's "text" field
-        }
-      )
-      .subscribe();*/
-
-    // Cleanup subscription on component unmount
-    return () => {
-      channels.unsubscribe();
-    };
-  }, []);
-    
-  return (
-    <div>
-      <h1>Latest Comment</h1>
-      <div>{commentText || 'No comments yet...'}</div>
-    </div>
-  );
+  
 };
 
 
