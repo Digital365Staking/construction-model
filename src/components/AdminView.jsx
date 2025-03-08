@@ -216,12 +216,20 @@ const AdminView = () => {
     };
 
     const COMMENT_SUBSCRIPTION = `
-      subscription {
-      COMMENT{
-        id
-        created
+      subscription CommentSubscription($id_client: Int!) {
+        COMMENT(
+          where: { id_client: { _eq: $id_client } } 
+          order_by: { created: desc } 
+          limit: 1
+        ) {
+          id
+          question
+          response
+          created
+          viewed
+          isai
+        }
       }
-    }
     `;
 
     const id_client = Number(import.meta.env.VITE_ID_CLIENT);
@@ -231,7 +239,7 @@ const AdminView = () => {
       const unsubscribe = wsClient.subscribe(
         {
           query: COMMENT_SUBSCRIPTION,  // Pass the subscription directly (no need for print if it's an AST)
-          //variables: { id_client },     // Pass id_client as a variable
+          variables: { id_client },     // Pass id_client as a variable
         },
         {
           next: (data) => {
