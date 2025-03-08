@@ -223,6 +223,7 @@ const AdminView = () => {
           limit: 1
         ) {
           id
+          pseudo
           question
           response
           created
@@ -242,10 +243,28 @@ const AdminView = () => {
           variables: { id_client },     // Pass id_client as a variable
         },
         {
-          next: (data) => {
+          next: async (data) => {
             if (data.data && data.data.COMMENT.length > 0) {
+              // Example new comment to add (you can replace this with your actual new comment data)
+              const newComment = {
+                id: data.data.COMMENT[0].id,  // Replace with the actual id
+                pseudo: data.data.COMMENT[0].pseudo,
+                question: data.data.COMMENT[0].question,
+                response: data.data.COMMENT[0].response,
+                created: data.data.COMMENT[0].created,  // Use the current date/time or the actual created date
+                viewed: data.data.COMMENT[0].viewed,
+                isai: data.data.COMMENT[0].isai
+              };
               console.log('New row added:', data.data.COMMENT[0]);
-              // setCommentText(data.data.COMMENT[0].text); // Uncomment this line if needed
+              // Add the new comment to the existing COMMENT array and sort it
+              const updatedComments = [...comments, newComment].sort((a, b) => new Date(b.created) - new Date(a.created));
+
+              // Update the state with the sorted comments
+              setComments(updatedComments);
+
+              const data2 = await client.request(SUB_COMMENTS, { pseudo: data.data.COMMENT[0].pseudo });
+              setSubComments([]);
+              setSubComments(data2.comment_union);              
             }
           },
           error: (err) => console.error('Subscription error:', err),
