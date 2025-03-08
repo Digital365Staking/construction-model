@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import "../styles/AdminView.css";
 import { GraphQLClient } from 'graphql-request';
 import { createClient as createWSClient } from 'graphql-ws';
-import { print } from 'graphql';
-import gql from 'graphql-tag';
 
 
 const client = new GraphQLClient(import.meta.env.VITE_GRAPHQL_URL, {
@@ -14,7 +12,12 @@ const client = new GraphQLClient(import.meta.env.VITE_GRAPHQL_URL, {
 
   // Create WebSocket client for real-time subscriptions
   const wsClient = createWSClient({
-    url: import.meta.env.VITE_GRAPHQL_URL.replace('https','wss')
+    url: import.meta.env.VITE_GRAPHQL_URL.replace('https','wss'),
+    connectionParams: {
+      headers: {
+        "x-hasura-admin-secret": import.meta.env.VITE_GRAPHQL_KEY,
+      },
+    }
   });
 
 const AdminView = () => {
@@ -213,18 +216,10 @@ const AdminView = () => {
     };
 
     const COMMENT_SUBSCRIPTION = `
-    subscription CommentSubscription($id_client: Int!) {
-      COMMENT(
-        where: { id_client: { _eq: $id_client } } 
-        order_by: { created: desc } 
-        limit: 1
-      ) {
+      subscription {
+      COMMENT{
         id
-        question
-        response
         created
-        viewed
-        isai
       }
     }
     `;
@@ -235,14 +230,14 @@ const AdminView = () => {
     
       const unsubscribe = wsClient.subscribe(
         {
-          query: print(COMMENT_SUBSCRIPTION),
-          variables: { id_client: id_client }, // Pass id_client as a variable
+          query: COMMENT_SUBSCRIPTION,  // Pass the subscription directly (no need for print if it's an AST)
+          //variables: { id_client },     // Pass id_client as a variable
         },
         {
           next: (data) => {
             if (data.data && data.data.COMMENT.length > 0) {
               console.log('New row added:', data.data.COMMENT[0]);
-              //setCommentText(data.data.COMMENT[0].text);
+              // setCommentText(data.data.COMMENT[0].text); // Uncomment this line if needed
             }
           },
           error: (err) => console.error('Subscription error:', err),
