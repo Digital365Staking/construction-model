@@ -198,6 +198,11 @@ const AdminView = () => {
     
     const viewListComments = async (pseudo,viewed) => {
         try{
+          const msg_init = selLang === 'es' ? `Veo que el asistente virtual ha proporcionado información errónea. Le ruego que me contacte por WhatsApp al +34989... para recibir la información correcta. Gracias por su comprensión.`
+           : (selLang === 'en' ? `I see that the virtual assistant has provided incorrect information. Please contact me via WhatsApp at +34989... to receive the correct information. Thank you for your understanding.` :
+            `Je constate que l'assistant virtuel a fourni des informations erronées. Je vous prie de bien vouloir me contacter via WhatsApp au +34989... afin de recevoir les informations correctes. Merci de votre compréhension.`
+          )
+          setChatInput(msg_init);
           setIsPopupOpen(true);
           setCurPseudo(pseudo);
           if(!viewed){

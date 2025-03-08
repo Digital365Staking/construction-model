@@ -386,15 +386,19 @@ const ClientView = () => {
     try {
       let csv = "";
       if(curCateg === 1){          
-        
-        const { data, error } = await supabase.rpc(procedureName);
-        if (error) {
-          throw new Error(`Supabase RPC Error: ${error.message}`);
-        }        
-        console.log(data.length + "-" + procedureName);
-        if(data.length <= 1){ 
-          if(data.length > 0)
-            csv = data[0].TITLE;
+        const QUERY_DEVIS = `
+        query GetInfosDevis() {
+          ${procedureName}(
+          ){
+            title
+          }
+        }
+          `;
+        const data = await client.request(QUERY_DEVIS);        
+        console.log(data.COMMENT.length + "-" + procedureName);
+        if(data.COMMENT.length <= 1){ 
+          if(data.COMMENT.length > 0)
+            csv = data.COMMENT[0].title;
           else
             csv = "";
         }else{
@@ -416,7 +420,7 @@ const ClientView = () => {
           return respAI;
         }
       }
-    let req = `
+    /*let req = `
       How should I request a supabase table "${tableName}" with the headers "${headers}" if I have to answer to the question : "${message}" ? Give as anwer only the select string and the filter string in the JSON format model 
       {
         "select": "Account",
@@ -494,7 +498,7 @@ const ClientView = () => {
       }
       csv2 = removeEmptyLines(csv2);
       console.log(csv2);
-      return csv2;
+      return csv2;*/
       } catch (err) {
         console.error(err);
       } 

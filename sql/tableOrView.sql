@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS "public"."COMMENT" (
     "question" "text" NOT NULL,
     "response" "text" NOT NULL,
     "viewed" boolean DEFAULT false,
+	"isai" boolean DEFAULT false,
     "created" timestamp without time zone
 );
 
@@ -54,15 +55,17 @@ SELECT
     pseudo,
     question AS content,
     created,
+	isai,
     0 AS type
-FROM "public"."COMMENT"
+FROM "public"."COMMENT" WHERE isai is true OR response = '-'
 UNION ALL
 SELECT 
     pseudo,
     response AS content,
     created,
+	isai,
     1 AS type
-FROM "public"."COMMENT";
+FROM "public"."COMMENT" WHERE response != '-';
 
 CREATE TABLE IF NOT EXISTS "public"."COMMENT_HISTORY" (
     "id" integer NOT NULL,
