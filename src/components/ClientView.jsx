@@ -1656,7 +1656,7 @@ END:VCALENDAR`;
               <img style={{maxHeight: import.meta.env.VITE_MAX_HEIGHT_LOGO}} src={import.meta.env.VITE_LOGO_URL} alt="Logo"/>
           </div>
           <div class="header-right">
-              <div class="header-top"><h4></h4></div>
+              <div class="header-top"><h4>{import.meta.env.VITE_COMPANY_NAME}</h4></div>
               <div class="header-bottom">C. de Miguel Arredondo, 4, Local 7, Arganzuela, 28045 Madrid</div>
           </div>
       </div>
@@ -1702,14 +1702,17 @@ END:VCALENDAR`;
                   <br/><a style={{ color: 'white' }} href={message.lnkWhatsapp}>{message.whatsapp}</a>
               </div>      
               <div className="message-timestamp">{message.timestamp}</div>
-              <div style={{marginTop: "10px",height: "20vh",display : (message.sender === curAI("") && curCateg === 0 && message.text !== GetMsgInitInfo("")) ? "block" : "none"}}>
-              
-              
-              
+              <div style={{marginTop: "10px",height: "20vh",width : "100%",display : (message.sender === curAI("") && curCateg === 0 && message.text !== GetMsgInitInfo("")) ? "flex" : "none"}}>
+                <div style={{display: "flex",flex:"1"}}>
+                    <a href="#popup" onClick={() => setIsFormSendOpen(false)}>
+                      <img style={{height:"20vh"}} src="https://www.dropbox.com/scl/fi/99txh27z4jk70pue85rmb/ed0.JPG?rlkey=jgtbu2w4b8yj5h1q50tf0zbbm&st=wgj33nd1&dl=1" alt="My Image"/>
+                    </a>
+                </div>
+                <div className="ads-text">
                   <a href="#popup" onClick={() => setIsFormSendOpen(false)}>
-                    <img style={{height:"20vh"}} src="https://www.dropbox.com/scl/fi/99txh27z4jk70pue85rmb/ed0.JPG?rlkey=jgtbu2w4b8yj5h1q50tf0zbbm&st=wgj33nd1&dl=1" alt="My Image"/>
-                   </a>
-                  
+                  Producto Revlon Alta Qualidad, Precio 50 €
+                  </a>
+                </div>
               </div>
             </div>
           ))}
