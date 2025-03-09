@@ -24,11 +24,22 @@ const perplexity = createPerplexity({
 });
 
 import { GraphQLClient } from 'graphql-request';
+import { createClient as createWSClient } from 'graphql-ws';
 
 const client = new GraphQLClient(import.meta.env.VITE_GRAPHQL_URL, {
   headers: {
     "x-hasura-admin-secret": import.meta.env.VITE_GRAPHQL_KEY,
   },
+});
+
+// Create WebSocket client for real-time subscriptions
+const wsClient = createWSClient({
+  url: import.meta.env.VITE_GRAPHQL_URL.replace('https','wss'),
+  connectionParams: {
+    headers: {
+      "x-hasura-admin-secret": import.meta.env.VITE_GRAPHQL_KEY,
+    },
+  }
 });
 
 
@@ -46,6 +57,10 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const ClientView = () => {
   const id_client = Number(import.meta.env.VITE_ID_CLIENT);
+  const start_slot_am = import.meta.env.VITE_START_SLOT_AM;
+  const end_slot_am = import.meta.env.VITE_END_SLOT_AM;
+  const start_slot_pm = import.meta.env.VITE_START_SLOT_PM;
+  const end_slot_pm = import.meta.env.VITE_END_SLOT_PM;
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
   const [curPseudo, setCurPseudo] = useState(() => JSON.parse(localStorage.getItem('curPseudo')) || '');
@@ -149,27 +164,26 @@ const ClientView = () => {
     });
   };
 
-  useEffect( async () => {
+  useEffect(() => {
     setCurIdClient(id_client);
-    const QUERY = `
-      query GetSERVICE {
-        AVAILABILITY {
-          id
-          en
-          es
-          fr
-          cat
-        }
-      }
-    `;
-    const data = await client.request(QUERY_COMMENTS, { id_client : id_client });
+    
     const fetchAvailability = async () => {
-      const { data, error } = await supabase.from('AVAILABILITY').select('cur_date,slot').eq('id_client',id_client);
-      if (error) {
-        console.error('Error fetching availability:', error);
-      } else {
-        setAvailability(data);
-      }   
+      try {
+        const QUERY_AVAILABILITY = `
+          query GetAvailability {
+            AVAILABILITY {
+              id
+              slot
+              id_client
+              cur_date
+            }
+          }
+        `;
+        const data = await client.request(QUERY_AVAILABILITY, { id_client : id_client });
+        setAvailability(data.AVAILABILITY); 
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } 
     };
     fetchAvailability();
   }, []);
@@ -1106,8 +1120,100 @@ const ClientView = () => {
     return slots;
   };
 
+  const generateHourSlots = (startHour, endHour, intervalMinutes) => {
+    let slots = [];
+    let currentTime = new Date();
+    currentTime.setHours(startHour, 0, 0, 0); // Set to startHour:00
+  
+    while (currentTime.getHours() < endHour) {
+      let startTime = currentTime.toTimeString().slice(0, 5); // "HH:MM"
+      currentTime.setMinutes(currentTime.getMinutes() + intervalMinutes);
+      let endTime = currentTime.toTimeString().slice(0, 5);
+  
+      slots.push(`${startTime} - ${endTime}`);
+    }
+    return slots;
+  };
+
+  useEffect(() => {
+      
+        const unsubscribe = wsClient.subscribe(
+          {
+            query: COMMENT_SUBSCRIPTION,  // Pass the subscription directly (no need for print if it's an AST)
+            variables: { id_client },     // Pass id_client as a variable
+          },
+          {
+            next: async (data) => {
+              if (data.data && data.data.CITA.length > 0) {
+                // Example new comment to add (you can replace this with your actual new comment data)
+                             
+              }
+            },
+            error: (err) => console.error('Subscription error:', err),
+            complete: () => console.log('Subscription complete'),
+          }
+        );
+      
+        return () => unsubscribe(); // Unsubscribe on unmount
+      }, [wsClient, COMMENT_SUBSCRIPTION, id_client]); // Include id_client in dependencies
+
   const manageCita = async (e) => {
     e.preventDefault();
+    const regex = /^\d{4}-\d{2}-\d{2}$/;
+    if (regex.test(e.target.value)){
+      const CHECK_AVAILABILITY = `
+        query CheckAvailability($cur_date: date!, $id_client: Int!) {
+          AVAILABILITY(where: { cur_date: { _eq: $cur_date }, id_client: { _eq: $id_client } }) {
+            id
+          }
+        }
+      `;
+      const data = await client.request(CHECK_AVAILABILITY, { cur_date : new Date(e.target.value), id_client : id_client });
+      if(data.AVAILABILITY.length === 0){
+
+        const INSERT_AVAILABILITY = `
+          mutation InsertAvailability($objects: [AVAILABILITY_insert_input!]!) {
+            insert_AVAILABILITY(objects: $objects) {
+              returning {
+                id_client
+                cur_date
+                slot
+              }
+            }
+          }
+        `;
+
+        let timeSlots = generateTimeSlots(Number(start_slot_am.slice(0, 2)), Number(end_slot_am.slice(0, 2)), 15); // 15-minute slots from 09:00 to 14:00
+        
+        let objects = timeSlots.map(slot => ({
+          cur_date,
+          id_client,
+          slot
+        }));
+      
+        // Insert all time slots into the database
+        await client.mutate({
+          mutation: INSERT_AVAILABILITY,
+          variables: { objects }
+        });
+
+        timeSlots = generateTimeSlots(Number(start_slot_pm.slice(0, 2)), Number(end_slot_pm.slice(0, 2)), 15); // 15-minute slots from 09:00 to 14:00
+      
+        objects = timeSlots.map(slot => ({
+          cur_date,
+          id_client,
+          slot
+        }));
+      
+        // Insert all time slots into the database
+        await client.mutate({
+          mutation: INSERT_AVAILABILITY,
+          variables: { objects }
+        });
+
+        console.log("Availability slots inserted successfully:", timeSlots);
+      }
+    }
     console.log("manageCita" + curCita1.labelService);
     let msg = initSetCita(e.target.value, -1, selLang);
     console.log(e.target.value + "-" + msg);
