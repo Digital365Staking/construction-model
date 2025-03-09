@@ -309,6 +309,13 @@ const ClientView = () => {
       return lang === 'es' ? 'Asistente virtual' : (lang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
     }     
   };
+  const curServClient = (lang) =>{
+    if(lang === ""){
+      return selLang === 'es' ? 'Atención al Cliente' : (selLang === 'en' ? 'Customer Service' : 'Service Client');
+    }else{
+      return lang === 'es' ? 'Atención al Cliente' : (lang === 'en' ? 'Customer Service' : 'Service Client');
+    }     
+  };
   const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
   const curClear = selLang === 'es' ? 'Borrar' : (selLang === 'en' ? 'Clear' : 'Effacer');
   const curCancel = selLang === 'es' ? 'Cancelar' : (selLang === 'en' ? 'Cancel' : 'Annuler');
@@ -626,7 +633,11 @@ const ClientView = () => {
   }, [curCateg]);
 
   useEffect(() => {
-    localStorage.setItem('curPseudo', JSON.stringify(curPseudo));
+    if(curCita1.nombre !== ""){
+      localStorage.setItem('curPseudo', curCita1.nombre);
+    }else{
+      localStorage.setItem('curPseudo', JSON.stringify(curPseudo));
+    }
     setMessages([]);
     loadMessage(curAI(""),GetMsgInitInfo(""),""); 
   }, [curPseudo]);
@@ -785,8 +796,11 @@ const ClientView = () => {
       //return;
       let isai = true;
       if(curPseudo === ''){
-
-        setCurPseudo(tim.toString());
+        if(curCita1.nombre !== ""){
+          setCurPseudo(curCita1.nombre);
+        }else{
+          setCurPseudo(tim.toString());
+        }       
         console.log("pseudo set");
       }else{
         const lastHumanData = await client.request(LAST_HUMAN_COMMENT, { pseudo : curPseudo });
@@ -1187,7 +1201,7 @@ const ClientView = () => {
         );
       
         return () => unsubscribe(); // Unsubscribe on unmount
-      }, [wsClient, COMMENT_SUBSCRIPTION, id_client]); // Include id_client in dependencies
+      }, [wsClient, CITA_SUBSCRIPTION, id_client]); // Include id_client in dependencies
 
   const manageCita = async (e) => {
     e.preventDefault();
@@ -1544,7 +1558,9 @@ END:VCALENDAR`;
       COMMENT(
         where: { 
           id_client: { _eq: $id_client }, 
-          pseudo: { _eq: $pseudo }
+          pseudo: { _eq: $pseudo },
+          isai: { _eq: false },
+          response: { _neq: "-" }
         } 
         order_by: { created: desc } 
         limit: 1
@@ -1559,6 +1575,51 @@ END:VCALENDAR`;
       }
     }
     `;
+
+  useEffect(() => {
+    
+    let tim = Date.now();
+      
+      let isai = true;
+      if(curPseudo === ''){
+        if(curCita1.nombre !== ""){
+          setCurPseudo(curCita1.nombre);
+        }else{
+          setCurPseudo(tim.toString());
+        } 
+        console.log("pseudo set in COMMENT_SUBSCRIPTION, Client View");
+      }
+
+        const unsubscribe = wsClient.subscribe(
+          {
+            query: COMMENT_SUBSCRIPTION,  // Pass the subscription directly (no need for print if it's an AST)
+            variables: { id_client : id_client, pseudo : curPseudo },     // Pass id_client as a variable
+          },
+          {
+            next: async (data) => {
+              
+              if (data.data && data.data.COMMENT.length > 0) {
+                // Example new comment to add (you can replace this with your actual new comment data)
+                /*const newComment = {
+                  id: data.data.COMMENT[0].id,  // Replace with the actual id
+                  pseudo: data.data.COMMENT[0].pseudo,
+                  question: data.data.COMMENT[0].question,
+                  response: data.data.COMMENT[0].response,
+                  created: data.data.COMMENT[0].created,  // Use the current date/time or the actual created date
+                  viewed: data.data.COMMENT[0].viewed,
+                  isai: data.data.COMMENT[0].isai
+                };*/
+                loadMessage(curServClient(""),data.data.COMMENT[0].response,"");
+                console.log('New row added:', data.data.COMMENT[0]);                         
+              }
+            },
+            error: (err) => console.error('Subscription error:', err),
+            complete: () => console.log('Subscription complete'),
+          }
+        );
+      
+        return () => unsubscribe(); // Unsubscribe on unmount
+      }, [wsClient, COMMENT_SUBSCRIPTION, id_client]); // Include id_client in dependencies
 
   const [isFormSendOpen, setIsFormSendOpen] = useState(true);
   return (
