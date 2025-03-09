@@ -1135,18 +1135,50 @@ const ClientView = () => {
     return slots;
   };
 
+  const CITA_SUBSCRIPTION = `
+      subscription CitaSubscription($id_client: Int!) {
+        CITA(
+          where: { id_client: { _eq: $id_client } } 
+          order_by: { created: desc } 
+          limit: 1
+        ) {
+          id
+          start_date
+        }
+      }
+    `;
+  const DELETE_AVAILABILITY = `
+    mutation DeleteAvailability($id_client: Int!, $cur_date: date!, $slot: String!) {
+      delete_AVAILABILITY(
+        where: { 
+          id_client: { _eq: $id_client }, 
+          cur_date: { _eq: $cur_date }, 
+          slot: { _eq: $slot } 
+        }
+      ) {
+        affected_rows
+      }
+    }
+   `; 
+
   useEffect(() => {
       
         const unsubscribe = wsClient.subscribe(
           {
-            query: COMMENT_SUBSCRIPTION,  // Pass the subscription directly (no need for print if it's an AST)
+            query: CITA_SUBSCRIPTION,  // Pass the subscription directly (no need for print if it's an AST)
             variables: { id_client },     // Pass id_client as a variable
           },
           {
             next: async (data) => {
               if (data.data && data.data.CITA.length > 0) {
                 // Example new comment to add (you can replace this with your actual new comment data)
-                             
+                const formattedDate = data.data.CITA[0].start_date.toISOString().split('T')[0]; // "YYYY-MM-DD"
+                console.log(formattedDate);
+                const formattedTime = String(date.getHours()).padStart(2, '0') + ":" + 
+                      String(date.getMinutes()).padStart(2, '0');
+                console.log(formattedTime);
+                let data = await client.request(DELETE_AVAILABILITY, { cur_date : data.data.CITA[0].start_date,
+                   id_client : id_client, slot : formattedTime });             
               }
             },
             error: (err) => console.error('Subscription error:', err),
