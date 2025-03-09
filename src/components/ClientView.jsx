@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import "../styles/ClientView.css";
 import * as pdfjsLib from "pdfjs-dist";
 import Papa from 'papaparse';
@@ -51,9 +50,6 @@ const envVarName = `VITE_PUBLIC_HOLIDAYS_${year}`;
 const public_holidays = import.meta.env[envVarName];
 const chatgpt_api_url = import.meta.env.VITE_CHATGPT_URL;
 const chatgpt_api_key = import.meta.env.VITE_CHATGPT_KEY;
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const ClientView = () => {
   const id_client = Number(import.meta.env.VITE_ID_CLIENT);
