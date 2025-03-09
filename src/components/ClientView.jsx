@@ -45,7 +45,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const ClientView = () => {
-  //localStorage.clear();
+  const id_client = Number(import.meta.env.VITE_ID_CLIENT);
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
   const [curPseudo, setCurPseudo] = useState(() => JSON.parse(localStorage.getItem('curPseudo')) || '');
@@ -149,10 +149,22 @@ const ClientView = () => {
     });
   };
 
-  useEffect(() => {
-    setCurIdClient(Number(import.meta.env.VITE_ID_CLIENT));
+  useEffect( async () => {
+    setCurIdClient(id_client);
+    const QUERY = `
+      query GetSERVICE {
+        AVAILABILITY {
+          id
+          en
+          es
+          fr
+          cat
+        }
+      }
+    `;
+    const data = await client.request(QUERY_COMMENTS, { id_client : id_client });
     const fetchAvailability = async () => {
-      const { data, error } = await supabase.from('AVAILABILITY').select('cur_date,slot').eq('id_client',Number(import.meta.env.VITE_ID_CLIENT));
+      const { data, error } = await supabase.from('AVAILABILITY').select('cur_date,slot').eq('id_client',id_client);
       if (error) {
         console.error('Error fetching availability:', error);
       } else {
@@ -391,6 +403,7 @@ const ClientView = () => {
           ${procedureName}(
           ){
             title
+            price
           }
         }
           `;
@@ -1387,6 +1400,28 @@ END:VCALENDAR`;
 
     //return "http://localhost:5173/event.ics"; // Return the URL to use in the email
   };
+
+  const COMMENT_SUBSCRIPTION = `
+    subscription CommentSubscription($id_client: Int!, $pseudo: String!) {
+      COMMENT(
+        where: { 
+          id_client: { _eq: $id_client }, 
+          pseudo: { _eq: $pseudo }
+        } 
+        order_by: { created: desc } 
+        limit: 1
+      ) {
+        id
+        pseudo
+        question
+        response
+        created
+        viewed
+        isai
+      }
+    }
+    `;
+
   const [isFormSendOpen, setIsFormSendOpen] = useState(true);
   return (
     <div className="app-container"> 
