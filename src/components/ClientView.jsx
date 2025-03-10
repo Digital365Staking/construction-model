@@ -777,6 +777,35 @@ const ClientView = () => {
       }
       `;
 
+      const INSERT_COMMENT_HISTORY = `
+      mutation InsertHistory(
+          $id_client: Int!, 
+          $pseudo: String!, 
+          $question: String!, 
+          $response: String!,
+          $created: timestamp,
+          $isai: Boolean
+        ) {
+          insert_COMMENT_HISTORY_one(
+            object: { 
+              id_client: $id_client, 
+              pseudo: $pseudo, 
+              question: $question, 
+              response: $response,
+              created: $created,
+              isai: $isai 
+            }
+          ) {
+            id
+            id_client
+            pseudo
+            question
+            response
+            created
+          }
+        }
+       `;  
+
     if(curCateg == 0){
       let m = `
       This blog offers a comprehensive introduction to one of the most innovative blockchain platforms in the industry. 
@@ -820,17 +849,30 @@ const ClientView = () => {
         }
       }
       
-
-      const result = await client.request(INSERT_COMMENT, {
+      let dateCreated = new Date(Date.now() + 60 * 60 * 1000);
+      let result = await client.request(INSERT_COMMENT, {
         id_client : curIdClient,  // Replace with the actual client ID
         pseudo : curPseudo === '' ? tim.toString() : curPseudo,
         question : chatInput,
         response : isai ? m : '-',
-        created : new Date(Date.now() + 60 * 60 * 1000),
+        created : dateCreated,
         isai: isai
-      });    
-      
+      }); 
       console.log('Comment inserted successfully! ' + result);  // Log the result
+      const historyEnabled = import.meta.env.VITE_COMMENT_HISTORY === "1";
+      if(historyEnabled){
+        result = await client.request(INSERT_COMMENT_HISTORY, {
+          id_client : curIdClient,  // Replace with the actual client ID
+          pseudo : curPseudo === '' ? tim.toString() : curPseudo,
+          question : chatInput,
+          response : isai ? m : '-',
+          created : dateCreated,
+          isai: isai
+        });
+        console.log('Histo inserted successfully! ' + result);  // Log the result
+      }
+      
+      
       loadMessage(curAI(""),m,"");
       setChatInput(''); 
       return;
@@ -876,10 +918,24 @@ const ClientView = () => {
         stepCita: 0  // Update stepCita
       }));
       setMessages([]);
+      const QUERY_DELETE_COMMENTS = `
+       mutation DeleteCommentsByIdClientAndPseudo($id_client: Int!, $pseudo: String!) { 
+        delete_COMMENT(
+          where: { 
+            id_client: { _eq: $id_client },
+            pseudo: { _eq: $pseudo }
+          }
+        ) {
+          affected_rows
+        }
+      }
+      `;
+      let tim = Date.now();
+      const vars = { id_client: id_client, pseudo: curPseudo === '' ? tim.toString() : curPseudo };
+      const resp = await client.request(QUERY_DELETE_COMMENTS, vars);
       if(curCateg === 0){  
         localStorage.clear();        
         loadMessage(curAI(""),GetMsgInitInfo(""),"");
-        
       }
       const timer = setTimeout(() => {
         
@@ -887,10 +943,12 @@ const ClientView = () => {
           loadMessage(curAI(""),GetMsgInitBudget(""),"");
         }
       }, 1000);
-      
+      if (response.delete_COMMENT.affected_rows > 0) {
+        console.log('Comments deleted successfully. cli ' + id_client + ' , pseudo ' + curPseudo === '' ? tim.toString() : curPseudo);
+      }
     }else{
       
-      const query = `
+      const QUERY_DELETE_CITA = `
         mutation DeleteCitaById($id: Int!) {
           delete_CITA(where: { id: { _eq: $id } }) {
             affected_rows
@@ -898,7 +956,7 @@ const ClientView = () => {
         }
       `;
       const variables = { id: curCita1.idService };
-      const response = await client.request(query, variables);
+      const response = await client.request(QUERY_DELETE_CITA, variables);
 
       if (response.delete_CITA.affected_rows > 0) {
         console.log('Cita deleted successfully.');
