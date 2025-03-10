@@ -58,10 +58,10 @@ const ClientView = () => {
   const end_slot_pm = import.meta.env.VITE_END_SLOT_PM;
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
+  const [csvProducts, setCsvProducts] = useState('');
   const [curPseudo, setCurPseudo] = useState(() => JSON.parse(localStorage.getItem('curPseudo')) || '');
   const [curIdClient, setCurIdClient] = useState(Number(import.meta.env.VITE_ID_CLIENT));
   const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 0);
-  const [availability, setAvailability] = useState([]);
   const [messages, setMessages] = useState([]);
   //useState(() => JSON.parse(localStorage.getItem('messages')) || []);
   const [linesDay, setLinesDay] = useState([[]]);
@@ -159,44 +159,43 @@ const ClientView = () => {
     });
   };
 
-  useEffect(async () => {
-    setCurIdClient(curIdClient);
-    let hasOptCita = (import.meta.env.VITE_OPT_CITA === "1");
-    if(hasOptCita){
-        const QUERY_AVAILABILITY = `
-        query GetAvailability {
-          AVAILABILITY {
-            id
-            slot
-            id_client
-            cur_date
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const hasOptProd = import.meta.env.VITE_OPT_PRODUCT === "1";
+        if (hasOptProd) {
+          const QUERY_DESC_PRODUCTS = `
+            query GetProducts($id_client: Int!) {
+              PRODUCT(
+                where: { id_client: { _eq: $id_client } }
+              ) {
+                id
+                description
+              }
+            }
+          `;
+  
+          const result = await client.request(QUERY_DESC_PRODUCTS, {
+            id_client: curIdClient,  
+          });
+  
+          if (result?.PRODUCT?.length > 0) {
+            let csv = Papa.unparse(result.PRODUCT, {
+              header: false,
+              newline: '\r\n'               
+            });
+            csv = csv.replace(/"/g, '');
+            setCsvProducts(csv);            
           }
         }
-      `;
-      const data = await client.request(QUERY_AVAILABILITY, { id_client : curIdClient });
-      setAvailability(data.AVAILABILITY); 
-    }
-    const fetchAvailability = async () => {
-      try {
-        
       } catch (error) {
         console.error("Error fetching data:", error);
-      } 
-    };
-    fetchAvailability();
-    let hasOptProd = (import.meta.env.VITE_OPT_PRODUCT === "1");
-    if(hasOptProd){
-      result = await client.request(QUERY_DESC_PRODUCTS, {
-        id_client : curIdClient,  // Replace with the actual client ID
-      });
-      if(result.PRODUCT.length > 0){
-        let csv = Papa.unparse(result.PRODUCT, {
-          header: false,
-          newline: '\r\n',           
-        });
       }
-    }
-  }, []);
+    };
+  
+    fetchProducts();
+  }, [curIdClient]); // Removed csvProducts, added curIdClient
+  
 
   const QUERY = `
     query GetSERVICE {
@@ -448,8 +447,7 @@ const ClientView = () => {
         }else{
           csv = Papa.unparse(data, {
             header: false,
-            newline: '\r\n',
-            quotes: false, // Disable quoting of fields            
+            newline: '\r\n'            
           });          
         }
         csv = csv.replace(/"/g, '');
@@ -885,17 +883,6 @@ const ClientView = () => {
         console.log('Histo inserted successfully! ' + result);  // Log the result
       }
 
-      const QUERY_DESC_PRODUCTS = `
-        subscription GetProducts($id_client: Int!) {
-          PRODUCT(
-            where: { id_client: { _eq: $id_client } }
-          ) {
-            id
-            description
-          }
-        }
-      `;
-
       const QUERY_URL_PRODUCTS = `
       subscription GetProducts($id_client: Int!, $ids: [Int!]!) {
         PRODUCT(
@@ -919,10 +906,11 @@ const ClientView = () => {
         `Indicate which product(s) from the following CSV list would be suitable (return an array of identifiers, for example [1,2], with no spaces in the array).`
         : 
         ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient (retourner un tableau d'identifiants, par exemple [1,2], sans espaces dans le tableau).`);
-        
+        promptInfo += csvProducts;
       }
       console.log('promptInfo = ' + promptInfo);
       let chatResponse = await fetchChatAIResponse(chatInput);
+      console.log('response : ' + chatResponse);
       let tabResp = chatResponse.split(selLang === 'es' ? 'Producto' : (selLang === 'en' ? 'Product' : 'Produit'));
       if(tabResp.length > 0){
         chatResponse = tabResp[0];
