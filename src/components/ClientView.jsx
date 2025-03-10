@@ -52,7 +52,6 @@ const chatgpt_api_url = import.meta.env.VITE_CHATGPT_URL;
 const chatgpt_api_key = import.meta.env.VITE_CHATGPT_KEY;
 
 const ClientView = () => {
-  const id_client = Number(import.meta.env.VITE_ID_CLIENT);
   const start_slot_am = import.meta.env.VITE_START_SLOT_AM;
   const end_slot_am = import.meta.env.VITE_END_SLOT_AM;
   const start_slot_pm = import.meta.env.VITE_START_SLOT_PM;
@@ -60,7 +59,7 @@ const ClientView = () => {
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
   const [curPseudo, setCurPseudo] = useState(() => JSON.parse(localStorage.getItem('curPseudo')) || '');
-  const [curIdClient, setCurIdClient] = useState(0);
+  const [curIdClient, setCurIdClient] = useState(Number(import.meta.env.VITE_ID_CLIENT));
   const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 0);
   const [availability, setAvailability] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -160,28 +159,43 @@ const ClientView = () => {
     });
   };
 
-  useEffect(() => {
-    setCurIdClient(id_client);
-    
+  useEffect(async () => {
+    setCurIdClient(curIdClient);
+    let hasOptCita = (import.meta.env.VITE_OPT_CITA === "1");
+    if(hasOptCita){
+        const QUERY_AVAILABILITY = `
+        query GetAvailability {
+          AVAILABILITY {
+            id
+            slot
+            id_client
+            cur_date
+          }
+        }
+      `;
+      const data = await client.request(QUERY_AVAILABILITY, { id_client : curIdClient });
+      setAvailability(data.AVAILABILITY); 
+    }
     const fetchAvailability = async () => {
       try {
-        const QUERY_AVAILABILITY = `
-          query GetAvailability {
-            AVAILABILITY {
-              id
-              slot
-              id_client
-              cur_date
-            }
-          }
-        `;
-        const data = await client.request(QUERY_AVAILABILITY, { id_client : id_client });
-        setAvailability(data.AVAILABILITY); 
+        
       } catch (error) {
         console.error("Error fetching data:", error);
       } 
     };
     fetchAvailability();
+    let hasOptProd = (import.meta.env.VITE_OPT_PRODUCT === "1");
+    if(hasOptProd){
+      result = await client.request(QUERY_DESC_PRODUCTS, {
+        id_client : curIdClient,  // Replace with the actual client ID
+      });
+      if(result.PRODUCT.length > 0){
+        let csv = Papa.unparse(result.PRODUCT, {
+          header: false,
+          newline: '\r\n',           
+        });
+      }
+    }
   }, []);
 
   const QUERY = `
@@ -817,8 +831,7 @@ const ClientView = () => {
       evolving blockchain landscape.
       `;
       let tim = Date.now();
-      //console.log(new Date(Date.now()));
-      //return;
+      
       let isai = true;
       if(curPseudo === ''){
         if(curCita1.nombre !== ""){
@@ -871,8 +884,50 @@ const ClientView = () => {
         });
         console.log('Histo inserted successfully! ' + result);  // Log the result
       }
-      
-      
+
+      const QUERY_DESC_PRODUCTS = `
+        subscription GetProducts($id_client: Int!) {
+          PRODUCT(
+            where: { id_client: { _eq: $id_client } }
+          ) {
+            id
+            description
+          }
+        }
+      `;
+
+      const QUERY_URL_PRODUCTS = `
+      subscription GetProducts($id_client: Int!, $ids: [Int!]!) {
+        PRODUCT(
+          where: { 
+            id_client: { _eq: $id_client }, 
+            id: { _in: $ids } 
+          }
+        ) {
+          id
+          description
+          url
+        }
+      }
+       `;
+      let promptInfo = chatInput + '\n';
+      let hasPromoProd =  import.meta.env.VITE_OPT_PRODUCT === '1';
+      if(hasPromoProd){
+        promptInfo += selLang === 'es' ? 
+        `Indique qué producto(s) de la siguiente lista CSV serían adecuados (devuelva un array de identificadores, por ejemplo [1,2], sin espacios en el array).` 
+        : (selLang === 'en' ?
+        `Indicate which product(s) from the following CSV list would be suitable (return an array of identifiers, for example [1,2], with no spaces in the array).`
+        : 
+        ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient (retourner un tableau d'identifiants, par exemple [1,2], sans espaces dans le tableau).`);
+        
+      }
+      console.log('promptInfo = ' + promptInfo);
+      let chatResponse = await fetchChatAIResponse(chatInput);
+      let tabResp = chatResponse.split(selLang === 'es' ? 'Producto' : (selLang === 'en' ? 'Product' : 'Produit'));
+      if(tabResp.length > 0){
+        chatResponse = tabResp[0];
+        
+      }
       loadMessage(curAI(""),m,"");
       setChatInput(''); 
       return;
@@ -931,7 +986,7 @@ const ClientView = () => {
       }
       `;
       let tim = Date.now();
-      const vars = { id_client: id_client, pseudo: curPseudo === '' ? tim.toString() : curPseudo };
+      const vars = { id_client: curIdClient, pseudo: curPseudo === '' ? tim.toString() : curPseudo };
       const resp = await client.request(QUERY_DELETE_COMMENTS, vars);
       if(curCateg === 0){  
         localStorage.clear();        
@@ -944,7 +999,7 @@ const ClientView = () => {
         }
       }, 1000);
       if (response.delete_COMMENT.affected_rows > 0) {
-        console.log('Comments deleted successfully. cli ' + id_client + ' , pseudo ' + curPseudo === '' ? tim.toString() : curPseudo);
+        console.log('Comments deleted successfully. cli ' + curIdClient + ' , pseudo ' + curPseudo === '' ? tim.toString() : curPseudo);
       }
     }else{
       
@@ -1234,7 +1289,7 @@ const ClientView = () => {
         const unsubscribe = wsClient.subscribe(
           {
             query: CITA_SUBSCRIPTION,  // Pass the subscription directly (no need for print if it's an AST)
-            variables: { id_client },     // Pass id_client as a variable
+            variables: { curIdClient },     // Pass id_client as a variable
           },
           {
             next: async (data) => {
@@ -1246,7 +1301,7 @@ const ClientView = () => {
                       String(date.getMinutes()).padStart(2, '0');
                 console.log(formattedTime);
                 let data = await client.request(DELETE_AVAILABILITY, { cur_date : data.data.CITA[0].start_date,
-                   id_client : id_client, slot : formattedTime });             
+                   id_client : curIdClient, slot : formattedTime });             
               }
             },
             error: (err) => console.error('Subscription error:', err),
@@ -1255,7 +1310,7 @@ const ClientView = () => {
         );
       
         return () => unsubscribe(); // Unsubscribe on unmount
-      }, [wsClient, CITA_SUBSCRIPTION, id_client]); // Include id_client in dependencies
+      }, [wsClient, CITA_SUBSCRIPTION, curIdClient]); // Include id_client in dependencies
 
   const manageCita = async (e) => {
     e.preventDefault();
@@ -1268,7 +1323,7 @@ const ClientView = () => {
           }
         }
       `;
-      const data = await client.request(CHECK_AVAILABILITY, { cur_date : new Date(e.target.value), id_client : id_client });
+      const data = await client.request(CHECK_AVAILABILITY, { cur_date : new Date(e.target.value), id_client : curIdClient });
       if(data.AVAILABILITY.length === 0){
 
         const INSERT_AVAILABILITY = `
@@ -1287,7 +1342,7 @@ const ClientView = () => {
         
         let objects = timeSlots.map(slot => ({
           cur_date,
-          id_client,
+          curIdClient,
           slot
         }));
       
@@ -1301,7 +1356,7 @@ const ClientView = () => {
       
         objects = timeSlots.map(slot => ({
           cur_date,
-          id_client,
+          curIdClient,
           slot
         }));
       
@@ -1647,22 +1702,12 @@ END:VCALENDAR`;
         const unsubscribe = wsClient.subscribe(
           {
             query: COMMENT_SUBSCRIPTION,  // Pass the subscription directly (no need for print if it's an AST)
-            variables: { id_client : id_client, pseudo : curPseudo },     // Pass id_client as a variable
+            variables: { id_client : curIdClient, pseudo : curPseudo },     // Pass id_client as a variable
           },
           {
             next: async (data) => {
               
               if (data.data && data.data.COMMENT.length > 0) {
-                // Example new comment to add (you can replace this with your actual new comment data)
-                /*const newComment = {
-                  id: data.data.COMMENT[0].id,  // Replace with the actual id
-                  pseudo: data.data.COMMENT[0].pseudo,
-                  question: data.data.COMMENT[0].question,
-                  response: data.data.COMMENT[0].response,
-                  created: data.data.COMMENT[0].created,  // Use the current date/time or the actual created date
-                  viewed: data.data.COMMENT[0].viewed,
-                  isai: data.data.COMMENT[0].isai
-                };*/
                 loadMessage(curServClient(""),data.data.COMMENT[0].response,"");
                 console.log('New row added:', data.data.COMMENT[0]);                         
               }
@@ -1673,7 +1718,7 @@ END:VCALENDAR`;
         );
       
         return () => unsubscribe(); // Unsubscribe on unmount
-      }, [wsClient, COMMENT_SUBSCRIPTION, id_client]); // Include id_client in dependencies
+      }, [wsClient, COMMENT_SUBSCRIPTION, curIdClient]); // Include id_client in dependencies
 
   const [isFormSendOpen, setIsFormSendOpen] = useState(true);
   return (
@@ -1763,7 +1808,7 @@ END:VCALENDAR`;
               <div style={{marginTop: "10px",height: "20vh",width : "100%",display : (message.sender === curAI("") && curCateg === 0 && message.text !== GetMsgInitInfo("")) ? "flex" : "none"}}>
                 <div style={{display: "flex",flex:"1"}}>
                     <a href="#popup" onClick={() => setIsFormSendOpen(false)}>
-                      <img style={{height:"20vh"}} src="https://www.dropbox.com/scl/fi/99txh27z4jk70pue85rmb/ed0.JPG?rlkey=jgtbu2w4b8yj5h1q50tf0zbbm&st=wgj33nd1&dl=1" alt="My Image"/>
+                      <img style={{height:"20vh"}} src="https://scandinavianbiolabs.com/cdn/shop/files/01_Shampoo_Men.jpg?v=1725633909&width=700" alt="My Image"/>
                     </a>
                 </div>
                 <div className="ads-text">
