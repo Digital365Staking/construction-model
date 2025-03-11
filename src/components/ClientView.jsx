@@ -58,6 +58,7 @@ const ClientView = () => {
   const end_slot_pm = import.meta.env.VITE_END_SLOT_PM;
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
+  const [products, setProducts] = useState([[]]);
   const [csvProducts, setCsvProducts] = useState('');
   const [curPseudo, setCurPseudo] = useState(() => JSON.parse(localStorage.getItem('curPseudo')) || '');
   const [curIdClient, setCurIdClient] = useState(Number(import.meta.env.VITE_ID_CLIENT));
@@ -146,7 +147,7 @@ const ClientView = () => {
       msg: msg,
       reply_to: emailAdmin // email admin
     };
-    //generateICSFile
+   
     emailjs.send(
       import.meta.env.VITE_EMAIL_SERVICE_ID,         // Service ID (from EmailJS)
       import.meta.env.VITE_EMAIL_TEMPLATE_ID,        // Template ID (from EmailJS)
@@ -884,14 +885,13 @@ const ClientView = () => {
       }
 
       const QUERY_URL_PRODUCTS = `
-      subscription GetProducts($id_client: Int!, $ids: [Int!]!) {
+      query GetProducts($id_client: Int!, $ids: [Int!]!) {
         PRODUCT(
           where: { 
             id_client: { _eq: $id_client }, 
             id: { _in: $ids } 
           }
         ) {
-          id
           description
           url
         }
@@ -909,12 +909,21 @@ const ClientView = () => {
         promptInfo += csvProducts;
       }
       console.log('promptInfo = ' + promptInfo);
-      let chatResponse = await fetchChatAIResponse(chatInput);
+      let chatResponse = await fetchChatAIResponse(promptInfo);
       console.log('response : ' + chatResponse);
       let tabResp = chatResponse.split(selLang === 'es' ? 'Producto' : (selLang === 'en' ? 'Product' : 'Produit'));
-      if(tabResp.length > 0){
+      if(tabResp.length > 1){
         chatResponse = tabResp[0];
-        
+        let tab = tabResp[1].split(']')[0].split('[');
+        if(tab.length > 1){
+          const arr = tab[1].split(",").map(Number);
+          result = await client.request(QUERY_URL_PRODUCTS, {
+            id_client : curIdClient,  // Replace with the actual client ID
+            ids : arr
+          });
+          const resultArray = result.PRODUCT.map(product => [product.description, product.url]);
+          setProducts(resultArray);
+        }
       }
       loadMessage(curAI(""),m,"");
       setChatInput(''); 
