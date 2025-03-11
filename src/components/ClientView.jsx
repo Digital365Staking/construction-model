@@ -282,7 +282,13 @@ const ClientView = () => {
     else
       return lang === 'es' ? 'es-ES' : (lang === 'en' ? 'en-US' : 'fr-FR');
   } 
-  const curMe = selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
+  const curMe = (lang) => {
+    if(lang == "")
+      return selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
+    else
+      return lang === 'es' ? 'Yo' : (lang === 'en' ? 'Me' : 'Moi');
+  } 
+ 
   const [curCita1, setCurCita1] = useState(
     () => JSON.parse(localStorage.getItem('curCita1')) ||
     {
@@ -311,7 +317,7 @@ const ClientView = () => {
   }, []);
 
 
-  const [messageSender, setMessageSender] = useState(curMe);
+  const [messageSender, setMessageSender] = useState(curMe(''));
   const curAI = (lang) =>{
     if(lang === ""){
       return selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
@@ -715,7 +721,7 @@ const ClientView = () => {
         nombre:chatInput,
         stepCita: prevState.stepCita + 1  // Update stepCita
       }));
-      loadMessage(curMe,chatInput,selLang);
+      loadMessage(curMe(''),chatInput,selLang);
       let msg = selLang === 'es' ? "Finalmente, por favor, ingrese su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : (selLang === 'en' ? 'Finally, please enter your email ( click "Send" to save it ) to confirm the appointment.' : "Enfin, veuillez, s'il vous plaît, saisir votre email ( cliquer sur 'Envoyer' pour l'enregistrer ) pour confirmer le rendez-vous.");
       loadMessage(curAI(""),msg,selLang);
       return;
@@ -901,17 +907,17 @@ const ClientView = () => {
       let hasPromoProd =  import.meta.env.VITE_OPT_PRODUCT === '1';
       if(hasPromoProd){
         promptInfo += selLang === 'es' ? 
-        `Indique qué producto(s) de la siguiente lista CSV serían adecuados (devuelva un array de identificadores, por ejemplo "Productos=[1,2]", sin espacios en el array).` 
+        `Indique qué producto(s) de la siguiente lista CSV serían adecuados ( devuelve, además de la respuesta a la pregunta anterior, una cadena JSON que contenga una lista de identificadores, por ejemplo: '{ "Productos": "1,2" }' , sin espacios en el array. No mencione expresiones entre paréntesis, como '(Producto 2)' o '(Producto 3)' ).` 
         : (selLang === 'en' ?
-        `Indicate which product(s) from the following CSV list would be suitable ( return, in addition to the answer to the previous question, a JSON string containing a list of identifiers, for example: '{ "Products": "1,2" }' , with no spaces in the array. Do not mention expressions in parentheses, such as '(Product 2)' or '(Product 3)'. ).`
+        `Indicate which product(s) from the following CSV list would be suitable ( return, in addition to the answer to the previous question, a JSON string containing a list of identifiers, for example: '{ "Products": "1,2" }' , with no spaces in the array. Do not mention expressions in parentheses, such as '(Product 2)' or '(Product 3)' ).`
         : 
-        ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient ( retourner, en plus de la réponse à la précédente question, une chaîne JSON contenant une liste d'identifiants, par exemple : '{ "Produits": "1,2" }' , sans espaces dans le tableau).`);
+        ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient ( retourner, en plus de la réponse à la précédente question, une chaîne JSON contenant une liste d'identifiants, par exemple : '{ "Produits": "1,2" }' , sans espaces dans le tableau. Ne pas mentionner les expressions entre parenthèses, telles que '(produit 2)' ou '(produit 3)' ).`);
         promptInfo += csvProducts;
       }
       console.log('promptInfo = ' + promptInfo);
       let chatResponse = await fetchChatAIResponse(promptInfo);
-      console.log('response : ' + chatResponse);
-      let tabResp = chatResponse.split(selLang === 'es' ? 'Producto' : (selLang === 'en' ? '{ "Products": "' : 'Produit'));
+      console.log(selLang + ' = lang. response : ' + chatResponse);
+      let tabResp = chatResponse.split(selLang === 'es' ? '{ "Productos": "' : (selLang === 'en' ? '{ "Products": "' : '{ "Produits": "'));
       if(tabResp.length > 1){
         chatResponse = tabResp[0];
         const arr = tabResp[1].split('}')[0].trim().split(",").map(item => parseInt(item, 10)); 
@@ -924,18 +930,25 @@ const ClientView = () => {
           setProducts(resultArray);
       }
       chatResponse = chatResponse.replace(/\*/g, '');
-      let tab = chatResponse.split(`Here's the JSON`);
-      if(tab.length > 0){
-        chatResponse = tab[0];
-      }else{
-        chatResponse = chatResponse.replace(/```json/g, '[JSON]');
-        tab = chatResponse.split("[JSON]");
+      if(chatResponse.includes(`Sans plus d'informations`)){
+        tab = chatResponse.split(`Sans plus d'informations`);
         if(tab.length > 0){
           chatResponse = tab[0];
+        }
+      }else{
+        let tab = chatResponse.split(`Here's the JSON`);
+        if(tab.length > 1){
+          chatResponse = tab[0];
         }else{
-          tab = chatResponse.split(`Based on this, here's the JSON`);
+          tab = chatResponse.split("json");
           if(tab.length > 0){
-            chatResponse = tab[0];
+            console.log('tab0 = ' + tab[0].slice(0,tab[0].length-3));
+            chatResponse = tab[0].slice(0,tab[0].length-3);
+          }else{
+            tab = chatResponse.split(`Based on this, here's the JSON`);
+            if(tab.length > 0){
+              chatResponse = tab[0];
+            }
           }
         }
       }
@@ -945,7 +958,7 @@ const ClientView = () => {
     }
 
     const phone = import.meta.env.VITE_WHATSAPP;
-    if(messageSender === curMe){
+    if(messageSender === curMe('')){
       console.log('msg : ' + chatInput);
       setDisplayHeader('flex');
       let chatResponse = await fetchChatAIResponse(chatInput);
@@ -1097,7 +1110,7 @@ const ClientView = () => {
                 timestamp,
               };
               setMessages((prevMessages) => [...prevMessages, newMsg]);
-              setMessageSender(curMe);
+              setMessageSender(curMe(''));
               return;
           }else{
             console.log("filteredData" + filteredData[0]);
@@ -1616,7 +1629,7 @@ const ClientView = () => {
       timestamp,
     };
     setMessages((prevMessages) => [...prevMessages, newMsg]);
-    setMessageSender(curMe);
+    setMessageSender(curMe(lang === "" ? selLang : lang));
   };
 
   const GetUTCDate = (date) =>{
@@ -1783,7 +1796,7 @@ END:VCALENDAR`;
           {messages.map((message, index) => (            
             <div
               key={index}
-              className={`message ${message.sender === curMe ? 'blue-bg' : 'gray-bg'}`}>
+              className={`message ${message.sender === curMe('') ? 'blue-bg' : 'gray-bg'}`}>
               <div className="message-sender">{message.sender}
               <button 
         onClick={() => copyToClipboard(message.text)} 
