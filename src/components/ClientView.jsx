@@ -260,9 +260,9 @@ const ClientView = () => {
     setUserInteracted(true);
   };
   
-  const [displayBudget, setDisplayBudget] = useState(
+  const [displayQuote, setDisplayQuote] = useState(
     {
-      display: (import.meta.env.VITE_OPT_BUDGET === "1" && curCateg !== 1 ? "block" : "none")
+      display: (import.meta.env.VITE_OPT_QUOTE === "1" && curCateg !== 1 ? "block" : "none")
     }
   );
   const [displayInfo, setDisplayInfo] = useState(
@@ -337,12 +337,12 @@ const ClientView = () => {
   //Examples of CSV
   const keyPaths = ""; //"/files/Mathematical database development_.pdf";
 
-  async function callAPIAI(prefix, message) {
+  async function callAPIAI(prefix, message, recommend) {
     try {
       const type_ai = import.meta.env.VITE_TYPE_AI;
       console.log("Type AI : " + type_ai);
       const prompt = prefix + (prefix === "" ? "" : `\nBased on the previous text and/or CSV report, provide a natural and conversational response to the following question :  `
-              ) + message + "No recomendar de ponerse en contacto con empresas de limpieza locales. La expresión 'Lo siento' no puede aparecer en la respuesta."
+              ) + message + (recommend ? "No recomendar de ponerse en contacto con empresas de limpieza locales. La expresión 'Lo siento' no puede aparecer en la respuesta." : "")
       if(type_ai === "1"){
         const max = Number(import.meta.env.VITE_MAX_TOKENS_CHATGPT);
         const response = await fetch(chatgpt_api_url, {
@@ -371,7 +371,7 @@ const ClientView = () => {
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ 
           model: 'gemini-1.5-flash', 
-          systemInstruction: "You are a company in the construction industry.",
+          systemInstruction: import.meta.env.VITE_TYPE_COMPANY,
           "maxOutputTokens":max
         });
       
@@ -458,7 +458,7 @@ const ClientView = () => {
         
         return csv;
       }else{
-        if(categ === 2){
+        if(curCateg === 0){
           let respAI = await callAPIAI("",message);
           return respAI;
         }
@@ -901,31 +901,39 @@ const ClientView = () => {
       let hasPromoProd =  import.meta.env.VITE_OPT_PRODUCT === '1';
       if(hasPromoProd){
         promptInfo += selLang === 'es' ? 
-        `Indique qué producto(s) de la siguiente lista CSV serían adecuados (devuelva un array de identificadores, por ejemplo [1,2], sin espacios en el array).` 
+        `Indique qué producto(s) de la siguiente lista CSV serían adecuados (devuelva un array de identificadores, por ejemplo "Productos=[1,2]", sin espacios en el array).` 
         : (selLang === 'en' ?
-        `Indicate which product(s) from the following CSV list would be suitable (return an array of identifiers, for example [1,2], with no spaces in the array).`
+        `Indicate which product(s) from the following CSV list would be suitable ( return, in addition to the answer to the previous question, a JSON string containing a list of identifiers, for example: '{ "Products": "1,2" }' , with no spaces in the array. Do not mention expressions in parentheses, such as '(Product 2)' or '(Product 3)'. ).`
         : 
-        ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient (retourner un tableau d'identifiants, par exemple [1,2], sans espaces dans le tableau).`);
+        ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient ( retourner, en plus de la réponse à la précédente question, une chaîne JSON contenant une liste d'identifiants, par exemple : '{ "Produits": "1,2" }' , sans espaces dans le tableau).`);
         promptInfo += csvProducts;
       }
       console.log('promptInfo = ' + promptInfo);
       let chatResponse = await fetchChatAIResponse(promptInfo);
       console.log('response : ' + chatResponse);
-      let tabResp = chatResponse.split(selLang === 'es' ? 'Producto' : (selLang === 'en' ? 'Product' : 'Produit'));
+      let tabResp = chatResponse.split(selLang === 'es' ? 'Producto' : (selLang === 'en' ? '{ "Products": "' : 'Produit'));
       if(tabResp.length > 1){
         chatResponse = tabResp[0];
-        let tab = tabResp[1].split(']')[0].split('[');
-        if(tab.length > 1){
-          const arr = tab[1].split(",").map(Number);
+        const arr = tabResp[1].split('}')[0].trim().split(",").map(item => parseInt(item, 10)); 
+          console.log("Arr : " + arr);
           result = await client.request(QUERY_URL_PRODUCTS, {
             id_client : curIdClient,  // Replace with the actual client ID
             ids : arr
           });
           const resultArray = result.PRODUCT.map(product => [product.description, product.url]);
           setProducts(resultArray);
+      }
+      chatResponse = chatResponse.replace(/\*/g, '');
+      let tab = chatResponse.split(`Here's the JSON`);
+      if(tab.length > 0){
+        chatResponse = tab[0];
+      }else{
+        tab = chatResponse.split("```json");
+        if(tab.length > 0){
+          chatResponse = tab[0];
         }
       }
-      loadMessage(curAI(""),m,"");
+      loadMessage(curAI(""),chatResponse,"");
       setChatInput(''); 
       return;
     }
@@ -1033,7 +1041,7 @@ const ClientView = () => {
       
     }
        
-    setDisplayBudget(
+    setDisplayQuote(
       {
         display: "block"
       }
@@ -1394,8 +1402,8 @@ const ClientView = () => {
       
       
       
-      if(import.meta.env.VITE_OPT_BUDGET === "1"){
-        setDisplayBudget(
+      if(import.meta.env.VITE_OPT_QUOTE === "1"){
+        setDisplayQuote(
           {
             display: "none"
           }
@@ -1417,8 +1425,8 @@ const ClientView = () => {
     if(typeChat === 0){
       
       
-      if(import.meta.env.VITE_OPT_BUDGET === "1"){
-        setDisplayBudget(
+      if(import.meta.env.VITE_OPT_QUOTE === "1"){
+        setDisplayQuote(
           {
             display: "block"
           }
@@ -1459,9 +1467,9 @@ const ClientView = () => {
   const InitDispoCita = (citaDisplayed) => {
     let msg = GetMsgInitCita("");
      
-      setDisplayBudget(
+      setDisplayQuote(
           {
-            display: import.meta.env.VITE_OPT_BUDGET === "1" ? "block" : "none"
+            display: import.meta.env.VITE_OPT_QUOTE === "1" ? "block" : "none"
           }
       );
       
@@ -1735,21 +1743,10 @@ END:VCALENDAR`;
                   modules={[Keyboard, Pagination, Navigation]}
                   className="mySwiper"
                 > 
-      <SwiperSlide>
-      <img src="https://www.dropbox.com/scl/fi/99txh27z4jk70pue85rmb/ed0.JPG?rlkey=jgtbu2w4b8yj5h1q50tf0zbbm&st=wgj33nd1&dl=1" alt="My Image"/> 
-                   
-                  </SwiperSlide>
-                  <SwiperSlide>
-                  <img src="https://www.dropbox.com/scl/fi/tgs1kree3eyy3gulvbs2w/ed1.JPG?rlkey=ltc68nbcxz5rg7anw75cdt9wm&st=fcd8l4dt&dl=1" alt="My Image"/>
-                  </SwiperSlide>
-                  <SwiperSlide>Slide 3</SwiperSlide>
-                  <SwiperSlide>Slide 4</SwiperSlide>
-                  <SwiperSlide>Slide 5</SwiperSlide>
-                  <SwiperSlide>Slide 6</SwiperSlide>
-                  <SwiperSlide>Slide 7</SwiperSlide>
-                  <SwiperSlide>Slide 8</SwiperSlide>
-                  <SwiperSlide>Slide 9</SwiperSlide>
-                </Swiper>  
+                {products.map((prod, index) => ( 
+                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/>{prod[0]}</SwiperSlide>
+                ))}  
+                </Swiper>
                 </div>
       <div class="header-container">
           <div class="header-left">
@@ -1757,7 +1754,7 @@ END:VCALENDAR`;
           </div>
           <div class="header-right">
               <div class="header-top"><h4>{import.meta.env.VITE_COMPANY_NAME}</h4></div>
-              <div class="header-bottom">C. de Miguel Arredondo, 4, Local 7, Arganzuela, 28045 Madrid</div>
+              <div class="header-bottom"><a href={import.meta.env.VITE_GOOGLEMAPS} target='_blank'>{import.meta.env.VITE_ADDRESS}</a></div>
           </div>
       </div>
       <div className="chat-container">        
@@ -1805,12 +1802,12 @@ END:VCALENDAR`;
               <div style={{marginTop: "10px",height: "20vh",width : "100%",display : (message.sender === curAI("") && curCateg === 0 && message.text !== GetMsgInitInfo("")) ? "flex" : "none"}}>
                 <div style={{display: "flex",flex:"1"}}>
                     <a href="#popup" onClick={() => setIsFormSendOpen(false)}>
-                      <img style={{height:"20vh"}} src="https://scandinavianbiolabs.com/cdn/shop/files/01_Shampoo_Men.jpg?v=1725633909&width=700" alt="My Image"/>
+                      <img style={{height:"20vh"}} src={products.length > 0 ? products[0][1] : ''} alt={products.length > 0 ? products[0][0] : ''}/>
                     </a>
                 </div>
                 <div className="ads-text">
                   <a href="#popup" onClick={() => setIsFormSendOpen(false)}>
-                  Producto Revlon Alta Qualidad, Precio 50 €
+                  {products.length > 0 ? products[0][0] : ''}
                   </a>
                 </div>
               </div>
@@ -1901,7 +1898,7 @@ END:VCALENDAR`;
             <button style={displayInfo} className="button send-button" onClick={() => handleChat(0)}>
               {curInfo}
             </button>
-            <button style={displayBudget} className="button send-button" onClick={() => handleChat(1)}>
+            <button style={displayQuote} className="button send-button" onClick={() => handleChat(1)}>
               {curBudget}
             </button>
             <button style={displayCita} className="button send-button" onClick={() => handleChat(2)}>
