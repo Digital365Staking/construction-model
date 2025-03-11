@@ -928,9 +928,15 @@ const ClientView = () => {
       if(tab.length > 0){
         chatResponse = tab[0];
       }else{
-        tab = chatResponse.split("```json");
+        chatResponse = chatResponse.replace(/```json/g, '[JSON]');
+        tab = chatResponse.split("[JSON]");
         if(tab.length > 0){
           chatResponse = tab[0];
+        }else{
+          tab = chatResponse.split(`Based on this, here's the JSON`);
+          if(tab.length > 0){
+            chatResponse = tab[0];
+          }
         }
       }
       loadMessage(curAI(""),chatResponse,"");
