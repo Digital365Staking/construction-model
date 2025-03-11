@@ -7,5 +7,7 @@ psql -h localhost -U myuser -d mydatabase -f backup.sql
 pg_restore -h localhost -U myuser -d mydatabase -F c backup.dump
 
 // copy from CSV
+PGPASSWORD="your_password" psql -h irkwbvxjbynhlcascmrk.db.eu-central-1.nhost.run -U postgres -d irkwbvxjbynhlcascmrk -p 5432
+
 \copy "public"."SERVICE" (en,duration,es,fr,cat) FROM 'C:\Users\noreply\OneDrive - Digital 365 Staking\Documents\BackupPostgres\serv.csv' DELIMITER ',' CSV HEADER;
 

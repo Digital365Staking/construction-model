@@ -556,7 +556,7 @@ const ClientView = () => {
 
   async function fetchChatAIResponse(message) {
     try {
-      const procedure = import.meta.env.VITE_PROCEDURE_GET + import.meta.env.VITE_ID_CLIENT + "_" + selLang;
+      const procedure = import.meta.env.VITE_CSV_TABLE + "_" + selLang;
       //let csv = await prepareQuery(message,"contact_csv","getcontact_csv_1","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
       let csv = await prepareQuery(message, "", procedure, "");
       console.log(textArray.length);
@@ -1763,7 +1763,7 @@ END:VCALENDAR`;
                   className="mySwiper"
                 > 
                 {products.map((prod, index) => ( 
-                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/>{prod[0]}</SwiperSlide>
+                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"5em"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em"}}><a href={"https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'es' ? 'Hola, quiero pedir el siguiente articulo : ' : (selLang === 'en' ? 'Hello, I would like to order the following item : ' : `Bonjour, je souhaite commander l'article suivant : `)) + prod[0]}>{selLang === 'es' ? 'PEDIR' : (selLang === 'en' ? 'ORDER' : 'COMMANDER')}</a></div></SwiperSlide>
                 ))}  
                 </Swiper>
                 </div>
