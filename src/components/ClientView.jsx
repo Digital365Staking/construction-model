@@ -70,8 +70,8 @@ const ClientView = () => {
   const [linesDay, setLinesDay] = useState([[]]);
   const [usrValue, setUsrValue] = useState(import.meta.env.VITE_HUGGING_KEY);
   const [chatInput, setChatInput] = useState('');
-  const [displayHeader, setDisplayHeader] = useState('none');
-  const [copied, setCopied] = useState(false);
+  const [displayWaiting, setDisplayWaiting] = useState('none');
+  const [copied, setCopied] = useState(-1);
   const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
   const GetMsgResumeCita = (lang) => {
     if(lang === "")
@@ -122,10 +122,11 @@ const ClientView = () => {
       return lang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (lang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?');
   };
   
-  const copyToClipboard = (text) => {
+  const copyToClipboard = (e, text) => {
     navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      setCopied(e.target.id);
+      console.log("clip = " + e.target.id);
+      setTimeout(() => setCopied(-1), 1500);
     }).catch(err => console.error("Failed to copy:", err));
   };
 
@@ -786,7 +787,8 @@ const ClientView = () => {
           $question: String!, 
           $response: String!,
           $created: timestamp,
-          $isai: Boolean
+          $isai: Boolean,
+          $categ: Int!
         ) {
           insert_COMMENT_one(
             object: { 
@@ -796,7 +798,8 @@ const ClientView = () => {
               response: $response, 
               viewed: false, 
               created: $created,
-              isai: $isai 
+              isai: $isai,
+              categ: $categ
             }
           ) {
             id
@@ -829,7 +832,8 @@ const ClientView = () => {
           $question: String!, 
           $response: String!,
           $created: timestamp,
-          $isai: Boolean
+          $isai: Boolean.
+          $categ: Int!
         ) {
           insert_COMMENT_HISTORY_one(
             object: { 
@@ -838,7 +842,8 @@ const ClientView = () => {
               question: $question, 
               response: $response,
               created: $created,
-              isai: $isai 
+              isai: $isai,
+              categ: $categ
             }
           ) {
             id
@@ -851,7 +856,7 @@ const ClientView = () => {
         }
        `;  
 
-    if(curCateg == 0){
+    if(curCateg === 0 || curCateg === 1){
       let tim = Date.now();
       
       let isai = true;
@@ -901,7 +906,7 @@ const ClientView = () => {
        `;
       let promptInfo = chatInput + '\n';
       
-      if(hasPromoProd){
+      if(curCateg === 0 && hasPromoProd){
         promptInfo += selLang === 'es' ? 
         `Indique qué producto(s) de la siguiente lista CSV serían adecuados ( devuelve, además de la respuesta a la pregunta anterior, una cadena JSON que contenga una lista de identificadores, por ejemplo: '{ "Productos": "1,2" }' , sin espacios en el array. No mencione expresiones entre paréntesis, como '(Producto 2)' o '(Producto 3)' ).` 
         : (selLang === 'en' ?
@@ -911,9 +916,10 @@ const ClientView = () => {
         promptInfo += csvProducts;
       }
       console.log('promptInfo = ' + promptInfo);
+      setDisplayWaiting('flex');
       let chatResponse = await fetchChatAIResponse(promptInfo);
       console.log(selLang + ' = lang. response : ' + chatResponse);
-      if(hasPromoProd){
+      if(curCateg === 0 && hasPromoProd){
         let tabResp = chatResponse.split(selLang === 'es' ? '{ "Productos": "' : (selLang === 'en' ? '{ "Products": "' : '{ "Produits": "'));
         if(tabResp.length > 1){
           chatResponse = tabResp[0];
@@ -963,7 +969,8 @@ const ClientView = () => {
         question : chatInput,
         response : isai ? chatResponse : '-',
         created : dateCreated,
-        isai: isai
+        isai: isai,
+        categ: curCateg
       }); 
       if(enableNotif){
         let subject = selLang === 'es' ? "Recepción de una solicitud de información de un cliente." : (selLang === 'en' ? 'Receipt of an information request from a client.' : `Réception d'une demande d'information d'un client.`);
@@ -980,19 +987,19 @@ const ClientView = () => {
           question : chatInput,
           response : isai ? chatResponse : '-',
           created : dateCreated,
-          isai: isai
+          isai: isai,
+          categ: curCateg
         });
         console.log('Histo inserted successfully! ' + result);  // Log the result
       }
       loadMessage(curAI(""),chatResponse,"");
-      setChatInput(''); 
-      return;
+      setDisplayWaiting('none');      
     }
 
-    const phone = import.meta.env.VITE_WHATSAPP;
+    /*const phone = import.meta.env.VITE_WHATSAPP;
     if(messageSender === curMe('')){
       console.log('msg : ' + chatInput);
-      setDisplayHeader('flex');
+      
       let chatResponse = await fetchChatAIResponse(chatInput);
       if(!chatResponse.includes(phone)){
         wap = "";
@@ -1013,8 +1020,8 @@ const ClientView = () => {
         timestamp,
       }; 
       setMessages((prevMessages) => [...prevMessages, newMessage2]);     
-      setDisplayHeader('none');
-    }
+      
+    }*/
     setChatInput(''); 
     
   };
@@ -1814,8 +1821,8 @@ END:VCALENDAR`;
           </div>
       </div>
       <div className="chat-container">        
-        <div className="chat-header typing-indicator" style={{ display: displayHeader }}>
-          <h2 className="chat-header">{messageSender} chatting</h2>
+        <div className="chat-header typing-indicator" style={{ display: displayWaiting }}>
+          <h2 className="chat-header">{curAI('') + ' ' + (selLang === "es" ? "chateando" : (selLang === "en" ? "chatting" : "en train d'écrire"))}</h2>
           <span className="dot"></span>
           <span className="dot"></span>
           <span className="dot"></span>
@@ -1833,13 +1840,13 @@ END:VCALENDAR`;
               key={index}
               className={`message ${message.sender === curMe('') ? 'blue-bg' : 'gray-bg'}`}>
               <div className="message-sender">{message.sender}
-              <button 
-        onClick={() => copyToClipboard(message.text)} 
+              <button id={index} 
+        onClick={(e) => copyToClipboard(e,message.text)} 
         className="clipboard-icon"
       >
         📋
       </button>
-      <span className={`copied-message ${copied ? "visible" : ""}`}>{labelCopied}</span>
+      <span className={`copied-message ${copied == index ? "visible" : ""}`}>{labelCopied}</span>
               </div>               
               <div className="message-text">                                
                 {message.lines && message.lines.length > 0
