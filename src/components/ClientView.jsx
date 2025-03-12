@@ -723,7 +723,7 @@ const ClientView = () => {
       day: 'numeric',
       hour: 'numeric',
       minute: 'numeric',
-      hour12: true,
+      hour24: true,
     });
     
     let wap = "";
@@ -888,7 +888,7 @@ const ClientView = () => {
           }          
         }
       }
-      
+      console.log('curF = ' + curFormat);
       let dateCreated = new Date(Date.now() + 60 * 60 * 1000);
 
       const QUERY_URL_PRODUCTS = `
@@ -923,7 +923,9 @@ const ClientView = () => {
         let tabResp = chatResponse.split(selLang === 'es' ? '{ "Productos": "' : (selLang === 'en' ? '{ "Products": "' : '{ "Produits": "'));
         if(tabResp.length > 1){
           chatResponse = tabResp[0];
-          const arr = tabResp[1].split('}')[0].trim().split(",").map(item => parseInt(item, 10)); 
+          var str = tabResp[1].split('}')[0].trim();
+          if(str !== ""){
+            const arr = str.split(",").map(item => parseInt(item, 10)); 
             console.log("Arr : " + arr);
             let result = await client.request(QUERY_URL_PRODUCTS, {
               id_client : curIdClient,  // Replace with the actual client ID
@@ -931,6 +933,7 @@ const ClientView = () => {
             });
             const resultArray = result.PRODUCT.map(product => [product.description, product.url]);
             setProducts(resultArray);
+          }          
         }
         chatResponse = chatResponse.replace(/\*/g, '');
         if(chatResponse.includes(`Sans plus d'informations`) || chatResponse.includes('Once I have this information')){
@@ -975,7 +978,7 @@ const ClientView = () => {
       if(enableNotif){
         let subject = selLang === 'es' ? "Recepción de una solicitud de información de un cliente." : (selLang === 'en' ? 'Receipt of an information request from a client.' : `Réception d'une demande d'information d'un client.`);
         let headQ = selLang === 'es' ? "Hola, un cliente le ha hecho la siguiente pregunta : " : (selLang === 'en' ? "Hello, a client has asked you the following question : " : "Un client vous a posé la question suivante : ");
-        let headR = selLang === 'es' ? "Puede leer la respuesta de su asistente virtual en el siguiente portal de administrador : " : (selLang === 'en' ? "You can read the response from your virtual assistant on the following administrator portal : " : "Vous pouvez lire la réponse de votre assistant virtuel sur le portail administrateur suivant : ");
+        let headR = selLang === 'es' ? "Usted puede leer la respuesta de su asistente virtual en el siguiente portal de administrador : " : (selLang === 'en' ? "You can read the response from your virtual assistant on the following administrator portal : " : "Vous pouvez lire la réponse de votre assistant virtuel sur le portail administrateur suivant : ");
         sendComment(import.meta.env.VITE_EMAIL,subject,headQ,chatInput,headR);
       }      
       console.log('Comment inserted successfully! ' + result);  // Log the result
@@ -1048,22 +1051,18 @@ const ClientView = () => {
         }
       }
       `;
-      let tim = Date.now();
-      const vars = { id_client: curIdClient, pseudo: curPseudo === '' ? tim.toString() : curPseudo };
-      const resp = await client.request(QUERY_DELETE_COMMENTS, vars);
-      if(curCateg === 0){  
-        localStorage.clear();        
-        loadMessage(curAI(""),GetMsgInitInfo(""),"");
-      }
-      const timer = setTimeout(() => {
-        
-        if(curCateg === 1){          
-          loadMessage(curAI(""),GetMsgInitBudget(""),"");
+      if(curPseudo !== ""){
+        const vars = { id_client: curIdClient, pseudo: curPseudo };
+        const resp = await client.request(QUERY_DELETE_COMMENTS, vars);
+        if(curCateg === 0 || curCateg === 1){  
+          localStorage.clear();        
+          loadMessage(curAI(""),GetMsgInitInfo(""),"");
+        }      
+        if (response.delete_COMMENT.affected_rows > 0) {
+          console.log('Comments deleted successfully. cli ' + curIdClient + ' , pseudo ' + curPseudo === '' ? tim.toString() : curPseudo);
         }
-      }, 1000);
-      if (response.delete_COMMENT.affected_rows > 0) {
-        console.log('Comments deleted successfully. cli ' + curIdClient + ' , pseudo ' + curPseudo === '' ? tim.toString() : curPseudo);
       }
+      
     }else{
       
       const QUERY_DELETE_CITA = `
@@ -1781,7 +1780,7 @@ END:VCALENDAR`;
         );
       
         return () => unsubscribe(); // Unsubscribe on unmount
-      }, [wsClient, COMMENT_SUBSCRIPTION, curIdClient]); // Include id_client in dependencies
+      }, [wsClient, COMMENT_SUBSCRIPTION, curIdClient, curPseudo]); // Include id_client in dependencies
 
   const [isFormSendOpen, setIsFormSendOpen] = useState(true);
 

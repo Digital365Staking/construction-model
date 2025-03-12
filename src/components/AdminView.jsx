@@ -195,30 +195,85 @@ const AdminView = () => {
       }
         `; 
 
-    
-    const viewListComments = async (pseudo,viewed) => {
-        try{
-          const msg_init = selLang === 'es' ? `Veo que el asistente virtual ha proporcionado información errónea. Le ruego que me contacte por WhatsApp al +34989... para recibir la información correcta. Gracias por su comprensión.`
-           : (selLang === 'en' ? `I see that the virtual assistant has provided incorrect information. Please contact me via WhatsApp at +34989... to receive the correct information. Thank you for your understanding.` :
-            `Je constate que l'assistant virtuel a fourni des informations erronées. Je vous prie de bien vouloir me contacter via WhatsApp au +34989... afin de recevoir les informations correctes. Merci de votre compréhension.`
-          )
-          setChatInput(msg_init);
-          setIsPopupOpen(true);
-          setCurPseudo(pseudo);
-          if(!viewed){
-            const data = await client.request(UPDATE_COMMENTS, { pseudo: pseudo });          
-          }else{
-            console.log("Update no needed");
-          }         
-          const data2 = await client.request(SUB_COMMENTS, { pseudo: pseudo });
-          setSubComments([]);
-          setSubComments(data2.comment_union);
-          console.log(pseudo); 
-          fetchComments(); 
-        } catch (error) {
-        console.error("Error fetching data:", error);
-        }    
-    };
+        const SUBCOMMENT_SUBSCRIPTION = `
+        subscription SubCommentSubscription($id_client: Int!, $pseudo: String!) {
+          COMMENT(
+            where: { 
+              id_client: { _eq: $id_client }, 
+              pseudo: { _eq: $pseudo },
+            } 
+            order_by: { created: desc }
+          ) {
+            id
+            pseudo
+            question
+            response
+            created
+            viewed
+            isai
+          }
+        }
+        `;
+
+        const viewListComments = async (pseudo, viewed) => {
+          try {
+              // Select the correct message based on language
+              const msg_init = selLang === 'es' 
+                  ? `Veo que el asistente virtual ha proporcionado información errónea. Le ruego que me contacte por WhatsApp al +34989... para recibir la información correcta. Gracias de antemano.` 
+                  : (selLang === 'en' 
+                      ? `I see that the virtual assistant has provided incorrect information. Please contact me via WhatsApp at +34989... to receive the correct information. Thank you for your understanding.` 
+                      : `Je constate que l'assistant virtuel a fourni des informations erronées. Je vous prie de bien vouloir me contacter via WhatsApp au +34989... afin de recevoir les informations correctes. Merci de votre compréhension.`
+                  );
+      
+              setChatInput(msg_init);
+              setIsPopupOpen(true);
+              setCurPseudo(pseudo);
+      
+              // Update comment viewed status if not viewed
+              if (!viewed) {
+                  await client.request(UPDATE_COMMENTS, { pseudo });          
+              } else {
+                  console.log("Update not needed");
+              }         
+      
+              // Fetch updated comments
+              const data2 = await client.request(SUB_COMMENTS, { pseudo });
+              setSubComments(data2.comment_union);
+      
+              console.log("Current pseudo:", pseudo);
+      
+              // Fetch main comments (if necessary)
+              await fetchComments();
+      
+              // Subscribe to comments updates
+              const unsubscribe = wsClient.subscribe(
+                  {
+                      query: SUBCOMMENT_SUBSCRIPTION,
+                      variables: { id_client, pseudo }, // Directly use `pseudo`
+                  },
+                  {
+                      next: async (data) => {
+                          const newComments = await client.request(SUB_COMMENTS, { pseudo });
+                          
+                          if (newComments.comment_union.length > 0) {
+                              setSubComments(newComments.comment_union);
+                          }else{
+                            setSubComments([]);
+                          }
+                      },
+                      error: (err) => console.error("Subscription error:", err),
+                      complete: () => console.log("Subscription complete"),
+                  }
+              );
+      
+              // Optional: return unsubscribe function for cleanup
+              return () => unsubscribe();
+      
+          } catch (error) {
+              console.error("Error fetching data:", error);
+          }    
+      };
+      
 
     const COMMENT_SUBSCRIPTION = `
       subscription CommentSubscription($id_client: Int!) {
