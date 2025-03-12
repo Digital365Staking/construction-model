@@ -62,7 +62,7 @@ textarea:disabled {
 }
 
 .chat-header h2 {
-  font-size: 1.25em;
+  font-size: 1em;
   font-weight: bold;
 }
 
@@ -166,7 +166,8 @@ textarea:disabled {
   justify-content: center;
   align-items: center;
   gap: 5px; /* Space between dots */
-  height: 50px; /* Adjust to fit your design */
+  height: 10px; /* Adjust to fit your design */
+  margin-top: 10px;
 }
 
 .dot {

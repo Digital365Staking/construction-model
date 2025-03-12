@@ -153,7 +153,7 @@ const ClientView = () => {
    
     emailjs.send(
       import.meta.env.VITE_EMAIL_SERVICE_ID,         // Service ID (from EmailJS)
-      import.meta.env.VITE_EMAIL_TEMPLATE_ID,        // Template ID (from EmailJS)
+      import.meta.env.VITE_TEMPLATE_CITA,        // Template ID (from EmailJS)
       templateParams,
       import.meta.env.VITE_EMAIL_USER_ID             // Your user ID (from EmailJS)
     ).then((response) => {
@@ -175,7 +175,7 @@ const ClientView = () => {
    
     emailjs.send(
       import.meta.env.VITE_EMAIL_SERVICE_ID,         // Service ID (from EmailJS)
-      import.meta.env.VITE_EMAIL_TEMPLATE_ID,        // Template ID (from EmailJS)
+      import.meta.env.VITE_TEMPLATE_COMMENT,        // Template ID (from EmailJS)
       templateParams,
       import.meta.env.VITE_EMAIL_USER_ID             // Your user ID (from EmailJS)
     ).then((response) => {
@@ -925,7 +925,7 @@ const ClientView = () => {
           chatResponse = tabResp[0];
           const arr = tabResp[1].split('}')[0].trim().split(",").map(item => parseInt(item, 10)); 
             console.log("Arr : " + arr);
-            result = await client.request(QUERY_URL_PRODUCTS, {
+            let result = await client.request(QUERY_URL_PRODUCTS, {
               id_client : curIdClient,  // Replace with the actual client ID
               ids : arr
             });
@@ -981,7 +981,7 @@ const ClientView = () => {
       console.log('Comment inserted successfully! ' + result);  // Log the result
       const historyEnabled = import.meta.env.VITE_COMMENT_HISTORY === "1";
       if(historyEnabled){
-        result = await client.request(INSERT_COMMENT_HISTORY, {
+        let result = await client.request(INSERT_COMMENT_HISTORY, {
           id_client : curIdClient,  // Replace with the actual client ID
           pseudo : curPseudo === '' ? tim.toString() : curPseudo,
           question : chatInput,
@@ -1813,7 +1813,7 @@ END:VCALENDAR`;
                 </div>
       <div class="header-container">
           <div class="header-left">
-              <img style={{maxHeight: import.meta.env.VITE_MAX_HEIGHT_LOGO}} src={import.meta.env.VITE_LOGO_URL} alt="Logo"/>
+              {isFormSendOpen && (<img style={{maxHeight: import.meta.env.VITE_MAX_HEIGHT_LOGO}} src={import.meta.env.VITE_LOGO_URL} alt="Logo"/>)}
           </div>
           <div class="header-right">
               <div class="header-top"><h4>{import.meta.env.VITE_COMPANY_NAME}</h4></div>
