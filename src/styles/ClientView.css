@@ -98,17 +98,6 @@ textarea:disabled {
   color: #062a4e;
 }
 
-.ads-text {
-  display:flex;
-  flex:4;
-  font-size: 1em;
-  color: #062a4e;
-  width : "70%";
-  align-items: center;
-  justify-content: center;
-  word-wrap: break-word;
-}
-
 .message-text {
   display: flex;
   font-size: 1em;

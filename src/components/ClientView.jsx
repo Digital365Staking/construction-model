@@ -1791,7 +1791,7 @@ END:VCALENDAR`;
 
   return (
     <div className="app-container"> 
-      <div id="popup" className='popup' style={{display : "none"}}>  
+      <div id="popup" className='popup' style={{display : isFormSendOpen ? "none" : "block"}}>  
       <a href="#" class="close" onClick={() => setIsFormSendOpen(true)}>&times;</a>    
       <Swiper
                   slidesPerView={1}
@@ -1807,16 +1807,16 @@ END:VCALENDAR`;
                   className="mySwiper"
                 > 
                 {products.map((prod, index) => ( 
-                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"5em"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em"}}><a href={"https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'es' ? 'Hola, quiero pedir el siguiente articulo : ' : (selLang === 'en' ? 'Hello, I would like to order the following item : ' : `Bonjour, je souhaite commander l'article suivant : `)) + prod[0]}>{selLang === 'es' ? 'PEDIR' : (selLang === 'en' ? 'ORDER' : 'COMMANDER')}</a></div></SwiperSlide>
+                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"5em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em",color: "#062a4e"}}><a href={"https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'es' ? 'Hola, quiero pedir el siguiente articulo : ' : (selLang === 'en' ? 'Hello, I would like to order the following item : ' : `Bonjour, je souhaite commander l'article suivant : `)) + prod[0]}>{selLang === 'es' ? 'PEDIR' : (selLang === 'en' ? 'ORDER' : 'COMMANDER')}</a></div></SwiperSlide>
                 ))}  
                 </Swiper>
                 </div>
       <div class="header-container">
           <div class="header-left">
-              {isFormSendOpen && (<img style={{maxHeight: import.meta.env.VITE_MAX_HEIGHT_LOGO}} src={import.meta.env.VITE_LOGO_URL} alt="Logo"/>)}
+              <img style={{maxHeight: import.meta.env.VITE_MAX_HEIGHT_LOGO}} src={import.meta.env.VITE_LOGO_URL} alt="Logo"/>
           </div>
           <div class="header-right">
-              <div class="header-top"><h4>{import.meta.env.VITE_COMPANY_NAME}</h4></div>
+              <div class="header-top">{isFormSendOpen && (<h4>{import.meta.env.VITE_COMPANY_NAME}</h4>)}</div>
               <div class="header-bottom"><a href={import.meta.env.VITE_GOOGLEMAPS} target='_blank'>{import.meta.env.VITE_ADDRESS}</a></div>
           </div>
       </div>
@@ -1866,7 +1866,7 @@ END:VCALENDAR`;
                       <img style={{height:"20vh"}} src={products.length > 0 ? products[0][1] : ''} alt={products.length > 0 ? products[0][0] : ''}/>
                     </a>
                 </div>
-                <div className="ads-text">
+                <div style={{display:"flex",flex:"4",marginTop:"4em",alignItems:"right",justifyContent:"center",color: "#062a4e"}}>
                   <a href="#popup" onClick={() => setIsFormSendOpen(false)}>
                   {products.length > 0 ? products[0][0] : ''}
                   </a>
