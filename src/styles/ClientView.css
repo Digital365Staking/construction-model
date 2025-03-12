@@ -84,6 +84,7 @@ textarea:disabled {
   margin-bottom: 0.1em;
   display: flex;
   flex-direction: column;
+  height: auto;
   color: #fff;
 }
 
@@ -109,6 +110,7 @@ textarea:disabled {
 }
 
 .message-text {
+  display: flex;
   font-size: 1em;
   margin-bottom: 0.31em;
   word-wrap: break-word;
@@ -509,7 +511,6 @@ textarea:disabled {
   justify-content: center;
   align-items: center;
   overflow-y: 99999;
-  
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

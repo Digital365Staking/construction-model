@@ -59,9 +59,11 @@ const ClientView = () => {
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
   const [products, setProducts] = useState([[]]);
+  const [hasPromoProd, setHasPromoProd] =  useState(import.meta.env.VITE_OPT_PRODUCT === '1');
   const [csvProducts, setCsvProducts] = useState('');
   const [curPseudo, setCurPseudo] = useState(() => JSON.parse(localStorage.getItem('curPseudo')) || '');
   const [curIdClient, setCurIdClient] = useState(Number(import.meta.env.VITE_ID_CLIENT));
+  const [enableNotif, setEnableNotif] = useState(import.meta.env.VITE_ENABLE_NOTIF === '1');
   const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 0);
   const [messages, setMessages] = useState([]);
   //useState(() => JSON.parse(localStorage.getItem('messages')) || []);
@@ -146,6 +148,28 @@ const ClientView = () => {
       val_wap: val_wap,
       msg: msg,
       reply_to: emailAdmin // email admin
+    };
+   
+    emailjs.send(
+      import.meta.env.VITE_EMAIL_SERVICE_ID,         // Service ID (from EmailJS)
+      import.meta.env.VITE_EMAIL_TEMPLATE_ID,        // Template ID (from EmailJS)
+      templateParams,
+      import.meta.env.VITE_EMAIL_USER_ID             // Your user ID (from EmailJS)
+    ).then((response) => {
+      console.log('SUCCESS Mail !', response.status, response.text);
+    }, (err) => {
+      console.log('FAILED Mail ...', err);
+    });
+  };
+
+  const sendComment = (emailAdmin,subject,headerQuestion,question,headerResponse) => {
+    const templateParams = {
+      subject: subject,
+      emailAdmin: emailAdmin, // email admin
+      headerQuestion: headerQuestion,
+      question: question,
+      headerResponse: headerResponse,
+      url: window.location.href + '?a=1'
     };
    
     emailjs.send(
@@ -745,8 +769,10 @@ const ClientView = () => {
         console.log("Nom :" + curCita1.nombre);
         const encodedMessage = encodeURIComponent(txtMail);
         handleInsertCita();
-        sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,encodedMessage,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
-        GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP);
+        if(enableNotif){
+          sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,encodedMessage,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
+          GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP);
+        }
         return;
       }
     }
@@ -826,15 +852,6 @@ const ClientView = () => {
        `;  
 
     if(curCateg == 0){
-      let m = `
-      This blog offers a comprehensive introduction to one of the most innovative blockchain platforms in the industry. 
-      It breaks down the Cardano project’s unique approach to decentralization, scalability, and sustainability. 
-      Whether you’re new to blockchain or a seasoned enthusiast, you’ll gain a deeper understanding of Cardano’s proof-of-stake consensus 
-      mechanism, its layered architecture, and its impact on global financial systems and smart contracts. 
-      This educational resource covers the core fundamentals, some technical aspects, and how Cardano is shaping the future of blockchain 
-      technology. It’s perfect for anyone interested in exploring the potential of Cardano and understanding how it stands out in the 
-      evolving blockchain landscape.
-      `;
       let tim = Date.now();
       
       let isai = true;
@@ -868,27 +885,6 @@ const ClientView = () => {
       }
       
       let dateCreated = new Date(Date.now() + 60 * 60 * 1000);
-      let result = await client.request(INSERT_COMMENT, {
-        id_client : curIdClient,  // Replace with the actual client ID
-        pseudo : curPseudo === '' ? tim.toString() : curPseudo,
-        question : chatInput,
-        response : isai ? m : '-',
-        created : dateCreated,
-        isai: isai
-      }); 
-      console.log('Comment inserted successfully! ' + result);  // Log the result
-      const historyEnabled = import.meta.env.VITE_COMMENT_HISTORY === "1";
-      if(historyEnabled){
-        result = await client.request(INSERT_COMMENT_HISTORY, {
-          id_client : curIdClient,  // Replace with the actual client ID
-          pseudo : curPseudo === '' ? tim.toString() : curPseudo,
-          question : chatInput,
-          response : isai ? m : '-',
-          created : dateCreated,
-          isai: isai
-        });
-        console.log('Histo inserted successfully! ' + result);  // Log the result
-      }
 
       const QUERY_URL_PRODUCTS = `
       query GetProducts($id_client: Int!, $ids: [Int!]!) {
@@ -904,7 +900,7 @@ const ClientView = () => {
       }
        `;
       let promptInfo = chatInput + '\n';
-      let hasPromoProd =  import.meta.env.VITE_OPT_PRODUCT === '1';
+      
       if(hasPromoProd){
         promptInfo += selLang === 'es' ? 
         `Indique qué producto(s) de la siguiente lista CSV serían adecuados ( devuelve, además de la respuesta a la pregunta anterior, una cadena JSON que contenga una lista de identificadores, por ejemplo: '{ "Productos": "1,2" }' , sin espacios en el array. No mencione expresiones entre paréntesis, como '(Producto 2)' o '(Producto 3)' ).` 
@@ -917,40 +913,76 @@ const ClientView = () => {
       console.log('promptInfo = ' + promptInfo);
       let chatResponse = await fetchChatAIResponse(promptInfo);
       console.log(selLang + ' = lang. response : ' + chatResponse);
-      let tabResp = chatResponse.split(selLang === 'es' ? '{ "Productos": "' : (selLang === 'en' ? '{ "Products": "' : '{ "Produits": "'));
-      if(tabResp.length > 1){
-        chatResponse = tabResp[0];
-        const arr = tabResp[1].split('}')[0].trim().split(",").map(item => parseInt(item, 10)); 
-          console.log("Arr : " + arr);
-          result = await client.request(QUERY_URL_PRODUCTS, {
-            id_client : curIdClient,  // Replace with the actual client ID
-            ids : arr
-          });
-          const resultArray = result.PRODUCT.map(product => [product.description, product.url]);
-          setProducts(resultArray);
-      }
-      chatResponse = chatResponse.replace(/\*/g, '');
-      if(chatResponse.includes(`Sans plus d'informations`)){
-        tab = chatResponse.split(`Sans plus d'informations`);
-        if(tab.length > 0){
-          chatResponse = tab[0];
+      if(hasPromoProd){
+        let tabResp = chatResponse.split(selLang === 'es' ? '{ "Productos": "' : (selLang === 'en' ? '{ "Products": "' : '{ "Produits": "'));
+        if(tabResp.length > 1){
+          chatResponse = tabResp[0];
+          const arr = tabResp[1].split('}')[0].trim().split(",").map(item => parseInt(item, 10)); 
+            console.log("Arr : " + arr);
+            result = await client.request(QUERY_URL_PRODUCTS, {
+              id_client : curIdClient,  // Replace with the actual client ID
+              ids : arr
+            });
+            const resultArray = result.PRODUCT.map(product => [product.description, product.url]);
+            setProducts(resultArray);
         }
-      }else{
-        let tab = chatResponse.split(`Here's the JSON`);
-        if(tab.length > 1){
-          chatResponse = tab[0];
-        }else{
-          tab = chatResponse.split("json");
-          if(tab.length > 0){
-            console.log('tab0 = ' + tab[0].slice(0,tab[0].length-3));
-            chatResponse = tab[0].slice(0,tab[0].length-3);
+        chatResponse = chatResponse.replace(/\*/g, '');
+        if(chatResponse.includes(`Sans plus d'informations`) || chatResponse.includes('Once I have this information')){
+          let tab = chatResponse.split(`Sans plus d'informations`);
+          if(tab.length > 1){
+            chatResponse = tab[0];
           }else{
-            tab = chatResponse.split(`Based on this, here's the JSON`);
+            tab = chatResponse.split('Once I have this information');
             if(tab.length > 0){
               chatResponse = tab[0];
             }
           }
+        }else{
+          let tab = chatResponse.split(`Here's the JSON`);
+          if(tab.length > 1){
+            chatResponse = tab[0];
+          }else{
+            tab = chatResponse.split("json");
+            if(tab.length > 0){
+              console.log('tab0 = ' + tab[0].slice(0,tab[0].length-3));
+              chatResponse = tab[0].slice(0,tab[0].length-3);
+            }else{
+              tab = chatResponse.split(`Based on this, here's the JSON`);
+              if(tab.length > 0){
+                chatResponse = tab[0];
+              }
+            }
+          }
         }
+      }else{
+        chatResponse = chatResponse.replace(/\*/g, '');
+      }
+      let result = await client.request(INSERT_COMMENT, {
+        id_client : curIdClient,  // Replace with the actual client ID
+        pseudo : curPseudo === '' ? tim.toString() : curPseudo,
+        question : chatInput,
+        response : isai ? chatResponse : '-',
+        created : dateCreated,
+        isai: isai
+      }); 
+      if(enableNotif){
+        let subject = selLang === 'es' ? "Recepción de una solicitud de información de un cliente." : (selLang === 'en' ? 'Receipt of an information request from a client.' : `Réception d'une demande d'information d'un client.`);
+        let headQ = selLang === 'es' ? "Hola, un cliente le ha hecho la siguiente pregunta : " : (selLang === 'en' ? "Hello, a client has asked you the following question : " : "Un client vous a posé la question suivante : ");
+        let headR = selLang === 'es' ? "Puede leer la respuesta de su asistente virtual en el siguiente portal de administrador : " : (selLang === 'en' ? "You can read the response from your virtual assistant on the following administrator portal : " : "Vous pouvez lire la réponse de votre assistant virtuel sur le portail administrateur suivant : ");
+        sendComment(import.meta.env.VITE_EMAIL,subject,headQ,chatInput,headR);
+      }      
+      console.log('Comment inserted successfully! ' + result);  // Log the result
+      const historyEnabled = import.meta.env.VITE_COMMENT_HISTORY === "1";
+      if(historyEnabled){
+        result = await client.request(INSERT_COMMENT_HISTORY, {
+          id_client : curIdClient,  // Replace with the actual client ID
+          pseudo : curPseudo === '' ? tim.toString() : curPseudo,
+          question : chatInput,
+          response : isai ? chatResponse : '-',
+          created : dateCreated,
+          isai: isai
+        });
+        console.log('Histo inserted successfully! ' + result);  // Log the result
       }
       loadMessage(curAI(""),chatResponse,"");
       setChatInput(''); 
@@ -1548,7 +1580,7 @@ const ClientView = () => {
  
   const handleInsertCita = async () => {
     const variables = {
-      id_client: Number(import.meta.env.VITE_ID_CLIENT),
+      id_client: curIdClient,
       id_service: curCita1.idService,
       name: curCita1.nombre,
       date: curCita1.dateCita
@@ -1710,7 +1742,7 @@ END:VCALENDAR`;
     `;
 
   useEffect(() => {
-    
+    //setIsFormSendOpen(false);
     let tim = Date.now();
       
       let isai = true;
@@ -1745,9 +1777,14 @@ END:VCALENDAR`;
       }, [wsClient, COMMENT_SUBSCRIPTION, curIdClient]); // Include id_client in dependencies
 
   const [isFormSendOpen, setIsFormSendOpen] = useState(true);
+
+  useEffect(() => {
+    setHasPromoProd(import.meta.env.VITE_OPT_PRODUCT === '1');
+  }, [messages]);
+
   return (
     <div className="app-container"> 
-      <div id="popup" className='popup'>  
+      <div id="popup" className='popup' style={{display : "none"}}>  
       <a href="#" class="close" onClick={() => setIsFormSendOpen(true)}>&times;</a>    
       <Swiper
                   slidesPerView={1}
@@ -1783,16 +1820,14 @@ END:VCALENDAR`;
           <span className="dot"></span>
           <span className="dot"></span>
         </div>
-        <div ref={lstMsgRef} className="chat-messages">
-            <div > 
+        <div ref={lstMsgRef} className="chat-messages">             
               <div className="message blue-bg" style={{display : curCita1.contact === "" ? "none" : "block"}}>
               <b>{GetMsgResumeCita('')}</b><br/><br/>
               {GetMsgDateHourCita('')}<b className='color-cita'>{GetUTCDate(new Date(curCita1.dateCita)).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' })}</b><br/>
               {GetMsgTypeCita('')}<b className='color-cita'>{curCita1.labelService}</b><br/>
               {GetMsgContactCita('')}<b className='color-cita'><a href={"https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text="}>{"+" + import.meta.env.VITE_WHATSAPP}</a></b><br/><br/>
               {GetMsgUpdateCita('')}
-              </div>
-            </div>
+              </div>            
           {messages.map((message, index) => (            
             <div
               key={index}
@@ -1818,7 +1853,7 @@ END:VCALENDAR`;
                   <br/><a style={{ color: 'white' }} href={message.lnkWhatsapp}>{message.whatsapp}</a>
               </div>      
               <div className="message-timestamp">{message.timestamp}</div>
-              <div style={{marginTop: "10px",height: "20vh",width : "100%",display : (message.sender === curAI("") && curCateg === 0 && message.text !== GetMsgInitInfo("")) ? "flex" : "none"}}>
+              {hasPromoProd && (<div style={{marginTop: "10px",height: "20vh",width : "100%",display : (message.sender === curAI("") && curCateg === 0 && message.text !== GetMsgInitInfo("") && hasPromoProd) ? "flex" : "none"}}>
                 <div style={{display: "flex",flex:"1"}}>
                     <a href="#popup" onClick={() => setIsFormSendOpen(false)}>
                       <img style={{height:"20vh"}} src={products.length > 0 ? products[0][1] : ''} alt={products.length > 0 ? products[0][0] : ''}/>
@@ -1829,7 +1864,7 @@ END:VCALENDAR`;
                   {products.length > 0 ? products[0][0] : ''}
                   </a>
                 </div>
-              </div>
+              </div>)}
             </div>
           ))}
           <div class="cita-container">
