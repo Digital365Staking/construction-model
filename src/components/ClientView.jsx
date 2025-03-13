@@ -75,51 +75,51 @@ const ClientView = () => {
   const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
   const GetMsgResumeCita = (lang) => {
     if(lang === "")
-      return selLang === 'es' ? 'Resumen de mi cita' : (selLang === 'en' ? 'Summary of my appointment' : "Résumé de mon rendez-vous");
+      return selLang === 'de' ? '' : (selLang === 'es' ? 'Resumen de mi cita' : (selLang === 'en' ? 'Summary of my appointment' : "Résumé de mon rendez-vous"));
     else
-      return lang === 'es' ? 'Resumen de mi cita' : (lang === 'en' ? 'Summary of my appointment' : "Résumé de mon rendez-vous");
+      return lang === 'de' ? '' : (lang === 'es' ? 'Resumen de mi cita' : (lang === 'en' ? 'Summary of my appointment' : "Résumé de mon rendez-vous"));
   };
   const GetMsgDateHourCita = (lang) => {
     if(lang === "")
-      return selLang === 'es' ? 'Fecha y hora de mi cita : ' : (selLang === 'en' ? 'Date and time of my appointment : ' : "Date et heure de mon rendez-vous : ");
+      return selLang === 'de' ? '' : (selLang === 'es' ? 'Fecha y hora de mi cita : ' : (selLang === 'en' ? 'Date and time of my appointment : ' : "Date et heure de mon rendez-vous : "));
     else
-      return lang === 'es' ? 'Fecha y hora de mi cita : ' : (lang === 'en' ? 'Date and time of my appointment : ' : "Date et heure de mon rendez-vous : ");
+      return lang === 'de' ? '' : (lang === 'es' ? 'Fecha y hora de mi cita : ' : (lang === 'en' ? 'Date and time of my appointment : ' : "Date et heure de mon rendez-vous : "));
   };
   const GetMsgTypeCita = (lang) => {
     if(lang === "")
-      return selLang === 'es' ? 'Tipo de servicio : ' : (selLang === 'en' ? 'Type of service : ' : "Type de service : ");
+      return selLang === 'de' ? '' : (selLang === 'es' ? 'Tipo de servicio : ' : (selLang === 'en' ? 'Type of service : ' : "Type de service : "));
     else
-      return lang === 'es' ? 'Tipo de servicio : ' : (lang === 'en' ? 'Type of service : ' : "Type de service : ");
+      return lang === 'de' ? '' : (lang === 'es' ? 'Tipo de servicio : ' : (lang === 'en' ? 'Type of service : ' : "Type de service : "));
   };
   const GetMsgContactCita = (lang) => {
     if(lang === "")
-      return (selLang === 'en' ? 'WhatsApp of the manager : ' : "WhatsApp de la responsable : ");
+      return selLang === 'de' ? '' : (selLang === 'en' ? 'WhatsApp of the manager : ' : "WhatsApp de la responsable : ");
     else
-      return (lang === 'en' ? 'WhatsApp of the manager : ' : "WhatsApp de la responsable : ");
+      return lang === 'de' ? '' : (lang === 'en' ? 'WhatsApp of the manager : ' : "WhatsApp de la responsable : ");
   };
   const GetMsgUpdateCita = (lang) => {
     if(lang === "")
-      return selLang === 'es' ? "Para cancelar su cita, haga clic en el botón 'Cancelar' en la parte inferior izquierda de la página. Para cualquier modificación, por favor contacte a la responsable a través de WhatsApp." : (selLang === 'en' ? "To cancel your appointment, click on the 'Cancel' button at the bottom left of the page. For any changes, please contact the manager via WhatsApp." : "Pour annuler votre rendez-vous, cliquez sur le bouton 'Annuler' en bas à gauche de la page. Pour toute modification, veuillez contacter la responsable via WhatsApp.");
+      return selLang === 'de' ? '' : (selLang === 'es' ? "Para cancelar su cita, haga clic en el botón 'Cancelar' en la parte inferior izquierda de la página. Para cualquier modificación, por favor contacte a la responsable a través de WhatsApp." : (selLang === 'en' ? "To cancel your appointment, click on the 'Cancel' button at the bottom left of the page. For any changes, please contact the manager via WhatsApp." : "Pour annuler votre rendez-vous, cliquez sur le bouton 'Annuler' en bas à gauche de la page. Pour toute modification, veuillez contacter la responsable via WhatsApp."));
     else
-      return lang === 'es' ? "Para cancelar su cita, haga clic en el botón 'Cancelar' en la parte inferior izquierda de la página. Para cualquier modificación, por favor contacte a la responsable a través de WhatsApp." : (selLang === 'en' ? "To cancel your appointment, click on the 'Cancel' button at the bottom left of the page. For any changes, please contact the manager via WhatsApp." : "Pour annuler votre rendez-vous, cliquez sur le bouton 'Annuler' en bas à gauche de la page. Pour toute modification, veuillez contacter la responsable via WhatsApp.");
+      return lang === 'de' ? '' : (lang === 'es' ? "Para cancelar su cita, haga clic en el botón 'Cancelar' en la parte inferior izquierda de la página. Para cualquier modificación, por favor contacte a la responsable a través de WhatsApp." : (selLang === 'en' ? "To cancel your appointment, click on the 'Cancel' button at the bottom left of the page. For any changes, please contact the manager via WhatsApp." : "Pour annuler votre rendez-vous, cliquez sur le bouton 'Annuler' en bas à gauche de la page. Pour toute modification, veuillez contacter la responsable via WhatsApp."));
   };
   const GetMsgInitCita = (lang) => {
     if(lang === "")
-      return selLang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (selLang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?");
+      return selLang === 'de' ? '' : (selLang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (selLang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?"));
     else
-      return lang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?");
+      return lang === 'de' ? '' : (lang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?"));
   }; 
   const GetMsgInitInfo = (lang) => {
     if(lang === "")
-      return selLang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (selLang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?");
+      return selLang === 'de' ? '' : (selLang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (selLang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?"));
     else
-      return lang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (lang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?");
+      return lang === 'de' ? '' : (lang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (lang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?"));
   };
   const GetMsgInitBudget = (lang) => {
     if(lang === "")
-      return selLang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (selLang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?');
+      return selLang === 'de' ? '' : (selLang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (selLang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?'));
     else
-      return lang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (lang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?');
+      return lang === 'de' ? '' : (lang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (lang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?'));
   };
   
   const copyToClipboard = (e, text) => {
@@ -196,7 +196,7 @@ const ClientView = () => {
                 where: { id_client: { _eq: $id_client } }
               ) {
                 id
-                description
+                description                
               }
             }
           `;
@@ -300,12 +300,12 @@ const ClientView = () => {
       display: (import.meta.env.VITE_OPT_CITA === "1" && curCateg !== 2 ? "block" : "none")
     }
   );
-  const labelCopied = selLang === 'es' ? 'Copiado !' : (selLang === 'en' ? 'Copied !' : 'Copié !');
+  const labelCopied = selLang === 'de' ? '' : (selLang === 'es' ? 'Copiado !' : (selLang === 'en' ? 'Copied !' : 'Copié !'));
   const codeLang = (lang) => {
     if(lang == "")
-      return selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
+      return selLang === 'de' ? 'de-DE' : (selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR'));
     else
-      return lang === 'es' ? 'es-ES' : (lang === 'en' ? 'en-US' : 'fr-FR');
+      return lang === 'de' ? 'de-DE' : (lang === 'es' ? 'es-ES' : (lang === 'en' ? 'en-US' : 'fr-FR'));
   } 
   const curMe = (lang) => {
     if(lang == "")
@@ -901,6 +901,7 @@ const ClientView = () => {
         ) {
           description
           url
+          linkAd
         }
       }
        `;
@@ -931,7 +932,7 @@ const ClientView = () => {
               id_client : curIdClient,  // Replace with the actual client ID
               ids : arr
             });
-            const resultArray = result.PRODUCT.map(product => [product.description, product.url]);
+            const resultArray = result.PRODUCT.map(product => [product.description, product.url, product.linkAd]);
             setProducts(resultArray);
           }          
         }
@@ -1788,6 +1789,22 @@ END:VCALENDAR`;
     setHasPromoProd(import.meta.env.VITE_OPT_PRODUCT === '1');
   }, [messages]);
 
+  const GetLinkURL = (prod) => {
+    if(prod.linkAd === '-'){
+      return "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'es' ? 'Hola, quiero pedir el siguiente articulo : ' : (selLang === 'en' ? 'Hello, I would like to order the following item : ' : `Bonjour, je souhaite commander l'article suivant : `)) + prod[0];
+    }else{
+      return prod[2];
+    }
+  };
+
+  const GetLabelProd = (prod) => {
+    if(prod.linkAd === '-'){
+      return selLang === 'es' ? 'PEDIR' : (selLang === 'en' ? 'ORDER' : 'COMMANDER');
+    }else{
+      return selLang === 'es' ? 'VER EL ANUNCIO' : (selLang === 'en' ? 'SEE THE AD' : `VOIR L'ANNONCE`);
+    }
+  };
+
   return (
     <div className="app-container"> 
       <div id="popup" className='popup' style={{display : isFormSendOpen ? "none" : "block"}}>  
@@ -1806,7 +1823,7 @@ END:VCALENDAR`;
                   className="mySwiper"
                 > 
                 {products.map((prod, index) => ( 
-                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"5em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em",color: "#062a4e"}}><a href={"https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'es' ? 'Hola, quiero pedir el siguiente articulo : ' : (selLang === 'en' ? 'Hello, I would like to order the following item : ' : `Bonjour, je souhaite commander l'article suivant : `)) + prod[0]}>{selLang === 'es' ? 'PEDIR' : (selLang === 'en' ? 'ORDER' : 'COMMANDER')}</a></div></SwiperSlide>
+                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"5em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em",color: "#062a4e"}}><a href={GetLinkURL(prod)}>{}</a></div></SwiperSlide>
                 ))}  
                 </Swiper>
                 </div>
@@ -1918,7 +1935,7 @@ END:VCALENDAR`;
             {curCita1.contact === "" ? curClear : curCancel}
           </button>
           <div>
-            {/* Radio Button 1 */}
+            {/* Radio Button EN */}
             <input
               type="radio"
               id="en"
@@ -1931,7 +1948,7 @@ END:VCALENDAR`;
               EN
             </label>
 
-            {/* Radio Button 2 */}
+            {/* Radio Button FR */}
             <input
               type="radio"
               id="fr"
@@ -1944,7 +1961,20 @@ END:VCALENDAR`;
               FR
             </label>
 
-            {/* Radio Button 3 */}
+             {/* Radio Button DE */}
+            <input
+              type="radio"
+              id="de"
+              name="options"
+              checked={selLang === "de"}
+              style={{ display: "none" }}
+            />
+            <label htmlFor="DE" className="label" onClick={() =>  handleChangeLang("de")}>
+              <span className={`radio ${selLang === "de" ? "selected" : ""}`}></span>
+              DE
+            </label>
+
+            {/* Radio Button ES */}
             <input
               type="radio"
               id="es"
