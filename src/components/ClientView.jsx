@@ -1847,7 +1847,8 @@ END:VCALENDAR`;
       </button>
       <span className={`copied-message ${copied == index ? "visible" : ""}`}>{labelCopied}</span>
               </div>               
-              <div className="message-text">                                
+              <div className="message-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}> 
+                <div>
                 {message.lines && message.lines.length > 0
                   ? message.lines.map((line, lineIndex) => (
                       <span key={lineIndex}>
@@ -1855,8 +1856,12 @@ END:VCALENDAR`;
                       <br/>                       
                       </span>
                     ))
-                  : message.text}                  
-                  <br/><a style={{ color: 'white' }} href={message.lnkWhatsapp}>{message.whatsapp}</a>
+                  : message.text}  
+                </div>                                 
+                <div> 
+                  <br/>              
+                  <a style={{ color: 'white', textAlign: 'left' }} href={messages.length > 3 && message.text.includes(import.meta.env.VITE_WHATSAPP) ? "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'es' ? ' Pregunta : ' : ' Question : ') + messages[index-2].text + (selLang === 'es' ? ' Respuesta : ' : (selLang === 'en' ? ' Response : ' : ' Réponse : ')) + messages[index-1].text : ''}>{messages.length > 3 && message.text.includes(import.meta.env.VITE_WHATSAPP) && (<span>{selLang === 'es' ? 'Contactar con ' : (selLang === 'en' ? 'Contact the ' : 'Contacter le ')}+{import.meta.env.VITE_WHATSAPP}</span>)}</a>
+                </div> 
               </div>      
               <div className="message-timestamp">{message.timestamp}</div>
               {hasPromoProd && (<div style={{marginTop: "10px",height: "20vh",width : "100%",display : (message.sender === curAI("") && curCateg === 0 && message.text !== GetMsgInitInfo("") && hasPromoProd) ? "flex" : "none"}}>

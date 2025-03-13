@@ -219,10 +219,10 @@ const AdminView = () => {
           try {
               // Select the correct message based on language
               const msg_init = selLang === 'es' 
-                  ? `Veo que el asistente virtual ha proporcionado información errónea. Le ruego que me contacte por WhatsApp al +34989... para recibir la información correcta. Gracias de antemano.` 
+                  ? `Veo que el asistente virtual ha proporcionado información errónea. Le ruego que me contacte por WhatsApp al +${import.meta.env.VITE_WHATSAPP} para recibir la información correcta. Gracias de antemano.` 
                   : (selLang === 'en' 
-                      ? `I see that the virtual assistant has provided incorrect information. Please contact me via WhatsApp at +34989... to receive the correct information. Thank you for your understanding.` 
-                      : `Je constate que l'assistant virtuel a fourni des informations erronées. Je vous prie de bien vouloir me contacter via WhatsApp au +34989... afin de recevoir les informations correctes. Merci de votre compréhension.`
+                      ? `I see that the virtual assistant has provided incorrect information. Please contact me via WhatsApp at +${import.meta.env.VITE_WHATSAPP} to receive the correct information. Thank you for your understanding.` 
+                      : `Je constate que l'assistant virtuel a fourni des informations erronées. Je vous prie de bien vouloir me contacter via WhatsApp au +${import.meta.env.VITE_WHATSAPP} afin de recevoir les informations correctes. Merci de votre compréhension.`
                   );
       
               setChatInput(msg_init);
@@ -259,7 +259,9 @@ const AdminView = () => {
                               setSubComments(newComments.comment_union);
                           }else{
                             setSubComments([]);
+                            setIsPopupOpen(false);                            
                           }
+                          fetchComments();
                       },
                       error: (err) => console.error("Subscription error:", err),
                       complete: () => console.log("Subscription complete"),
