@@ -15,6 +15,7 @@ entry-point = "."
 # Environment variables for the Worker
 [env.production]
 vars = { 
+  VITE_GDPR: "$VITE_GDPR",
   VITE_LANG: "$VITE_LANG", 
   VITE_LIMIT_LIST_ADMIN: "$VITE_LIMIT_LIST_ADMIN", 
   VITE_CHATGPT_URL: "$VITE_CHATGPT_URL",

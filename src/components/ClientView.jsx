@@ -309,9 +309,9 @@ const ClientView = () => {
   } 
   const curMe = (lang) => {
     if(lang == "")
-      return selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
+      return selLang === 'de' ? 'de-DE' : (selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi'));
     else
-      return lang === 'es' ? 'Yo' : (lang === 'en' ? 'Me' : 'Moi');
+      return lang === 'de' ? 'de-DE' : (lang === 'es' ? 'Yo' : (lang === 'en' ? 'Me' : 'Moi'));
   } 
  
   const [curCita1, setCurCita1] = useState(
@@ -345,25 +345,25 @@ const ClientView = () => {
   const [messageSender, setMessageSender] = useState(curMe(''));
   const curAI = (lang) =>{
     if(lang === ""){
-      return selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
+      return selLang === 'de' ? '' : (selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel'));
     }else{
-      return lang === 'es' ? 'Asistente virtual' : (lang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
+      return lang === 'de' ? '' : (lang === 'es' ? 'Asistente virtual' : (lang === 'en' ? 'Virtual assistant' : 'Assistant virtuel'));
     }     
   };
   const curServClient = (lang) =>{
     if(lang === ""){
-      return selLang === 'es' ? 'Atención al Cliente' : (selLang === 'en' ? 'Customer Service' : 'Service Client');
+      return selLang === 'de' ? '' : (selLang === 'es' ? 'Atención al Cliente' : (selLang === 'en' ? 'Customer Service' : 'Service Client'));
     }else{
-      return lang === 'es' ? 'Atención al Cliente' : (lang === 'en' ? 'Customer Service' : 'Service Client');
+      return lang === 'de' ? '' : (lang === 'es' ? 'Atención al Cliente' : (lang === 'en' ? 'Customer Service' : 'Service Client'));
     }     
   };
-  const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
-  const curClear = selLang === 'es' ? 'Borrar' : (selLang === 'en' ? 'Clear' : 'Effacer');
-  const curCancel = selLang === 'es' ? 'Cancelar' : (selLang === 'en' ? 'Cancel' : 'Annuler');
-  const curInfo = selLang === 'es' ? 'Información' : 'Information';
-  const curLabelCita = selLang === 'es' ? 'Cita' : (selLang === 'en' ? 'Appointment​' : 'Rendez-vous');
-  const curBudget = selLang === 'es' ? 'Presupuesto' : (selLang === 'en' ? 'Quote' : 'Devis');
-  const curTypeHere = selLang === 'es' ? 'Escribe aquí' : (selLang === 'en' ? 'Type here' : 'Tapez ici'); 
+  const curSend = selLang === 'de' ? '' : (selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer'));
+  const curClear = selLang === 'de' ? '' : (selLang === 'es' ? 'Borrar' : (selLang === 'en' ? 'Clear' : 'Effacer'));
+  const curCancel = selLang === 'de' ? '' : (selLang === 'es' ? 'Cancelar' : (selLang === 'en' ? 'Cancel' : 'Annuler'));
+  const curInfo = selLang === 'de' ? '' : (selLang === 'es' ? 'Información' : 'Information');
+  const curLabelCita = selLang === 'de' ? '' : (selLang === 'es' ? 'Cita' : (selLang === 'en' ? 'Appointment​' : 'Rendez-vous'));
+  const curBudget = selLang === 'de' ? '' : (selLang === 'es' ? 'Presupuesto' : (selLang === 'en' ? 'Quote' : 'Devis'));
+  const curTypeHere = selLang === 'de' ? '' : (selLang === 'es' ? 'Escribe aquí' : (selLang === 'en' ? 'Type here' : 'Tapez ici')); 
 
   //Examples of CSV
   const keyPaths = ""; //"/files/Mathematical database development_.pdf";
@@ -717,8 +717,7 @@ const ClientView = () => {
     
     if (chatInput.trim() === '') return;
     
-    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
-    const timestamp = new Date().toLocaleString(curFormat, {
+    const timestamp = new Date().toLocaleString(codeLang(''), {
       month: 'long',
       day: 'numeric',
       hour: 'numeric',
@@ -747,7 +746,7 @@ const ClientView = () => {
         stepCita: prevState.stepCita + 1  // Update stepCita
       }));
       loadMessage(curMe(''),chatInput,selLang);
-      let msg = selLang === 'es' ? "Finalmente, por favor, ingrese su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : (selLang === 'en' ? 'Finally, please enter your email ( click "Send" to save it ) to confirm the appointment.' : "Enfin, veuillez, s'il vous plaît, saisir votre email ( cliquer sur 'Envoyer' pour l'enregistrer ) pour confirmer le rendez-vous.");
+      let msg = selLang === 'de' ? '' : (selLang === 'es' ? "Finalmente, por favor, ingrese su correo electrónico ( haz clic en 'Enviar' para guardarlo) para confirmar la cita." : (selLang === 'en' ? 'Finally, please enter your email ( click "Send" to save it ) to confirm the appointment.' : "Enfin, veuillez, s'il vous plaît, saisir votre email ( cliquer sur 'Envoyer' pour l'enregistrer ) pour confirmer le rendez-vous."));
       loadMessage(curAI(""),msg,selLang);
       return;
     }else{
@@ -765,8 +764,8 @@ const ClientView = () => {
         txtMail += GetMsgTypeCita('') + curCita1.labelService + '\n';
         txtMail += GetMsgContactCita('') + " +" + import.meta.env.VITE_WHATSAPP + "\n";
         
-        let subject = selLang === 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous");
-        let name = selLang === 'es' ? "Nombre : " : (selLang === 'en' ? "Name : " : "Nom : ");
+        let subject = selLang === 'de' ? '' : (selLang === 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous"));
+        let name = selLang === 'de' ? '' : (selLang === 'es' ? "Nombre : " : (selLang === 'en' ? "Name : " : "Nom : "));
         console.log("Nom :" + curCita1.nombre);
         const encodedMessage = encodeURIComponent(txtMail);
         handleInsertCita();
@@ -888,7 +887,7 @@ const ClientView = () => {
           }          
         }
       }
-      console.log('curF = ' + curFormat);
+      
       let dateCreated = new Date(Date.now() + 60 * 60 * 1000);
 
       const QUERY_URL_PRODUCTS = `
@@ -908,12 +907,12 @@ const ClientView = () => {
       let promptInfo = chatInput + '\n';
       
       if(curCateg === 0 && hasPromoProd){
-        promptInfo += selLang === 'es' ? 
+        promptInfo += selLang === 'de' ? '' : (selLang === 'es' ? 
         `Indique qué producto(s) de la siguiente lista CSV serían adecuados ( devuelve, además de la respuesta a la pregunta anterior, una cadena JSON que contenga una lista de identificadores, por ejemplo: '{ "Productos": "1,2" }' , sin espacios en el array. No mencione expresiones entre paréntesis, como '(Producto 2)' o '(Producto 3)' ).` 
         : (selLang === 'en' ?
         `Indicate which product(s) from the following CSV list would be suitable ( return, in addition to the answer to the previous question, a JSON string containing a list of identifiers, for example: '{ "Products": "1,2" }' , with no spaces in the array. Do not mention expressions in parentheses, such as '(Product 2)' or '(Product 3)' ).`
         : 
-        ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient ( retourner, en plus de la réponse à la précédente question, une chaîne JSON contenant une liste d'identifiants, par exemple : '{ "Produits": "1,2" }' , sans espaces dans le tableau. Ne pas mentionner les expressions entre parenthèses, telles que '(produit 2)' ou '(produit 3)' ).`);
+        ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient ( retourner, en plus de la réponse à la précédente question, une chaîne JSON contenant une liste d'identifiants, par exemple : '{ "Produits": "1,2" }' , sans espaces dans le tableau. Ne pas mentionner les expressions entre parenthèses, telles que '(produit 2)' ou '(produit 3)' ).`));
         promptInfo += csvProducts;
       }
       console.log('promptInfo = ' + promptInfo);
@@ -921,7 +920,7 @@ const ClientView = () => {
       let chatResponse = await fetchChatAIResponse(promptInfo);
       console.log(selLang + ' = lang. response : ' + chatResponse);
       if(curCateg === 0 && hasPromoProd){
-        let tabResp = chatResponse.split(selLang === 'es' ? '{ "Productos": "' : (selLang === 'en' ? '{ "Products": "' : '{ "Produits": "'));
+        let tabResp = chatResponse.split(selLang === 'de' ? '' : (selLang === 'es' ? '{ "Productos": "' : (selLang === 'en' ? '{ "Products": "' : '{ "Produits": "')));
         if(tabResp.length > 1){
           chatResponse = tabResp[0];
           var str = tabResp[1].split('}')[0].trim();
@@ -977,9 +976,9 @@ const ClientView = () => {
         categ: curCateg
       }); 
       if(enableNotif){
-        let subject = selLang === 'es' ? "Recepción de una solicitud de información de un cliente." : (selLang === 'en' ? 'Receipt of an information request from a client.' : `Réception d'une demande d'information d'un client.`);
-        let headQ = selLang === 'es' ? "Hola, un cliente le ha hecho la siguiente pregunta : " : (selLang === 'en' ? "Hello, a client has asked you the following question : " : "Un client vous a posé la question suivante : ");
-        let headR = selLang === 'es' ? "Usted puede leer la respuesta de su asistente virtual en el siguiente portal de administrador : " : (selLang === 'en' ? "You can read the response from your virtual assistant on the following administrator portal : " : "Vous pouvez lire la réponse de votre assistant virtuel sur le portail administrateur suivant : ");
+        let subject = selLang === 'de' ? '' : (selLang === 'es' ? "Recepción de una solicitud de información de un cliente." : (selLang === 'en' ? 'Receipt of an information request from a client.' : `Réception d'une demande d'information d'un client.`));
+        let headQ = selLang === 'de' ? '' : (selLang === 'es' ? "Hola, un cliente le ha hecho la siguiente pregunta : " : (selLang === 'en' ? "Hello, a client has asked you the following question : " : "Un client vous a posé la question suivante : "));
+        let headR = selLang === 'de' ? '' : (selLang === 'es' ? "Usted puede leer la respuesta de su asistente virtual en el siguiente portal de administrador : " : (selLang === 'en' ? "You can read the response from your virtual assistant on the following administrator portal : " : "Vous pouvez lire la réponse de votre assistant virtuel sur le portail administrateur suivant : "));
         sendComment(import.meta.env.VITE_EMAIL,subject,headQ,chatInput,headR);
       }      
       console.log('Comment inserted successfully! ' + result);  // Log the result
@@ -1121,8 +1120,8 @@ const ClientView = () => {
     let msg = "";
     //localStorage.clear();
     setMessages([]); 
-    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
-    const timestamp = new Date().toLocaleString(curFormat, {
+    
+    const timestamp = new Date().toLocaleString(codeLang(lang), {
       month: 'long',
       day: 'numeric',
       hour: 'numeric',
@@ -1139,7 +1138,7 @@ const ClientView = () => {
           filteredData = services.filter(item => item.id === idServ);
               
           if(curCita1.labelService.length === 0 && today < curCita1.dateCita){
-            msg = selLang === 'es' ? 'Usted no puede reservar otra cita porque ya ha reservado dos.' : (selLang === 'en' ? 'You cannot book another appointment because you have already booked two.' : "Vous ne pouvez pas prendre un autre rendez-vous, car vous en avez déjà pris deux.");
+            msg = selLang === 'de' ? '' : (selLang === 'es' ? 'Usted no puede reservar otra cita porque ya ha reservado dos.' : (selLang === 'en' ? 'You cannot book another appointment because you have already booked two.' : "Vous ne pouvez pas prendre un autre rendez-vous, car vous en avez déjà pris deux."));
               const newMsg = {
                 sender: curAI(""),
                 text: msg,
@@ -1160,7 +1159,7 @@ const ClientView = () => {
               stepCita: prevState.stepCita + 1  // Update stepCita
             }));
           }
-          msg = GetMsgTypeCita(selLang) + filteredData[0][selLang] + "  " + (selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?"));
+          msg = GetMsgTypeCita(selLang) + filteredData[0][selLang] + "  " + (selLang === 'de' ? '' : (selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?")));
         }else{
           filteredData = services.filter(item => item.id === curCita1.idService);
           setCurCita1(prevState => ({
@@ -1184,10 +1183,10 @@ const ClientView = () => {
       case 1:
         
         if(etp < 0){
-          msg = selLang === 'es' ? '¿ A qué hora ?' : (selLang === 'en' ? 'At what time ?' : "À quelle heure ?");
+          msg = selLang === 'de' ? '' : (selLang === 'es' ? '¿ A qué hora ?' : (selLang === 'en' ? 'At what time ?' : "À quelle heure ?"));
           //loadMessage(curAI(lang),msg,lang);
         }else{
-          msg = lang === 'es' ? '¿ A qué hora ?' : (lang === 'en' ? 'At what time ?' : "À quelle heure ?");          
+          msg = selLang === 'de' ? '' : (lang === 'es' ? '¿ A qué hora ?' : (lang === 'en' ? 'At what time ?' : "À quelle heure ?"));          
         }
           
         console.log(targetValue);
@@ -1268,10 +1267,10 @@ const ClientView = () => {
         }
         
         if(etp < 0){
-          msg = selLang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su dirección de correo electrónico. Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : (selLang === 'en' ? "To confirm the appointment, you must register your first name and your email address. First, enter your first name, then click 'Send' to save it." : "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre adresse e-mail. Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer.");
+          msg = selLang === 'de' ? '' : (selLang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su dirección de correo electrónico. Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : (selLang === 'en' ? "To confirm the appointment, you must register your first name and your email address. First, enter your first name, then click 'Send' to save it." : "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre adresse e-mail. Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer."));
           
         }else{
-          msg = lang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su dirección de correo electrónico. Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : (lang === 'en' ? "To confirm the appointment, you must register your first name and your email address. First, enter your first name, then click 'Send' to save it." : "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre adresse e-mail. Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer.");
+          msg = selLang === 'de' ? '' : (lang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su dirección de correo electrónico. Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : (lang === 'en' ? "To confirm the appointment, you must register your first name and your email address. First, enter your first name, then click 'Send' to save it." : "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre adresse e-mail. Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer."));
           loadMessage(curAI(""),msg,"");
         }
                
@@ -1447,8 +1446,8 @@ const ClientView = () => {
     
     let wap = "";
     let lnkWAP = "";
-    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
-    const timestamp = new Date().toLocaleString(curFormat, {
+    
+    const timestamp = new Date().toLocaleString(codeLang(''), {
       month: 'long',
       day: 'numeric',
       hour: 'numeric',
@@ -1651,8 +1650,8 @@ const ClientView = () => {
   };
 
   const loadMessage = (sender,msg,lang) => {
-    const curFormat = lang === "" ? (selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR')) : (lang === 'es' ? 'es-ES' : (lang === 'en' ? 'en-US' : 'fr-FR'));
-    const timestamp = new Date().toLocaleString(curFormat, {
+    
+    const timestamp = new Date().toLocaleString(codeLang(lang), {
       month: 'long',
       day: 'numeric',
       hour: 'numeric',
@@ -1833,7 +1832,17 @@ END:VCALENDAR`;
           </div>
           <div class="header-right">
               <div class="header-top">{isFormSendOpen && (<h4>{import.meta.env.VITE_COMPANY_NAME}</h4>)}</div>
-              <div class="header-bottom"><a href={import.meta.env.VITE_GOOGLEMAPS} target='_blank'>{import.meta.env.VITE_ADDRESS}</a></div>
+              <div class="header-bottom" style={{ display: 'flex' }}>
+                <div style={{ width: '50%' }}>
+                  <a href={import.meta.env.VITE_GOOGLEMAPS} target="_blank">
+                  {import.meta.env.VITE_ADDRESS}
+                  </a>
+                </div>
+                <div style={{ width: '50%',textAlign: "center" }}>
+                  Contact : 
+                  <a href={import.meta.env.VITE_GDPR} target="_blank">GDPR</a>
+                </div>
+              </div>
           </div>
       </div>
       <div className="chat-container">        
