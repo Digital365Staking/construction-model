@@ -1832,14 +1832,14 @@ END:VCALENDAR`;
           </div>
           <div class="header-right">
               
-              <div class="header-bottom" style={{ display: 'flex', marginBottom:"3em" }}>
+              <div class="header-bottom" style={{ display: 'flex', marginBottom:"1em" }}>
                 <div style={{ width: '45%' }}>
                   <a href={import.meta.env.VITE_GOOGLEMAPS} target="_blank">
                   {import.meta.env.VITE_ADDRESS}
                   </a>
                 </div>
-                <div style={{ width: '55%',textAlign: "center" }}>
-                  {selLang === 'de' ? '' : (selLang === 'es' ? 'Contacto :' : 'Contact :')} digital365staking@gmail.com
+                <div style={{ width: '55%',textAlign: "left" }}>
+                  {selLang === 'de' ? '' : (selLang === 'es' ? 'Contacto :' : 'Contact :')}<br/> digital365staking@gmail.com
                   <br/> 
                   <a href={import.meta.env.VITE_GDPR} target="_blank">GDPR</a>
                 </div>
