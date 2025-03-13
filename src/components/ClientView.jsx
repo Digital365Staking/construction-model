@@ -1790,7 +1790,7 @@ END:VCALENDAR`;
 
   const GetLinkURL = (prod) => {
     if(prod.linkAd === '-'){
-      return "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'es' ? 'Hola, quiero pedir el siguiente articulo : ' : (selLang === 'en' ? 'Hello, I would like to order the following item : ' : `Bonjour, je souhaite commander l'article suivant : `)) + prod[0];
+      return "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'de' ? '' : (selLang === 'es' ? 'Hola, quiero pedir el siguiente articulo : ' : (selLang === 'en' ? 'Hello, I would like to order the following item : ' : `Bonjour, je souhaite commander l'article suivant : `))) + prod[0];
     }else{
       return prod[2];
     }
@@ -1798,9 +1798,9 @@ END:VCALENDAR`;
 
   const GetLabelProd = (prod) => {
     if(prod.linkAd === '-'){
-      return selLang === 'es' ? 'PEDIR' : (selLang === 'en' ? 'ORDER' : 'COMMANDER');
+      return selLang === 'de' ? '' : (selLang === 'es' ? 'PEDIR' : (selLang === 'en' ? 'ORDER' : 'COMMANDER'));
     }else{
-      return selLang === 'es' ? 'VER EL ANUNCIO' : (selLang === 'en' ? 'SEE THE AD' : `VOIR L'ANNONCE`);
+      return selLang === 'de' ? '' : (selLang === 'es' ? 'VER EL ANUNCIO' : (selLang === 'en' ? 'SEE THE AD' : `VOIR L'ANNONCE`));
     }
   };
 
@@ -1831,15 +1831,16 @@ END:VCALENDAR`;
               <img style={{maxHeight: import.meta.env.VITE_MAX_HEIGHT_LOGO}} src={import.meta.env.VITE_LOGO_URL} alt="Logo"/>
           </div>
           <div class="header-right">
-              <div class="header-top">{isFormSendOpen && (<h4>{import.meta.env.VITE_COMPANY_NAME}</h4>)}</div>
+              <div class="header-top">{isFormSendOpen && (<h4 style={{marginBottom:"2em"}}>{import.meta.env.VITE_COMPANY_NAME}</h4>)}</div>
               <div class="header-bottom" style={{ display: 'flex' }}>
-                <div style={{ width: '50%' }}>
+                <div style={{ width: '45%' }}>
                   <a href={import.meta.env.VITE_GOOGLEMAPS} target="_blank">
                   {import.meta.env.VITE_ADDRESS}
                   </a>
                 </div>
-                <div style={{ width: '50%',textAlign: "center" }}>
-                  Contact : 
+                <div style={{ width: '55%',textAlign: "center" }}>
+                  {selLang === 'de' ? '' : (selLang === 'es' ? 'Contacto :' : 'Contact :')} digital365staking@gmail.com
+                  <br/> 
                   <a href={import.meta.env.VITE_GDPR} target="_blank">GDPR</a>
                 </div>
               </div>
@@ -1886,7 +1887,7 @@ END:VCALENDAR`;
                 </div>                                 
                 <div> 
                   <br/>              
-                  <a style={{ color: 'white', textAlign: 'left' }} href={messages.length > 3 && message.text.includes(import.meta.env.VITE_WHATSAPP) ? "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'es' ? ' Pregunta : ' : ' Question : ') + messages[index-2].text + (selLang === 'es' ? ' Respuesta : ' : (selLang === 'en' ? ' Response : ' : ' Réponse : ')) + messages[index-1].text : ''}>{messages.length > 3 && message.text.includes(import.meta.env.VITE_WHATSAPP) && (<span>{selLang === 'es' ? 'Contactar con ' : (selLang === 'en' ? 'Contact the ' : 'Contacter le ')}+{import.meta.env.VITE_WHATSAPP}</span>)}</a>
+                  <a style={{ color: 'white', textAlign: 'left' }} href={messages.length > 3 && message.text.includes(import.meta.env.VITE_WHATSAPP) ? "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'de' ? '' : ((selLang === 'es' ? ' Pregunta : ' : ' Question : '))) + messages[index-2].text + (selLang === 'de' ? '' : (selLang === 'es' ? ' Respuesta : ' : (selLang === 'en' ? ' Response : ' : ' Réponse : '))) + messages[index-1].text : ''}>{messages.length > 3 && message.text.includes(import.meta.env.VITE_WHATSAPP) && (<span>{(selLang === 'de' ? '' : (selLang === 'es' ? 'Contactar con ' : (selLang === 'en' ? 'Contact the ' : 'Contacter le ')))}+{import.meta.env.VITE_WHATSAPP}</span>)}</a>
                 </div> 
               </div>      
               <div className="message-timestamp">{message.timestamp}</div>

@@ -31,12 +31,12 @@ const AdminView = () => {
     
     
     const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
-    const curSend = selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer');
-    const curTypeHere = selLang === 'es' ? 'Escribe aquí' : (selLang === 'en' ? 'Type here' : 'Tapez ici'); 
-    const curAI = selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel');
-    const curMe = selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi');
+    const curSend = selLang === 'de' ? '' : (selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer'));
+    const curTypeHere = selLang === 'de' ? '' : (selLang === 'es' ? 'Escribe aquí' : (selLang === 'en' ? 'Type here' : 'Tapez ici')); 
+    const curAI = selLang === 'de' ? '' : (selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel'));
+    const curMe = selLang === 'de' ? '' : (selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi'));
 
-    const curFormat = selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR');
+    const curFormat = selLang === 'de' ? '' : (selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR'));
 
     const QUERY_COMMENTS = `
     query GetCommentsByClient($id_client: Int!) {
@@ -69,8 +69,8 @@ const AdminView = () => {
       fetchComments();
     }, []);
 
-    const loadMessage = (sender,msg,lang) => {
-        const curFormat = lang === "" ? (selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR')) : (lang === 'es' ? 'es-ES' : (lang === 'en' ? 'en-US' : 'fr-FR'));
+    const loadMessage = (sender,msg) => {
+        const curFormat = selLang === 'de' ? 'de-DE' : (selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR'));
         const timestamp = new Date().toLocaleString(curFormat, {
           month: 'long',
           day: 'numeric',
@@ -218,12 +218,12 @@ const AdminView = () => {
         const viewListComments = async (pseudo, viewed) => {
           try {
               // Select the correct message based on language
-              const msg_init = selLang === 'es' 
+              const msg_init = selLang === 'de' ? '' : (selLang === 'es' 
                   ? `Veo que el asistente virtual ha proporcionado información errónea. Le ruego que me contacte por WhatsApp al +${import.meta.env.VITE_WHATSAPP} para recibir la información correcta. Gracias de antemano.` 
                   : (selLang === 'en' 
                       ? `I see that the virtual assistant has provided incorrect information. Please contact me via WhatsApp at +${import.meta.env.VITE_WHATSAPP} to receive the correct information. Thank you for your understanding.` 
                       : `Je constate que l'assistant virtuel a fourni des informations erronées. Je vous prie de bien vouloir me contacter via WhatsApp au +${import.meta.env.VITE_WHATSAPP} afin de recevoir les informations correctes. Merci de votre compréhension.`
-                  );
+                  ));
       
               setChatInput(msg_init);
               setIsPopupOpen(true);
