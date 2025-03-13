@@ -1832,7 +1832,7 @@ END:VCALENDAR`;
           </div>
           <div class="header-right">
               <div class="header-top">{isFormSendOpen && (<h4 style={{marginBottom:"2em"}}>{import.meta.env.VITE_COMPANY_NAME}</h4>)}</div>
-              <div class="header-bottom" style={{ display: 'flex' }}>
+              <div class="header-bottom" style={{ display: 'flex', marginBottom:"3em" }}>
                 <div style={{ width: '45%' }}>
                   <a href={import.meta.env.VITE_GOOGLEMAPS} target="_blank">
                   {import.meta.env.VITE_ADDRESS}
