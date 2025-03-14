@@ -1657,7 +1657,7 @@ const curServClient = (lang) => {
       return;
     }
     console.log("stepCita : " + curCita1.stepCita);
-    let msg = lang === 'de' ? 'Für welchen Service möchten Sie einen Termin vereinbaren?' : (lang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?")));
+    let msg = lang === 'de' ? 'Für welchen Service möchten Sie einen Termin vereinbaren?' : (lang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?"));
 
      
       switch (curCita1.stepCita) {
