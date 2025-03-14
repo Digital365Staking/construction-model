@@ -321,7 +321,7 @@ const AdminView = () => {
                 viewed: data.data.COMMENT[0].viewed,
                 isai: data.data.COMMENT[0].isai
               };
-              console.log('New row added:', data.data.COMMENT[0]);
+              console.log('New comment added from admin :', data.data.COMMENT[0]);
               // Add the new comment to the existing COMMENT array and sort it
               const updatedComments = [...comments, newComment].sort((a, b) => new Date(b.created) - new Date(a.created));
 

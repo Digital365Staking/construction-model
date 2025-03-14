@@ -909,14 +909,15 @@ const curServClient = (lang) => {
           if (diffInHours > 1) {
               console.log("The last comment was more than 1 hour ago. pseudo " + curPseudo);              
           } else {
-              console.log("The last comment was within the last hour. pseudo " + curPseudo);
+              console.log("The last comment was within the last hour. pseudo " + curPseudo);              
               isai = false;
           }          
         }
       }
       
       let dateCreated = new Date(Date.now() + 60 * 60 * 1000);
-
+      let chatResponse = "";
+      if(isai){
       const QUERY_URL_PRODUCTS = `
       query GetProducts($id_client: Int!, $ids: [Int!]!) {
         PRODUCT(
@@ -946,7 +947,7 @@ const curServClient = (lang) => {
       }
       console.log('promptInfo = ' + promptInfo);
       setDisplayWaiting('flex');
-      let chatResponse = await fetchChatAIResponse(promptInfo);
+      chatResponse = await fetchChatAIResponse(promptInfo);
       console.log(selLang + ' = lang. response : ' + chatResponse);
       if(curCateg === 0 && hasPromoProd){
         let tabResp = chatResponse.split(selLang === 'de' ? '{ "Produkte": "' : (selLang === 'es' ? '{ "Productos": "' : (selLang === 'en' ? '{ "Products": "' : '{ "Produits": "')));
@@ -995,6 +996,7 @@ const curServClient = (lang) => {
       }else{
         chatResponse = chatResponse.replace(/\*/g, '');
       }
+    }
       let result = await client.request(INSERT_COMMENT, {
         id_client : curIdClient,  // Replace with the actual client ID
         pseudo : curPseudo === '' ? tim.toString() : curPseudo,
@@ -1025,7 +1027,8 @@ const curServClient = (lang) => {
         });
         console.log('Histo inserted successfully! ' + result);  // Log the result
       }
-      loadMessage(curAI(""),chatResponse,"");
+      if(isai)
+        loadMessage(curAI(""),chatResponse,"");
       setDisplayWaiting('none');      
     }
 
@@ -1807,10 +1810,11 @@ END:VCALENDAR`;
           },
           {
             next: async (data) => {
-              
-              if (data.data && data.data.COMMENT.length > 0) {
+              console.log('Msg pile :', messages[messages.length-2].text);
+              console.log('Msg resp :', data.data.COMMENT[0].response);
+              if (data.data && data.data.COMMENT.length > 0 && messages[messages.length-2].text !== data.data.COMMENT[0].response) {
                 loadMessage(curServClient(""),data.data.COMMENT[0].response,"");
-                console.log('New row added:', data.data.COMMENT[0]);                         
+                console.log('New comment added from client :', data.data.COMMENT[0]);                         
               }
             },
             error: (err) => console.error('Subscription error:', err),
@@ -1873,7 +1877,7 @@ END:VCALENDAR`;
                   className="mySwiper"
                 > 
                 {products.map((prod, index) => ( 
-                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"5em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em",color: "#062a4e"}}><a href={GetLinkURL(prod)}>{}</a></div></SwiperSlide>
+                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"5em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em",color: "#062a4e"}}><a href={GetLinkURL(prod)}>{GetLabelProd(prod)}</a></div></SwiperSlide>
                 ))}  
                 </Swiper>
                 </div>
@@ -1902,7 +1906,7 @@ END:VCALENDAR`;
       </div>
       <div className="chat-container">        
         <div className="chat-header typing-indicator" style={{ display: displayWaiting }}>
-          <h2 className="chat-header">{curAI('') + ' ' + selLang === 'de' ? 'am Schreiben' : ((selLang === "es" ? "chateando" : (selLang === "en" ? "chatting" : "en train d'écrire")))}</h2>
+          <h2 className="chat-header">{curAI('') + ' ' + selLang === 'fr' ? `en train d'écrire` : ((selLang === "es" ? "chateando" : (selLang === "en" ? "chatting" : "am Schreiben")))}</h2>
           <span className="dot"></span>
           <span className="dot"></span>
           <span className="dot"></span>
@@ -1941,7 +1945,7 @@ END:VCALENDAR`;
                 </div>                                 
                 <div> 
                   <br/>              
-                  <a style={{ color: 'white', textAlign: 'left' }} href={messages.length > 3 && message.text.includes(import.meta.env.VITE_WHATSAPP) ? "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'de' ? '' : ((selLang === 'es' ? ' Pregunta : ' : ' Question : '))) + messages[index-2].text + (selLang === 'de' ? '' : (selLang === 'es' ? ' Respuesta : ' : (selLang === 'en' ? ' Response : ' : ' Réponse : '))) + messages[index-1].text : ''}>{messages.length > 3 && message.text.includes(import.meta.env.VITE_WHATSAPP) && (<span>{(selLang === 'de' ? '' : (selLang === 'es' ? 'Contactar con ' : (selLang === 'en' ? 'Contact the ' : 'Contacter le ')))}+{import.meta.env.VITE_WHATSAPP}</span>)}</a>
+                  <a style={{ color:"#062a4e",fontWeight:"bold",textAlign: 'left' }} href={messages.length > 3 && message.text.includes(import.meta.env.VITE_WHATSAPP) ? "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'de' ? '' : ((selLang === 'es' ? ' Pregunta : ' : ' Question : '))) + messages[index-2].text + (selLang === 'de' ? '' : (selLang === 'es' ? ' Respuesta : ' : (selLang === 'en' ? ' Response : ' : ' Réponse : '))) + messages[index-1].text : ''}>{messages.length > 3 && message.text.includes(import.meta.env.VITE_WHATSAPP) && (<span>{(selLang === 'de' ? '' : (selLang === 'es' ? 'Contactar con ' : (selLang === 'en' ? 'Contact the ' : 'Contacter le ')))}+{import.meta.env.VITE_WHATSAPP}</span>)}</a>
                 </div> 
               </div>      
               <div className="message-timestamp">{message.timestamp}</div>
