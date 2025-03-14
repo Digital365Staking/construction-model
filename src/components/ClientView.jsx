@@ -1831,7 +1831,7 @@ END:VCALENDAR`;
               <img style={{maxHeight: import.meta.env.VITE_MAX_HEIGHT_LOGO}} src={import.meta.env.VITE_LOGO_URL} alt="Logo"/>
           </div>
           <div class="header-right">
-              
+          <div class="header-top"><div style={{position: "fixed", top: "0", right: "0", marginRight: "35em"}}>{import.meta.env.VITE_COMPANY_NAME}</div></div>
               <div class="header-bottom" style={{ display: 'flex', marginBottom:"1em" }}>
                 <div style={{ width: '45%' }}>
                   <a href={import.meta.env.VITE_GOOGLEMAPS} target="_blank">
