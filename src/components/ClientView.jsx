@@ -1804,6 +1804,18 @@ END:VCALENDAR`;
     }
   };
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobileDevice = () => {
+      const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      setIsMobile(isMobileDevice);
+    };
+
+    checkMobileDevice(); // Check on initial render
+
+  }, []);
+
   return (
     <div className="app-container"> 
       <div id="popup" className='popup' style={{display : isFormSendOpen ? "none" : "block"}}>  
@@ -1831,15 +1843,18 @@ END:VCALENDAR`;
               <img style={{maxHeight: import.meta.env.VITE_MAX_HEIGHT_LOGO}} src={import.meta.env.VITE_LOGO_URL} alt="Logo"/>
           </div>
           <div class="header-right">
-          <div class="header-top"><div style={{position: "fixed", top: "0", right: "0", marginRight: "35em"}}>{import.meta.env.VITE_COMPANY_NAME}</div></div>
-              <div class="header-bottom" style={{ display: 'flex', marginBottom:"1em" }}>
+          <div class="header-top">
+          {isFormSendOpen && !isMobile && (<h4 style={{marginBottom:"2em"}}>{import.meta.env.VITE_COMPANY_NAME}</h4>)}
+          {isFormSendOpen && isMobile && (<div style={{position: "fixed", top: "0", right: "0", marginRight: "5em"}}>{import.meta.env.VITE_COMPANY_NAME}</div>)}
+          </div>
+              <div class="header-bottom" style={{ display: 'flex', marginBottom:"15em" }}>
                 <div style={{ width: '45%' }}>
                   <a href={import.meta.env.VITE_GOOGLEMAPS} target="_blank">
                   {import.meta.env.VITE_ADDRESS}
                   </a>
                 </div>
                 <div style={{ width: '55%',textAlign: "left" }}>
-                  {selLang === 'de' ? '' : (selLang === 'es' ? 'Contacto :' : 'Contact :')}<br/> digital365staking@gmail.com
+                  {selLang === 'de' ? '' : (selLang === 'es' ? 'Contacto :' : 'Contact :')} digital365staking@gmail.com
                   <br/> 
                   <a href={import.meta.env.VITE_GDPR} target="_blank">GDPR</a>
                 </div>
