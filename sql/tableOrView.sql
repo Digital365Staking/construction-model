@@ -74,3 +74,15 @@ CREATE TABLE IF NOT EXISTS "public"."COMMENT_HISTORY" (
     "question" "text" NOT NULL,
     "response" "text" NOT NULL
 );
+
+DROP VIEW IF EXISTS construction_en;
+
+CREATE VIEW construction_en AS
+SELECT 
+    task || 
+    CASE 
+        WHEN category = 'Service' THEN ' Service' 
+        ELSE '' 
+    END AS task_with_category
+FROM "public"."construction_csv_en";
+

@@ -128,7 +128,7 @@ const GetMsgInitInfo = (lang) => {
       return lang === 'de' ? 'Welche Art von Informationen möchten Sie erhalten ?' : (lang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (lang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?"));
 };
 
-const GetMsgInitBudget = (lang) => {
+const GetMsgInitQuote = (lang) => {
     if(lang === "")
       return selLang === 'de' ? 'Welche Art von Kostenvoranschlag möchten Sie erhalten ?' : (selLang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (selLang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?'));
     else
@@ -389,7 +389,7 @@ const curServClient = (lang) => {
     try {
       const type_ai = import.meta.env.VITE_TYPE_AI;
       console.log("Type AI : " + type_ai);
-      const prompt = prefix + (prefix === "" ? "" : `\nBased on the previous text and/or CSV report, provide a natural and conversational response to the following question :  `
+      const prompt = prefix + (prefix === "" ? "" : `\nBased on the previous text and/or CSV report ( the column on the right is the price in ${import.meta.env.VITE_TYPE_CURRENCY} ), provide a natural and conversational response to the following question :  `
               ) + message + (recommend ? "No recomendar de ponerse en contacto con empresas de limpieza locales. La expresión 'Lo siento' no puede aparecer en la respuesta." : "")
       if(type_ai === "1"){
         const max = Number(import.meta.env.VITE_MAX_TOKENS_CHATGPT);
@@ -476,21 +476,21 @@ const curServClient = (lang) => {
   async function prepareQuery(message, tableName, procedureName, headers) {
     try {
       let csv = "";
-      if(curCateg === 1){          
+      if(curCateg === 1){  
+        procedureName = 'construction_en';        
         const QUERY_DEVIS = `
-        query GetInfosDevis() {
-          ${procedureName}(
-          ){
+        query GetInfosDevis {
+          ${procedureName}{
             title
             price
           }
         }
           `;
         const data = await client.request(QUERY_DEVIS);        
-        console.log(data.COMMENT.length + "-" + procedureName);
-        if(data.COMMENT.length <= 1){ 
-          if(data.COMMENT.length > 0)
-            csv = data.COMMENT[0].title;
+        console.log(data.construction_en.length + "-" + procedureName);
+        if(data.construction_en.length <= 1){ 
+          if(data.construction_en.length > 0)
+            csv = data.construction_en[0].title;
           else
             csv = "";
         }else{
@@ -683,20 +683,26 @@ const curServClient = (lang) => {
     return text;
   };
 
-  useEffect(() => {
-    localStorage.setItem('curCateg', JSON.stringify(curCateg));
+  /*useEffect(() => {
+    
     setMessages([]);
     loadMessage(curAI(""),GetMsgInitInfo(""),""); 
-  }, [curCateg]);
+  }, [curCateg]);*/
 
   useEffect(() => {
+    localStorage.setItem('curCateg', JSON.stringify(curCateg));
     if(curCita1.nombre !== ""){
       localStorage.setItem('curPseudo', curCita1.nombre);
     }else{
       localStorage.setItem('curPseudo', JSON.stringify(curPseudo));
     }
     setMessages([]);
-    loadMessage(curAI(""),GetMsgInitInfo(""),""); 
+    if(curCateg === 0){
+      loadMessage(curAI(""),GetMsgInitInfo(""),"");
+    }
+    if(curCateg === 1){
+      loadMessage(curAI(""),GetMsgInitQuote(""),"");
+    }     
   }, [curPseudo]);
 
   useEffect(() => {
@@ -1553,7 +1559,7 @@ const curServClient = (lang) => {
           msg = GetMsgInitInfo("");
         }
         if(typeChat === 1){
-          msg = GetMsgInitBudget("");
+          msg = GetMsgInitQuote("");
         }
         loadMessage(curAI(""),msg,"");
       }
@@ -1654,7 +1660,7 @@ const curServClient = (lang) => {
     setMessages([]);
     if(curCateg !== 2){
       if(curCateg === 1)
-        loadMessage(curAI(lang),GetMsgInitBudget(lang),lang);
+        loadMessage(curAI(lang),GetMsgInitQuote(lang),lang);
       if(curCateg === 0)
         loadMessage(curAI(lang),GetMsgInitInfo(lang),lang);
       return;
@@ -1810,11 +1816,20 @@ END:VCALENDAR`;
           },
           {
             next: async (data) => {
-              console.log('Msg pile :', messages[messages.length-2].text);
-              console.log('Msg resp :', data.data.COMMENT[0].response);
-              if (data.data && data.data.COMMENT.length > 0 && messages[messages.length-2].text !== data.data.COMMENT[0].response) {
-                loadMessage(curServClient(""),data.data.COMMENT[0].response,"");
-                console.log('New comment added from client :', data.data.COMMENT[0]);                         
+              if(messages.length > 1){
+                console.log('l pile = ' + messages.length);
+                console.log('Msg pile = ', messages[messages.length-2].text);
+                console.log('Msg resp = ', data.data.COMMENT[0].response);
+              }              
+              if (data.data && data.data.COMMENT.length > 0) {
+                if(messages.length > 1 && messages[messages.length-2].text !== data.data.COMMENT[0].response){
+                  loadMessage(curServClient(""),data.data.COMMENT[0].response,"");
+                  console.log('Admin, New comment added from client :', data.data.COMMENT[0]); 
+                }else{
+                  loadMessage(curAI(""),data.data.COMMENT[0].response,"");
+                  console.log('AI, New comment added from client :', data.data.COMMENT[0]);  
+                }
+                                       
               }
             },
             error: (err) => console.error('Subscription error:', err),
