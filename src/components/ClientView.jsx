@@ -1956,11 +1956,41 @@ END:VCALENDAR`;
                       <br/>                       
                       </span>
                     ))
-                  : message.text}  
+                  : message.text}
                 </div>                                 
                 <div> 
                   <br/>              
-                  <a style={{ color:"#062a4e",fontWeight:"bold",textAlign: 'left' }} href={messages.length > 3 && message.text.includes(import.meta.env.VITE_WHATSAPP) ? "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'de' ? '' : ((selLang === 'es' ? ' Pregunta : ' : ' Question : '))) + messages[index-2].text + (selLang === 'de' ? '' : (selLang === 'es' ? ' Respuesta : ' : (selLang === 'en' ? ' Response : ' : ' Réponse : '))) + messages[index-1].text : ''}>{messages.length > 3 && message.text.includes(import.meta.env.VITE_WHATSAPP) && (<span>{(selLang === 'de' ? '' : (selLang === 'es' ? 'Contactar con ' : (selLang === 'en' ? 'Contact the ' : 'Contacter le ')))}+{import.meta.env.VITE_WHATSAPP}</span>)}</a>
+                  <a 
+  style={{ color: "#062a4e", fontWeight: "bold", textAlign: "left" }} 
+  href={
+    messages.length > 2 && message.text.includes(import.meta.env.VITE_WHATSAPP) 
+      ? `https://wa.me/${import.meta.env.VITE_WHATSAPP}?text=${
+          selLang === 'de' ? '' 
+          : selLang === 'es' ? ' Pregunta : ' 
+          : ' Question : '
+        }${messages[index - 1].text}${
+          selLang === 'de' ? '' 
+          : selLang === 'es' ? ' Respuesta : ' 
+          : selLang === 'en' ? ' Response : ' 
+          : ' Réponse : '
+        }${messages[index].text}`
+      : ''
+  }
+>
+  {messages.length > 2 && message.text.includes(import.meta.env.VITE_WHATSAPP) && (
+    <span>
+      {selLang === 'de' 
+        ? '' 
+        : selLang === 'es' 
+        ? 'Contactar con ' 
+        : selLang === 'en' 
+        ? 'Contact the ' 
+        : 'Contacter le '}
+      +{import.meta.env.VITE_WHATSAPP}
+    </span>
+  )}
+</a>
+
                 </div> 
               </div>      
               <div className="message-timestamp">{message.timestamp}</div>
