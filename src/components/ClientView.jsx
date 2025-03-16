@@ -494,7 +494,7 @@ const curServClient = (lang) => {
           else
             csv = "";
         }else{
-          csv = Papa.unparse(data, {
+          csv = Papa.unparse(data.construction_en, {
             header: false,
             newline: '\r\n'            
           });          
@@ -959,7 +959,7 @@ const curServClient = (lang) => {
         let tabResp = chatResponse.split(selLang === 'de' ? '{ "Produkte": "' : (selLang === 'es' ? '{ "Productos": "' : (selLang === 'en' ? '{ "Products": "' : '{ "Produits": "')));
         if(tabResp.length > 1){
           chatResponse = tabResp[0];
-          var str = tabResp[1].split('}')[0].trim();
+          var str = tabResp[1].split('" }')[0].trim();
           if(str !== ""){
             const arr = str.split(",").map(item => parseInt(item, 10)); 
             console.log("Arr : " + arr);
