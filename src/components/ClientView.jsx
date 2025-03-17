@@ -117,9 +117,9 @@ const GetMsgUpdateCita = (lang) => {
 
 const GetMsgInitCita = (lang) => {
     if(lang === "")
-      return selLang === 'de' ? 'Für welche Art von Service möchten Sie einen Termin vereinbaren ?' : (selLang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (selLang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?"));
+      return selLang === 'de' ? 'Für welche Art von Service möchten Sie einen Termin vereinbaren ?' : (selLang === 'es' ? '¿ Para qué tipo de servicio le gustaría solicitar una cita ?' : (selLang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?"));
     else
-      return lang === 'de' ? 'Für welche Art von Service möchten Sie einen Termin vereinbaren ?' : (lang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?"));
+      return lang === 'de' ? 'Für welche Art von Service möchten Sie einen Termin vereinbaren ?' : (lang === 'es' ? '¿ Para qué tipo de servicio le gustaría solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?"));
 };
 
 const GetMsgInitInfo = (lang) => {
@@ -1673,7 +1673,7 @@ const curServClient = (lang) => {
       return;
     }
     console.log("stepCita : " + curCita1.stepCita);
-    let msg = lang === 'de' ? 'Für welchen Service möchten Sie einen Termin vereinbaren?' : (lang === 'es' ? '¿ Para qué tipo de servicio desea solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?"));
+    let msg = lang === 'de' ? 'Für welchen Service möchten Sie einen Termin vereinbaren ?' : (lang === 'es' ? '¿ Para qué tipo de servicio le gustaría solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?"));
 
      
       switch (curCita1.stepCita) {
