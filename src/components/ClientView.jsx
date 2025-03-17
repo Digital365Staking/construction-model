@@ -123,16 +123,16 @@ const GetMsgInitCita = (lang) => {
 
 const GetMsgInitInfo = (lang) => {
     if(lang === "")
-      return selLang === 'de' ? 'Welche Art von Informationen möchten Sie erhalten ?' : (selLang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (selLang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?"));
+      return selLang === 'de' ? import.meta.env.VITE_MSG_INFO_DE : (selLang === 'es' ? import.meta.env.VITE_MSG_INFO_ES : (selLang === 'en' ? import.meta.env.VITE_MSG_INFO_EN : import.meta.env.VITE_MSG_INFO_FR));
     else
-      return lang === 'de' ? 'Welche Art von Informationen möchten Sie erhalten ?' : (lang === 'es' ? '¿ Qué tipo de información le gustaría recibir ?' : (lang === 'en' ? 'What specific information would you like to receive ?' : "Quel type d'informations souhaiteriez-vous recevoir ?"));
+      return lang === 'de' ? import.meta.env.VITE_MSG_INFO_DE : (lang === 'es' ? import.meta.env.VITE_MSG_INFO_ES : (lang === 'en' ? import.meta.env.VITE_MSG_INFO_EN : import.meta.env.VITE_MSG_INFO_FR));
 };
 
 const GetMsgInitQuote = (lang) => {
     if(lang === "")
-      return selLang === 'de' ? 'Welche Art von Kostenvoranschlag möchten Sie erhalten ?' : (selLang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (selLang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?'));
+      return selLang === 'de' ? import.meta.env.VITE_MSG_QUOTE_DE : (selLang === 'es' ? import.meta.env.VITE_MSG_QUOTE_ES : (selLang === 'en' ? import.meta.env.VITE_MSG_QUOTE_EN : import.meta.env.VITE_MSG_QUOTE_FR));
     else
-      return lang === 'de' ? 'Welche Art von Kostenvoranschlag möchten Sie erhalten ?' : (lang === 'es' ? '¿ Qué tipo de presupuesto le gustaría recibir ?' : (lang === 'en' ? 'What kind of quote would you like to receive ?' : 'Quel type de devis aimeriez-vous recevoir ?'));
+      return lang === 'de' ? import.meta.env.VITE_MSG_QUOTE_DE : (lang === 'es' ? import.meta.env.VITE_MSG_QUOTE_ES : (lang === 'en' ? import.meta.env.VITE_MSG_QUOTE_EN : import.meta.env.VITE_MSG_QUOTE_FR));
 };
 
   
