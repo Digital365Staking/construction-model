@@ -1495,7 +1495,7 @@ const curServClient = (lang) => {
   const handleChat = (typeChat) => {
     setIsDisabled(typeChat === 2);
     setCurCateg(typeChat);
-    //setLinesDay([[]]);
+    setLinesDay([[]]);
     //localStorage.clear();
     
     let wap = "";
