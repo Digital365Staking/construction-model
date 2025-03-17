@@ -237,9 +237,9 @@ const GetMsgInitQuote = (lang) => {
   }, [curIdClient]); // Removed csvProducts, added curIdClient
   
 
-  const QUERY = `
-    query GetSERVICE {
-      SERVICE {
+  const QUERY_SERVICE = `
+    query GetSERVICE($cat: Int_comparison_exp!) {
+      SERVICE(where: { cat: $cat }) {
         id
         en
         es
@@ -251,7 +251,9 @@ const GetMsgInitQuote = (lang) => {
 
   const fetchServices = async () => {
     try {
-      const data = await client.request(QUERY);
+      const data = await client.request(QUERY_SERVICE, {
+        cat: { _eq: 1 }  // Use comparison expression, here it's 'equal to 1'
+      });
       //console.log("A" + data.SERVICE.length);
       setServices(data.SERVICE); 
     } catch (error) {
