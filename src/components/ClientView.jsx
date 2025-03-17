@@ -59,6 +59,7 @@ const ClientView = () => {
   const [userInteracted, setUserInteracted] = useState(false);
   const [services, setServices] = useState([]);
   const [products, setProducts] = useState([[]]);
+  const [selectedProducts, setSelectedProducts] = useState('');
   const [hasPromoProd, setHasPromoProd] =  useState(import.meta.env.VITE_OPT_PRODUCT === '1');
   const [csvProducts, setCsvProducts] = useState('');
   const [curPseudo, setCurPseudo] = useState(() => JSON.parse(localStorage.getItem('curPseudo')) || '');
@@ -944,13 +945,13 @@ const curServClient = (lang) => {
       
       if(curCateg === 0 && hasPromoProd){
         promptInfo += selLang === 'de' ? 
-        `Geben Sie an, welches(n) Produkt(e) aus der folgenden CSV-Liste geeignet wären (geben Sie zusätzlich zur Antwort auf die vorherige Frage eine JSON-Zeichenkette zurück, die eine Liste von Identifikatoren enthält, zum Beispiel: '{ "Produkte": "1,2" }', ohne Leerzeichen im Array. Erwähnen Sie keine Ausdrücke in Klammern, wie '(Produkt 2)' oder '(Produkt 3)')` 
+        `Geben Sie an, welches(n) Produkt(e) aus der folgenden CSV-Liste geeignet wären (geben Sie zusätzlich zur Antwort auf die vorherige Frage eine JSON-Zeichenkette zurück, die eine Liste von Identifikatoren enthält, zum Beispiel: '{ "Produkte": "1,2" }', ohne Leerzeichen im Array. Erwähnen Sie keine Ausdrücke in Klammern, wie '(Produkt 2)' oder '(Produkt 3)' oder '(2)' oder '(3)' ).` 
         : (selLang === 'es' ? 
-        `Indique qué producto(s) de la siguiente lista CSV serían adecuados ( devuelve, además de la respuesta a la pregunta anterior, una cadena JSON que contenga una lista de identificadores, por ejemplo: '{ "Productos": "1,2" }' , sin espacios en el array. No mencione expresiones entre paréntesis, como '(Producto 2)' o '(Producto 3)' ).` 
+        `Indique qué producto(s) de la siguiente lista CSV serían adecuados ( devuelve, además de la respuesta a la pregunta anterior, una cadena JSON que contenga una lista de identificadores, por ejemplo: '{ "Productos": "1,2" }' , sin espacios en el array. No mencione expresiones entre paréntesis, como '(Producto 2)' o '(Producto 3)' o '(2)' o '(3)' ).` 
         : (selLang === 'en' ?
-        `Indicate which product(s) from the following CSV list would be suitable ( return, in addition to the answer to the previous question, a JSON string containing a list of identifiers, for example: '{ "Products": "1,2" }' , with no spaces in the array. Do not mention expressions in parentheses, such as '(Product 2)' or '(Product 3)' ).`
+        `Indicate which product(s) from the following CSV list would be suitable ( return, in addition to the answer to the previous question, a JSON string containing a list of identifiers, for example: '{ "Products": "1,2" }' , with no spaces in the array. Do not mention expressions in parentheses, such as '(Product 2)' or '(Product 3)' o '(2)' o '(3)' ).`
         : 
-        ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient ( retourner, en plus de la réponse à la précédente question, une chaîne JSON contenant une liste d'identifiants, par exemple : '{ "Produits": "1,2" }' , sans espaces dans le tableau. Ne pas mentionner les expressions entre parenthèses, telles que '(produit 2)' ou '(produit 3)' ).`));
+        ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient ( retourner, en plus de la réponse à la précédente question, une chaîne JSON contenant une liste d'identifiants, par exemple : '{ "Produits": "1,2" }' , sans espaces dans le tableau. Ne pas mentionner les expressions entre parenthèses, telles que '(produit 2)' ou '(produit 3)' ou '(2)' ou '(3)' ).`));
         promptInfo += csvProducts;
       }
       console.log('promptInfo = ' + promptInfo);
@@ -971,7 +972,10 @@ const curServClient = (lang) => {
             });
             const resultArray = result.PRODUCT.map(product => [product.description, product.url, product.linkAd]);
             setProducts(resultArray);
-          }          
+          }else{
+            setProducts([[]]);
+          } 
+          setSelectedProducts(str);         
         }
         chatResponse = chatResponse.replace(/\*/g, '');
         if(chatResponse.includes(`Sans plus d'informations`) || chatResponse.includes('Once I have this information')){
@@ -1003,6 +1007,7 @@ const curServClient = (lang) => {
         }
       }else{
         chatResponse = chatResponse.replace(/\*/g, '');
+        chatResponse = chatResponse.replace('de la lista CSV se describe', 'que tenemos está descrito');
       }
     }
       let result = await client.request(INSERT_COMMENT, {
@@ -1679,9 +1684,7 @@ const curServClient = (lang) => {
             initSetCita(curCita1.labelService[lang], -1, lang);
           break;
         case 1:
-          console.log("changeLang : " + curCita1.dateCita);
           const msg2 = initSetCita(curCita1.dateCita, 0, lang);
-          console.log("GGGGG" + msg2);
           loadMessage(curAI(lang),msg2,lang);
           return;
           break;
@@ -1848,8 +1851,8 @@ END:VCALENDAR`;
     setHasPromoProd(import.meta.env.VITE_OPT_PRODUCT === '1');
   }, [messages]);
 
-  const GetLinkURL = (prod) => {
-    if(prod.linkAd === '-'){
+  const GetLinkURL = (prod) => {    
+    if(prod[2] === '-'){
       return "https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + (selLang === 'de' ? 'Hallo, ich möchte den folgenden Artikel bestellen: ' : (selLang === 'es' ? 'Hola, quiero pedir el siguiente articulo : ' : (selLang === 'en' ? 'Hello, I would like to order the following item : ' : `Bonjour, je souhaite commander l'article suivant : `))) + prod[0];
     }else{
       return prod[2];
@@ -1857,7 +1860,7 @@ END:VCALENDAR`;
   };
 
   const GetLabelProd = (prod) => {
-    if(prod.linkAd === '-'){
+    if(prod[2] === '-'){
       return selLang === 'de' ? 'BITTEN' : (selLang === 'es' ? 'PEDIR' : (selLang === 'en' ? 'ORDER' : 'COMMANDER'));
     }else{
       return selLang === 'de' ? 'SIE DIE ANKÜNDIGUNG' : (selLang === 'es' ? 'VER EL ANUNCIO' : (selLang === 'en' ? 'SEE THE AD' : `VOIR L'ANNONCE`));
@@ -1894,7 +1897,7 @@ END:VCALENDAR`;
                   className="mySwiper"
                 > 
                 {products.map((prod, index) => ( 
-                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"5em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em",color: "#062a4e"}}><a href={GetLinkURL(prod)}>{GetLabelProd(prod)}</a></div></SwiperSlide>
+                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"5em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em",color: "#062a4e"}}><a href={GetLinkURL(prod)} onClick={console.log('click')}>{GetLabelProd(prod)}</a></div></SwiperSlide>
                 ))}  
                 </Swiper>
                 </div>
@@ -1923,7 +1926,7 @@ END:VCALENDAR`;
       </div>
       <div className="chat-container">        
         <div className="chat-header typing-indicator" style={{ display: displayWaiting }}>
-          <h2 className="chat-header">{curAI('') + ' ' + selLang === 'fr' ? `en train d'écrire` : ((selLang === "es" ? "chateando" : (selLang === "en" ? "chatting" : "am Schreiben")))}</h2>
+          <h2 className="chat-header">{curAI('') + ' ' + (selLang === 'fr' ? `en train d'écrire` : (selLang === "es" ? "chateando" : (selLang === "en" ? "chatting" : (selLang === 'de' ? "am Schreiben" : ''))))}</h2>
           <span className="dot"></span>
           <span className="dot"></span>
           <span className="dot"></span>
@@ -1996,7 +1999,7 @@ END:VCALENDAR`;
                 </div> 
               </div>      
               <div className="message-timestamp">{message.timestamp}</div>
-              {hasPromoProd && (<div style={{marginTop: "10px",height: "20vh",width : "100%",display : (message.sender === curAI("") && curCateg === 0 && message.text !== GetMsgInitInfo("") && hasPromoProd) ? "flex" : "none"}}>
+              {hasPromoProd && (<div style={{marginTop: "10px",height: "20vh",width : "100%",display : (message.sender === curAI("") && curCateg === 0 && message.text !== GetMsgInitInfo("") && hasPromoProd && selectedProducts !== "") ? "flex" : "none"}}>
                 <div style={{display: "flex",flex:"1"}}>
                     <a href="#popup" onClick={() => setIsFormSendOpen(false)}>
                       <img style={{height:"20vh"}} src={products.length > 0 ? products[0][1] : ''} alt={products.length > 0 ? products[0][0] : ''}/>
