@@ -62,10 +62,10 @@ const ClientView = () => {
   const [selectedProducts, setSelectedProducts] = useState('');
   const [hasPromoProd, setHasPromoProd] =  useState(import.meta.env.VITE_OPT_PRODUCT === '1');
   const [csvProducts, setCsvProducts] = useState('');
-  const [curPseudo, setCurPseudo] = useState(() => JSON.parse(localStorage.getItem('curPseudo')) || '');
+  const [curPseudo, setCurPseudo] = useState(() => localStorage.getItem('curPseudo') || '');
   const [curIdClient, setCurIdClient] = useState(Number(import.meta.env.VITE_ID_CLIENT));
   const [enableNotif, setEnableNotif] = useState(import.meta.env.VITE_ENABLE_NOTIF === '1');
-  const [curCateg, setCurCateg] = useState(() => JSON.parse(localStorage.getItem('curCateg')) || 0);
+  const [curCateg, setCurCateg] = useState(() => localStorage.getItem('curCateg') || 0);
   const [messages, setMessages] = useState([]);
   //useState(() => JSON.parse(localStorage.getItem('messages')) || []);
   const [linesDay, setLinesDay] = useState([[]]);
@@ -245,6 +245,7 @@ const GetMsgInitQuote = (lang) => {
         en
         es
         fr
+        de
         cat
       }
     }
@@ -343,7 +344,7 @@ const GetMsgInitQuote = (lang) => {
       stepCita: 0
     }
   );
-  const [isDisabled, setIsDisabled]  = useState((curCateg === 2 && curCita1.stepCita < 3) || (curCita1.contact !== ""));
+  const [isDisabled, setIsDisabled]  = useState(curCateg === 2 && curCita1.stepCita < 3 && curCita1.contact !== "");
   //localStorage.clear();
   
   useEffect(() => {
@@ -693,11 +694,11 @@ const curServClient = (lang) => {
   }, [curCateg]);*/
 
   useEffect(() => {
-    localStorage.setItem('curCateg', JSON.stringify(curCateg));
+    localStorage.setItem('curCateg', curCateg);
     if(curCita1.nombre !== ""){
       localStorage.setItem('curPseudo', curCita1.nombre);
     }else{
-      localStorage.setItem('curPseudo', JSON.stringify(curPseudo));
+      localStorage.setItem('curPseudo', curPseudo);
     }
     setMessages([]);
     if(curCateg === 0){
@@ -897,9 +898,9 @@ const curServClient = (lang) => {
       let isai = true;
       if(curPseudo === ''){
         if(curCita1.nombre !== ""){
-          setCurPseudo(curCita1.nombre);
+          localStorage.setItem('curPseudo', curCita1.nombre);
         }else{
-          setCurPseudo(tim.toString());
+          localStorage.setItem('curPseudo', tim.toString());
         }       
         console.log("pseudo set");
       }else{
@@ -1489,7 +1490,7 @@ const curServClient = (lang) => {
           }
         );
       } 
-      if(import.meta.env.VITE_OPT_CITA === "1"){
+      if(import.meta.env.VITE_OPT_CITA === "1" && curCita1 === ""){
         setDisplayCita(
           {
             display: "block"
@@ -1512,7 +1513,7 @@ const curServClient = (lang) => {
           }
         );
       }
-      if(import.meta.env.VITE_OPT_CITA === "1"){
+      if(import.meta.env.VITE_OPT_CITA === "1" && curCita1 === ""){
         setDisplayCita(
           {
             display: "block"
@@ -1524,9 +1525,9 @@ const curServClient = (lang) => {
           display: "none"
         }
       ); 
-    }     
-    const timer = setTimeout(() => {
-      let msg = "";
+    }    
+    
+    let msg = "";
       setMessages([]);
       if(typeChat === 2){
         InitDispoCita(false);
@@ -1539,6 +1540,8 @@ const curServClient = (lang) => {
         }
         loadMessage(curAI(""),msg,"");
       }
+    const timer = setTimeout(() => {
+      
       
     }, 1000);
     
@@ -1615,12 +1618,31 @@ const curServClient = (lang) => {
     }
   `;
   const QUERY_DELETE_OLDAVAILABILITIES = `
-    mutation deleteAvailabilities {
-      delete_AVAILABILITY(where: {cur_date: {_lt: "${new Date().toISOString().split('T')[0]}"}}) {
+    mutation deleteAvailabilities($dateCita: String!, $slotBefore: String!, $slotExact: String!, $slotAfter: String!) {
+      delete_AVAILABILITY(
+        where: {
+          _or: [
+            { cur_date: { _lt: "${new Date().toISOString().split('T')[0]}" } }
+            { cur_date: { _eq: $dateCita }, slot: { _in: [$slotBefore, $slotExact, $slotAfter] } }
+          ]
+        }
+      ) {
         affected_rows
       }
     }
+
   `;
+
+  function getSlotTimes(time) {
+    const [hours, minutes] = time.split(":").map(Number);
+    
+    const formatTime = (h, m) => `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  
+    const before = formatTime(hours, minutes - 15);
+    const after = formatTime(hours, minutes + 15);
+  
+    return { slotBefore: before, slotExact: time, slotAfter: after };
+  }
  
   const handleInsertCita = async () => {
     try {
@@ -1644,6 +1666,16 @@ const curServClient = (lang) => {
         if(resp2.delete_CITA.affected_rows > 0){
           console.log('Old Citas removed successfully.' + resp2.affected_rows);
         }
+        console.log('QUERY_DELETE_OLDAVAILABILITIES : ' + QUERY_DELETE_OLDAVAILABILITIES);
+        if(curCita1.dateCita.toISOString().includes('T')){
+          var tabCita = curCita1.dateCita.toISOString().split('T');
+          if(tabCita.length > 1){
+            var dateCita = tabCita[0];
+          }
+          
+          const slots = getSlotTimes("15:00");
+        }
+        
         const resp3 = await client.request(QUERY_DELETE_OLDAVAILABILITIES); 
         if(resp3.delete_AVAILABILITY.affected_rows > 0){
           console.log('Old Availabilities removed successfully.' + resp2.affected_rows);
@@ -1804,9 +1836,9 @@ END:VCALENDAR`;
       let isai = true;
       if(curPseudo === ''){
         if(curCita1.nombre !== ""){
-          setCurPseudo(curCita1.nombre);
+          localStorage.setItem('curPseudo', curCita1.nombre);
         }else{
-          setCurPseudo(tim.toString());
+          localStorage.setItem('curPseudo', tim.toString());
         } 
         console.log("pseudo set in COMMENT_SUBSCRIPTION, Client View");
       }
@@ -2036,7 +2068,7 @@ END:VCALENDAR`;
         {isFormSendOpen && (
         <div class="fixed-bottom">
         <form className="chat-input-form" onSubmit={handleSendMessage}>
-          <textarea id="message" name="message" rows="5" cols="50" disabled={(curCateg === 2 && curCita1.stepCita < 3) || (curCita1.contact !== "")} className="chat-input" value={chatInput} placeholder={`${curTypeHere}, ${messageSender}...`} onFocus={handleFocus} onChange={(e) => setChatInput(e.target.value)}></textarea>          
+          <textarea id="message" name="message" rows="5" cols="50" disabled={curCateg === 2 && curCita1.stepCita < 3 && curCita1.contact !== ""} className="chat-input" value={chatInput} placeholder={`${curTypeHere}, ${messageSender}...`} onFocus={handleFocus} onChange={(e) => setChatInput(e.target.value)}></textarea>          
           <input
             type="text"
             name="usr"
@@ -2047,7 +2079,7 @@ END:VCALENDAR`;
             tabIndex="-1" // Avoid focus by keyboard users
             autoComplete="off"
           />
-          <button type="submit" disabled={(curCateg === 2 && curCita1.stepCita < 3) || (curCita1.contact !== "")} className="button send-button">{curSend}</button>
+          <button type="submit" disabled={curCateg === 2 && curCita1.stepCita < 3 && curCita1.contact !== ""} className="button send-button">{curSend}</button>
         </form>
         <div className='displayElements1'>
           {/* Left-aligned button */}
