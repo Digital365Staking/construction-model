@@ -781,7 +781,7 @@ const curServClient = (lang) => {
             : "Enfin, veuillez, s'il vous plaît, saisir votre email ( cliquer sur 'Envoyer' pour l'enregistrer ) pour confirmer le rendez-vous."
         )
     );
-
+      setChatInput(''); 
       loadMessage(curAI(""),msg,selLang);
       return;
     }else{
@@ -791,7 +791,7 @@ const curServClient = (lang) => {
           contact:chatInput,
           stepCita: prevState.stepCita + 1  // Update stepCita
         }));
-              
+        setChatInput('');       
         setMessages([]);
         let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n';
         let dathour = GetUTCDate(new Date(curCita1.dateCita)).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' }); 
@@ -1045,32 +1045,6 @@ const curServClient = (lang) => {
       setDisplayWaiting('none');      
     }
 
-    /*const phone = import.meta.env.VITE_WHATSAPP;
-    if(messageSender === curMe('')){
-      console.log('msg : ' + chatInput);
-      
-      let chatResponse = await fetchChatAIResponse(chatInput);
-      if(!chatResponse.includes(phone)){
-        wap = "";
-        lnkWAP = "";
-      }else{
-        wap = "+" + phone;
-        lnkWAP = "https://wa.me/" + phone + "?text=" + chatResponse;
-      }
-      console.log("Before html : " + chatResponse);
-      const pattern = new RegExp(`\\+${wap}\\.`, "g");
-      chatResponse = chatResponse.replace(pattern, ":");
-      const newMessage2 = {
-        sender: curAI(""),
-        text: chatResponse,
-        lines: chatResponse.split('\n'),
-        whatsapp:wap,
-        lnkWhatsapp:lnkWAP,
-        timestamp,
-      }; 
-      setMessages((prevMessages) => [...prevMessages, newMessage2]);     
-      
-    }*/
     setChatInput(''); 
     
   };
@@ -1321,13 +1295,13 @@ const curServClient = (lang) => {
           (selLang === 'en' ? "To confirm the appointment, you must register your first name and your email address. First, enter your first name, then click 'Send' to save it." : 
           "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre adresse e-mail. Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer."));
         } else {
-            msg = selLang === 'de' ? "Um den Termin zu bestätigen, müssen Sie Ihren Vornamen und Ihre E-Mail-Adresse registrieren. Geben Sie zuerst Ihren Vornamen ein und klicken Sie dann auf 'Senden', um ihn zu speichern." : 
+            msg = lang === 'de' ? "Um den Termin zu bestätigen, müssen Sie Ihren Vornamen und Ihre E-Mail-Adresse registrieren. Geben Sie zuerst Ihren Vornamen ein und klicken Sie dann auf 'Senden', um ihn zu speichern." : 
             (lang === 'es' ? "Para confirmar la cita, usted debe registrar su nombre y su dirección de correo electrónico. Primero, introduzca su nombre y luego haga clic en 'Enviar' para guardarlo." : 
             (lang === 'en' ? "To confirm the appointment, you must register your first name and your email address. First, enter your first name, then click 'Send' to save it." : 
             "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre adresse e-mail. Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer."));
-            loadMessage(curAI(""), msg, "");
+            
         }
-      
+        loadMessage(curAI(""), msg, "");
                
         setLinesDay([[]]);
         
@@ -1421,8 +1395,8 @@ const curServClient = (lang) => {
                    id_client : curIdClient, slot : formattedTime });             
               }
             },
-            error: (err) => console.error('Subscription error:', err),
-            complete: () => console.log('Subscription complete'),
+            error: (err) => console.error('Subscription error : CITA_SUBSCRIPTION ', err),
+            complete: () => console.log('Subscription complete CITA_SUBSCRIPTION '),
           }
         );
       
@@ -1640,6 +1614,13 @@ const curServClient = (lang) => {
       }
     }
   `;
+  const QUERY_DELETE_OLDAVAILABILITIES = `
+    mutation deleteAvailabilities {
+      delete_AVAILABILITY(where: {cur_date: {_lt: "${new Date().toISOString().split('T')[0]}"}}) {
+        affected_rows
+      }
+    }
+  `;
  
   const handleInsertCita = async () => {
     try {
@@ -1662,7 +1643,11 @@ const curServClient = (lang) => {
         const resp2 = await client.request(QUERY_DELETE_OLDCITAS);
         if(resp2.delete_CITA.affected_rows > 0){
           console.log('Old Citas removed successfully.' + resp2.affected_rows);
-        }      
+        }
+        const resp3 = await client.request(QUERY_DELETE_OLDAVAILABILITIES); 
+        if(resp3.delete_AVAILABILITY.affected_rows > 0){
+          console.log('Old Availabilities removed successfully.' + resp2.affected_rows);
+        }     
       } else {
         console.log('Failed to insert cita.');
       }
@@ -1836,10 +1821,10 @@ END:VCALENDAR`;
               if(messages.length > 1){
                 console.log('l pile = ' + messages.length);
                 console.log('Msg pile = ', messages[messages.length-2].text);
-                console.log('Msg resp = ', data.data.COMMENT[0].response);
+                console.log('Msg resp = ', messages[messages.length-1].text);
               }              
               if (data.data && data.data.COMMENT.length > 0) {
-                if(messages.length > 1 && messages[messages.length-2].text !== data.data.COMMENT[0].response){
+                if(messages.length > 1 && messages[messages.length-2].text !== messages[messages.length-1].text){
                   loadMessage(curServClient(""),data.data.COMMENT[0].response,"");
                   console.log('Admin, New comment added from client :', data.data.COMMENT[0]); 
                 }else{
@@ -1849,8 +1834,8 @@ END:VCALENDAR`;
                                        
               }
             },
-            error: (err) => console.error('Subscription error:', err),
-            complete: () => console.log('Subscription complete'),
+            error: (err) => console.error('Subscription error COMMENT_SUBSCRIPTION :', err),
+            complete: () => console.log('Subscription complete COMMENT_SUBSCRIPTION'),
           }
         );
       
