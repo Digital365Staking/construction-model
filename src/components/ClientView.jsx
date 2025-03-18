@@ -1078,13 +1078,14 @@ const curServClient = (lang) => {
   const handleClearChat = async () => {
     setIsDisabled(true); 
     setChatInput('');
+    setMessages([]);
     
     if(curCateg !== 2){
       setCurCita1(prevState => ({
         ...prevState,  // Keep existing properties              
         stepCita: 0  // Update stepCita
       }));
-      setMessages([]);
+      
       const QUERY_DELETE_COMMENTS = `
        mutation DeleteCommentsByIdClientAndPseudo($id_client: Int!, $pseudo: String!) { 
         delete_COMMENT(
@@ -1099,7 +1100,7 @@ const curServClient = (lang) => {
       `;
       if(curPseudo !== ""){
         const vars = { id_client: curIdClient, pseudo: curPseudo };
-        const resp = await client.request(QUERY_DELETE_COMMENTS, vars);
+        const response = await client.request(QUERY_DELETE_COMMENTS, vars);
         if(curCateg === 0 || curCateg === 1){  
           localStorage.clear();        
           loadMessage(curAI(""),GetMsgInitInfo(""),"");
@@ -1110,7 +1111,7 @@ const curServClient = (lang) => {
       }
       
     }else{
-      
+    
       const QUERY_DELETE_CITA = `
         mutation DeleteCitaById($id: Int!) {
           delete_CITA(where: { id: { _eq: $id } }) {
@@ -1120,19 +1121,18 @@ const curServClient = (lang) => {
       `;
       const variables = { id: curCita1.idService };
       const response = await client.request(QUERY_DELETE_CITA, variables);
-
+      setCurCita1(
+        {
+          idService: 0,
+          labelService: "",
+          dateCita: new Date(),
+          nombre: "",
+          contact: "",
+          stepCita: 0
+        }
+      );
       if (response.delete_CITA.affected_rows > 0) {
         console.log('Cita deleted successfully.');
-        setCurCita1(
-          {
-            idService: 0,
-            labelService: "",
-            dateCita: new Date(),
-            nombre: "",
-            contact: "",
-            stepCita: 0
-          }
-        );
       } else {
         console.log('No cita found with that ID.');
       }      
@@ -1248,14 +1248,10 @@ const curServClient = (lang) => {
         }));
         
         console.log("VITE_ID_CLIENT:", import.meta.env.VITE_ID_CLIENT);
-        console.log("VITE_START_SLOT_AM:", import.meta.env.VITE_START_SLOT_AM);
-        console.log("VITE_END_SLOT_AM:", import.meta.env.VITE_END_SLOT_AM);
-        console.log("VITE_START_SLOT_PM:", import.meta.env.VITE_START_SLOT_PM);
-        console.log("VITE_END_SLOT_PM:", import.meta.env.VITE_END_SLOT_PM);
-        console.log(availability);
         
-        let arr = [[]];
-        arr.push([]);
+        //let arr = [[]];
+        /*arr.push([]);
+        
         let c=0;
         let line=-1;
         availability.forEach(item => {
@@ -1284,11 +1280,16 @@ const curServClient = (lang) => {
             const data = await client.request(queryClient, { id: Number(import.meta.env.VITE_ID_CLIENT) });
             const clientSlots = data.CLIENT[0];
 
-            arr = [];
-            arr.push(...generateTimeSlots(clientSlots.start_slot_am, clientSlots.end_slot_am));
-            arr.push(...generateTimeSlots(clientSlots.start_slot_pm, clientSlots.end_slot_pm));
             
-        }
+            
+        }*/
+        let arr = [];
+        console.log("VITE_START_SLOT_AM:", import.meta.env.VITE_START_SLOT_AM);
+        console.log("VITE_END_SLOT_AM:", import.meta.env.VITE_END_SLOT_AM);
+        console.log("VITE_START_SLOT_PM:", import.meta.env.VITE_START_SLOT_PM);
+        console.log("VITE_END_SLOT_PM:", import.meta.env.VITE_END_SLOT_PM);
+        arr.push(...generateTimeSlots(import.meta.env.VITE_START_SLOT_AM, import.meta.env.VITE_END_SLOT_AM));
+        arr.push(...generateTimeSlots(import.meta.env.VITE_START_SLOT_PM, import.meta.env.VITE_END_SLOT_PM));
 
         setLinesDay(arr);
         break;
@@ -1432,6 +1433,7 @@ const curServClient = (lang) => {
     e.preventDefault();
     const regex = /^\d{4}-\d{2}-\d{2}$/;
     if (regex.test(e.target.value)){
+      let cur_date = new Date(e.target.value);
       const CHECK_AVAILABILITY = `
         query CheckAvailability($cur_date: date!, $id_client: Int!) {
           AVAILABILITY(where: { cur_date: { _eq: $cur_date }, id_client: { _eq: $id_client } }) {
@@ -1453,34 +1455,27 @@ const curServClient = (lang) => {
             }
           }
         `;
-
-        let timeSlots = generateTimeSlots(Number(start_slot_am.slice(0, 2)), Number(end_slot_am.slice(0, 2)), 15); // 15-minute slots from 09:00 to 14:00
+        console.log('Generated AM Time Slots:' + start_slot_am + " to " + end_slot_am);
+        let timeSlots = generateHourSlots(Number(start_slot_am.slice(0, 2)), Number(end_slot_am.slice(0, 2)), 15); // 15-minute slots from 09:00 to 14:00
+        let id_client = curIdClient;
         
         let objects = timeSlots.map(slot => ({
-          cur_date,
-          curIdClient,
-          slot
+          cur_date,  // Ensure cur_date is available
+          id_client, // Ensure id_client is available
+          slot // Each individual string from the slotArray
         }));
-      
-        // Insert all time slots into the database
-        await client.mutate({
-          mutation: INSERT_AVAILABILITY,
-          variables: { objects }
-        });
 
-        timeSlots = generateTimeSlots(Number(start_slot_pm.slice(0, 2)), Number(end_slot_pm.slice(0, 2)), 15); // 15-minute slots from 09:00 to 14:00
+        timeSlots = generateHourSlots(Number(start_slot_pm.slice(0, 2)), Number(end_slot_pm.slice(0, 2)), 15); // 15-minute slots from 17:00 to 20:00
       
-        objects = timeSlots.map(slot => ({
+        const newSlots = timeSlots.map(slot => ({
           cur_date,
-          curIdClient,
+          id_client,
           slot
         }));
+        
+        objects.push(...newSlots);
       
-        // Insert all time slots into the database
-        await client.mutate({
-          mutation: INSERT_AVAILABILITY,
-          variables: { objects }
-        });
+        const response2 = await client.request(INSERT_AVAILABILITY, { objects });
 
         console.log("Availability slots inserted successfully:", timeSlots);
       }
@@ -1637,26 +1632,43 @@ const curServClient = (lang) => {
       }
     }
     `;
+
+  const QUERY_DELETE_OLDCITAS = `
+    mutation deleteOldCitas {
+      delete_CITA(where: {start_date: {_lt: "${new Date().toISOString().split('T')[0]}T00:00:00"}}) {
+        affected_rows
+      }
+    }
+  `;
  
   const handleInsertCita = async () => {
-    const variables = {
-      id_client: curIdClient,
-      id_service: curCita1.idService,
-      name: curCita1.nombre,
-      date: curCita1.dateCita
-    };
-    const response = await client.request(INSERT_CITA_MUTATION, variables);
-    
-    if (response.insert_CITA.returning.length > 0) {
-      setCurCita1(prevState => ({
-        ...prevState,  // Keep existing properties
-        idService:response.insert_CITA.returning[0].id,        
-        stepCita: 0
-      }));
-      console.log('Cita inserted successfully.');
-    } else {
-      console.log('Failed to insert cita.');
-    }
+    try {
+      const variables = {
+        id_client: curIdClient,
+        id_service: curCita1.idService,
+        name: curCita1.nombre,
+        date: curCita1.dateCita
+      };
+      const response = await client.request(INSERT_CITA_MUTATION, variables);
+      
+      if (response.insert_CITA.returning.length > 0) {
+        setCurCita1(prevState => ({
+          ...prevState,  // Keep existing properties
+          idService:response.insert_CITA.returning[0].id,        
+          stepCita: 0
+        }));
+        console.log('Cita inserted successfully.');
+        console.log('QUERY_DELETE_OLDCITAS : ' + QUERY_DELETE_OLDCITAS);
+        const resp2 = await client.request(QUERY_DELETE_OLDCITAS);
+        if(resp2.delete_CITA.affected_rows > 0){
+          console.log('Old Citas removed successfully.' + resp2.affected_rows);
+        }      
+      } else {
+        console.log('Failed to insert cita.');
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }    
     
   };
 
@@ -1879,6 +1891,11 @@ END:VCALENDAR`;
 
   }, []);
 
+  const handleClickItem = (event) => {
+    event.preventDefault(); // Optional, to prevent default behavior
+    console.log('clickItem');
+  };
+
   return (
     <div className="app-container"> 
       <div id="popup" className='popup' style={{display : isFormSendOpen ? "none" : "block"}}>  
@@ -1897,7 +1914,7 @@ END:VCALENDAR`;
                   className="mySwiper"
                 > 
                 {products.map((prod, index) => ( 
-                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"5em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em",color: "#062a4e"}}><a href={GetLinkURL(prod)} onClick={console.log('click')}>{GetLabelProd(prod)}</a></div></SwiperSlide>
+                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"5em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em",color: "#062a4e"}}><a href={GetLinkURL(prod)} onClick={handleClickItem}>{GetLabelProd(prod)}</a></div></SwiperSlide>
                 ))}  
                 </Swiper>
                 </div>
@@ -1968,7 +1985,7 @@ END:VCALENDAR`;
                   <a 
   style={{ color: "#062a4e", fontWeight: "bold", textAlign: "left" }} 
   href={
-    messages.length > 2 && message.text.includes(import.meta.env.VITE_WHATSAPP) 
+    messages.length > 2 && message && message.text && typeof message.text === "string" && message.text.includes(import.meta.env.VITE_WHATSAPP) 
       ? `https://wa.me/${import.meta.env.VITE_WHATSAPP}?text=${
           selLang === 'de' ? '' 
           : selLang === 'es' ? ' Pregunta : ' 
@@ -1982,7 +1999,7 @@ END:VCALENDAR`;
       : ''
   }
 >
-  {messages.length > 2 && message.text.includes(import.meta.env.VITE_WHATSAPP) && (
+  {messages.length > 2 && message && message.text && typeof message.text === "string" && message.text.includes(import.meta.env.VITE_WHATSAPP) && (
     <span>
       {selLang === 'de' 
         ? '' 
