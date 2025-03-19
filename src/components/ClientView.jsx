@@ -203,6 +203,7 @@ const GetMsgInitQuote = (lang) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setCurIdClient(Number(import.meta.env.VITE_ID_CLIENT));
         const hasOptProd = import.meta.env.VITE_OPT_PRODUCT === "1";
         if (hasOptProd) {
           const QUERY_DESC_PRODUCTS = `
@@ -1051,15 +1052,16 @@ const curServClient = (lang) => {
   };
 
   const handleClearChat = async () => {
-    setIsDisabled(true); 
-    setChatInput('');
-    setMessages([]);
-    
-    if(curCateg !== 2){
-      setCurCita1(prevState => ({
-        ...prevState,  // Keep existing properties              
-        stepCita: 0  // Update stepCita
-      }));
+    try {
+      setIsDisabled(true); 
+      setChatInput('');
+      setMessages([]);
+      
+      if(curCateg !== 2){
+        setCurCita1(prevState => ({
+          ...prevState,  // Keep existing properties              
+          stepCita: 0  // Update stepCita
+        }));
       
       const QUERY_DELETE_COMMENTS = `
        mutation DeleteCommentsByIdClientAndPseudo($id_client: Int!, $pseudo: String!) { 
@@ -1096,17 +1098,8 @@ const curServClient = (lang) => {
       `;
       const variables = { id: curCita1.idService };
       const response = await client.request(QUERY_DELETE_CITA, variables);
-      setCurCita1(
-        {
-          idService: 0,
-          labelService: "",
-          dateCita: new Date(),
-          nombre: "",
-          contact: "",
-          stepCita: 0
-        }
-      );
-      let tabCita = curCita1.dateCita.toISOString().split('T');
+      console.log("After delete cita : " + curCita1.dateCita instanceof Date);
+      let tabCita = new Date(curCita1.dateCita).toISOString().split('T');
       if (response.delete_CITA.affected_rows > 0 && tabCita.length > 1) {
         console.log('Cita deleted successfully.');
         const INSERT_AVAILABILITY_MUTATION = `
@@ -1131,8 +1124,8 @@ const curServClient = (lang) => {
           cur_date: tabCita[1].slice(0,5)
         };
         const resp1 = await client.request(INSERT_AVAILABILITY_MUTATION, variables);
-        const newDate = curCita1.dateCita; // Clone the date to avoid mutating the original date
-        newDate.setMinutes(curCita1.dateCita.getMinutes() - 15);
+        const newDate = new Date(curCita1.dateCita); // Clone the date to avoid mutating the original date
+        newDate.setMinutes(newDate.getMinutes() - 15);
         tabCita = newDate.toISOString().split('T');
         variables = {
           id_client: curIdClient,
@@ -1140,8 +1133,8 @@ const curServClient = (lang) => {
           cur_date: tabCita[1].slice(0,5)
         };
         const resp2 = await client.request(INSERT_AVAILABILITY_MUTATION, variables);
-        const newDate2 = curCita1.dateCita;
-        newDate2.setMinutes(curCita1.dateCita.getMinutes() + 15);
+        const newDate2 = new Date(curCita1.dateCita);
+        newDate2.setMinutes(newDate2.getMinutes() + 15);
         tabCita = newDate2.toISOString().split('T');
         variables = {
           id_client: curIdClient,
@@ -1149,6 +1142,16 @@ const curServClient = (lang) => {
           cur_date: tabCita[1].slice(0,5)
         };
         const resp3 = await client.request(INSERT_AVAILABILITY_MUTATION, variables);
+        setCurCita1(
+          {
+            idService: 0,
+            labelService: "",
+            dateCita: new Date(),
+            nombre: "",
+            contact: "",
+            stepCita: 0
+          }
+        );
       } else {
         console.log('No cita found with that ID.');
       }      
@@ -1176,6 +1179,11 @@ const curServClient = (lang) => {
       }
     );  
     setLinesDay([[]]);
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+
   };
 
   const initSetCita = async (targetValue, step, lang) => {
@@ -1418,7 +1426,7 @@ const curServClient = (lang) => {
    `; 
 
   useEffect(() => {
-      
+        setCurIdClient(Number(import.meta.env.VITE_ID_CLIENT));
         const unsubscribe = wsClient.subscribe(
           {
             query: CITA_SUBSCRIPTION,  // Pass the subscription directly (no need for print if it's an AST)
@@ -1531,7 +1539,7 @@ const curServClient = (lang) => {
           }
         );
       } 
-      if(import.meta.env.VITE_OPT_CITA === "1" && curCita1 === ""){
+      if(import.meta.env.VITE_OPT_CITA === "1"){
         setDisplayCita(
           {
             display: "block"
@@ -1554,7 +1562,7 @@ const curServClient = (lang) => {
           }
         );
       }
-      if(import.meta.env.VITE_OPT_CITA === "1" && curCita1 === ""){
+      if(import.meta.env.VITE_OPT_CITA === "1"){
         setDisplayCita(
           {
             display: "block"
@@ -1711,7 +1719,7 @@ const curServClient = (lang) => {
         if(curCita1.dateCita.toISOString().includes('T')){
           var tabCita = curCita1.dateCita.toISOString().split('T');
           if(tabCita.length > 1){
-            var dateCita = tabCita[0];
+            var dateCita = new Date(tabCita[0]);
             const { slotBefore, slotAfter, slotExact } = getSlotsBeforeAfter(tabCita[1]);
             const variables = { dateCita, slotBefore, slotExact, slotAfter };
             const resp3 = await client.request(QUERY_DELETE_OLDAVAILABILITIES, variables);
@@ -2009,7 +2017,7 @@ END:VCALENDAR`;
           <span className="dot"></span>
         </div>
         <div ref={lstMsgRef} className="chat-messages">             
-              <div className="message blue-bg" style={{display : curCita1.contact === "" ? "none" : "block"}}>
+              <div className="message blue-bg" style={{display : curCateg === 2 && curCita1.contact !== "" ? "block" : "none"}}>
               <b>{GetMsgResumeCita('')}</b><br/><br/>
               {GetMsgDateHourCita('')}<b className='color-cita'>{GetUTCDate(new Date(curCita1.dateCita)).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' })}</b><br/>
               {GetMsgTypeCita('')}<b className='color-cita'>{curCita1.labelService}</b><br/>
@@ -2127,7 +2135,7 @@ END:VCALENDAR`;
         <div className='displayElements1'>
           {/* Left-aligned button */}
           <button className="button send-button" onClick={handleClearChat}>
-            {curCita1.contact === "" ? curClear : curCancel}
+            {curCateg === 2 && curCita1.contact !== "" ? curCancel : curClear}
           </button>
           <div>
             {/* Radio Button EN */}
