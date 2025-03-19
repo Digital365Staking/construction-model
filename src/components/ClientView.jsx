@@ -1106,8 +1106,49 @@ const curServClient = (lang) => {
           stepCita: 0
         }
       );
-      if (response.delete_CITA.affected_rows > 0) {
+      let tabCita = curCita1.dateCita.toISOString().split('T');
+      if (response.delete_CITA.affected_rows > 0 && tabCita.length > 1) {
         console.log('Cita deleted successfully.');
+        const INSERT_AVAILABILITY_MUTATION = `
+          mutation insertAvailability(
+            $slot: String!, 
+            $idClient: Int!, 
+            $curDate: String!
+          ) {
+            insert_AVAILABILITY(objects: { slot: $slot, id_client: $idClient, cur_date: $curDate }) {
+              returning {
+                id
+                slot
+                id_client
+                cur_date
+              }
+            }
+          }
+        `;
+        let variables = {
+          id_client: curIdClient,
+          slot: tabCita[0],
+          cur_date: tabCita[1].slice(0,5)
+        };
+        const resp1 = await client.request(INSERT_AVAILABILITY_MUTATION, variables);
+        const newDate = curCita1.dateCita; // Clone the date to avoid mutating the original date
+        newDate.setMinutes(curCita1.dateCita.getMinutes() - 15);
+        tabCita = newDate.toISOString().split('T');
+        variables = {
+          id_client: curIdClient,
+          slot: tabCita[0],
+          cur_date: tabCita[1].slice(0,5)
+        };
+        const resp2 = await client.request(INSERT_AVAILABILITY_MUTATION, variables);
+        const newDate2 = curCita1.dateCita;
+        newDate2.setMinutes(curCita1.dateCita.getMinutes() + 15);
+        tabCita = newDate2.toISOString().split('T');
+        variables = {
+          id_client: curIdClient,
+          slot: tabCita[0],
+          cur_date: tabCita[1].slice(0,5)
+        };
+        const resp3 = await client.request(INSERT_AVAILABILITY_MUTATION, variables);
       } else {
         console.log('No cita found with that ID.');
       }      
@@ -1633,7 +1674,7 @@ const curServClient = (lang) => {
 
   `;
 
-  function getSlotTimes(time) {
+  function getSlotsBeforeAfter(time) {
     const [hours, minutes] = time.split(":").map(Number);
     
     const formatTime = (h, m) => `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
@@ -1671,15 +1712,17 @@ const curServClient = (lang) => {
           var tabCita = curCita1.dateCita.toISOString().split('T');
           if(tabCita.length > 1){
             var dateCita = tabCita[0];
-          }
+            const { slotBefore, slotAfter, slotExact } = getSlotsBeforeAfter(tabCita[1]);
+            const variables = { dateCita, slotBefore, slotExact, slotAfter };
+            const resp3 = await client.request(QUERY_DELETE_OLDAVAILABILITIES, variables);
+            if(resp3.delete_AVAILABILITY.affected_rows > 0){
+              console.log('Old Availabilities removed successfully.' + resp2.affected_rows);
+            }; 
+           
+          }         
           
-          const slots = getSlotTimes("15:00");
         }
-        
-        const resp3 = await client.request(QUERY_DELETE_OLDAVAILABILITIES); 
-        if(resp3.delete_AVAILABILITY.affected_rows > 0){
-          console.log('Old Availabilities removed successfully.' + resp2.affected_rows);
-        }     
+             
       } else {
         console.log('Failed to insert cita.');
       }
