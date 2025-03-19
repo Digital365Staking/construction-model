@@ -278,7 +278,7 @@ const GetMsgInitQuote = (lang) => {
       let dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
       let formattedDate = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
   
-      if (dayOfWeek !== 0 && !publicHolidays.includes(formattedDate)) {
+      if (dayOfWeek !== 1 && !publicHolidays.includes(formattedDate)) {
         workingDays.push(formattedDate); // Add valid working day to the array
       }
       
@@ -796,7 +796,14 @@ const curServClient = (lang) => {
         setChatInput('');       
         setMessages([]);
         let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n';
-        let dathour = GetUTCDate(new Date(curCita1.dateCita)).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' }); 
+        let dathour = new Intl.DateTimeFormat(codeLang(''), { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit', 
+            hour: '2-digit', 
+            minute: '2-digit',
+            timeZone: 'UTC' 
+        }).format(new Date(curCita1.dateCita));
         txtMail += dathour + '\n';
         txtMail += GetMsgTypeCita('') + curCita1.labelService + '\n';
         txtMail += GetMsgContactCita('') + " +" + import.meta.env.VITE_WHATSAPP + "\n";
@@ -964,7 +971,7 @@ const curServClient = (lang) => {
         let tabResp = chatResponse.split(selLang === 'de' ? '{ "Produkte": "' : (selLang === 'es' ? '{ "Productos": "' : (selLang === 'en' ? '{ "Products": "' : '{ "Produits": "')));
         if(tabResp.length > 1){
           chatResponse = tabResp[0];
-          var str = tabResp[1].split('" }')[0].trim();
+          let str = tabResp[1].split('" }')[0].trim();
           if(str !== ""){
             const arr = str.split(",").map(item => parseInt(item, 10)); 
             console.log("Arr : " + arr);
@@ -1053,6 +1060,7 @@ const curServClient = (lang) => {
 
   const handleClearChat = async () => {
     try {
+      
       setIsDisabled(true); 
       setChatInput('');
       setMessages([]);
@@ -1076,14 +1084,14 @@ const curServClient = (lang) => {
       }
       `;
       if(curPseudo !== ""){
-        const vars = { id_client: curIdClient, pseudo: curPseudo };
+        const vars = { id_client: Number(import.meta.env.VITE_ID_CLIENT), pseudo: curPseudo };
         const response = await client.request(QUERY_DELETE_COMMENTS, vars);
         if(curCateg === 0 || curCateg === 1){  
           localStorage.clear();        
           loadMessage(curAI(""),GetMsgInitInfo(""),"");
         }      
         if (response.delete_COMMENT.affected_rows > 0) {
-          console.log('Comments deleted successfully. cli ' + curIdClient + ' , pseudo ' + curPseudo === '' ? tim.toString() : curPseudo);
+          console.log('Comments deleted successfully. cli ' + Number(import.meta.env.VITE_ID_CLIENT) + ' , pseudo ' + curPseudo === '' ? tim.toString() : curPseudo);
         }
       }
       
@@ -1105,10 +1113,10 @@ const curServClient = (lang) => {
         const INSERT_AVAILABILITY_MUTATION = `
           mutation insertAvailability(
             $slot: String!, 
-            $idClient: Int!, 
-            $curDate: String!
+            $id_client: Int!, 
+            $cur_date: date!
           ) {
-            insert_AVAILABILITY(objects: { slot: $slot, id_client: $idClient, cur_date: $curDate }) {
+            insert_AVAILABILITY(objects: { slot: $slot, id_client: $id_client, cur_date: $cur_date }) {
               returning {
                 id
                 slot
@@ -1119,28 +1127,30 @@ const curServClient = (lang) => {
           }
         `;
         let variables = {
-          id_client: curIdClient,
-          slot: tabCita[0],
-          cur_date: tabCita[1].slice(0,5)
+          slot: tabCita[1].slice(0,5),
+          id_client: Number(import.meta.env.VITE_ID_CLIENT),
+          cur_date: tabCita[0]
         };
+        console.log(variables);
         const resp1 = await client.request(INSERT_AVAILABILITY_MUTATION, variables);
         const newDate = new Date(curCita1.dateCita); // Clone the date to avoid mutating the original date
         newDate.setMinutes(newDate.getMinutes() - 15);
         tabCita = newDate.toISOString().split('T');
         variables = {
-          id_client: curIdClient,
-          slot: tabCita[0],
-          cur_date: tabCita[1].slice(0,5)
+          slot: tabCita[1].slice(0,5),
+          id_client: Number(import.meta.env.VITE_ID_CLIENT),
+          cur_date: tabCita[0]
         };
         const resp2 = await client.request(INSERT_AVAILABILITY_MUTATION, variables);
         const newDate2 = new Date(curCita1.dateCita);
         newDate2.setMinutes(newDate2.getMinutes() + 15);
         tabCita = newDate2.toISOString().split('T');
         variables = {
-          id_client: curIdClient,
-          slot: tabCita[0],
-          cur_date: tabCita[1].slice(0,5)
+          slot: tabCita[1].slice(0,5),
+          id_client: Number(import.meta.env.VITE_ID_CLIENT),
+          cur_date: tabCita[0]
         };
+        
         const resp3 = await client.request(INSERT_AVAILABILITY_MUTATION, variables);
         setCurCita1(
           {
@@ -1393,8 +1403,8 @@ const curServClient = (lang) => {
       let startTime = currentTime.toTimeString().slice(0, 5); // "HH:MM"
       currentTime.setMinutes(currentTime.getMinutes() + intervalMinutes);
       let endTime = currentTime.toTimeString().slice(0, 5);
-  
-      slots.push(`${startTime} - ${endTime}`);
+      slots.push(`${startTime}`);
+      //slots.push(`${endTime}`);
     }
     return slots;
   };
@@ -1426,11 +1436,12 @@ const curServClient = (lang) => {
    `; 
 
   useEffect(() => {
-        setCurIdClient(Number(import.meta.env.VITE_ID_CLIENT));
+        //setCurIdClient()
+        const id_client = Number(import.meta.env.VITE_ID_CLIENT);
         const unsubscribe = wsClient.subscribe(
           {
             query: CITA_SUBSCRIPTION,  // Pass the subscription directly (no need for print if it's an AST)
-            variables: { curIdClient },     // Pass id_client as a variable
+            variables: { id_client },     // Pass id_client as a variable
           },
           {
             next: async (data) => {
@@ -1442,7 +1453,7 @@ const curServClient = (lang) => {
                       String(date.getMinutes()).padStart(2, '0');
                 console.log(formattedTime);
                 let data = await client.request(DELETE_AVAILABILITY, { cur_date : data.data.CITA[0].start_date,
-                   id_client : curIdClient, slot : formattedTime });             
+                   id_client : id_client, slot : formattedTime });             
               }
             },
             error: (err) => console.error('Subscription error : CITA_SUBSCRIPTION ', err),
@@ -1455,6 +1466,7 @@ const curServClient = (lang) => {
 
   const manageCita = async (e) => {
     e.preventDefault();
+    console.log(e.target.value + ' : ' + curCita1.stepCita);
     const regex = /^\d{4}-\d{2}-\d{2}$/;
     if (regex.test(e.target.value)){
       let cur_date = new Date(e.target.value);
@@ -1667,7 +1679,7 @@ const curServClient = (lang) => {
     }
   `;
   const QUERY_DELETE_OLDAVAILABILITIES = `
-    mutation deleteAvailabilities($dateCita: String!, $slotBefore: String!, $slotExact: String!, $slotAfter: String!) {
+    mutation deleteAvailabilities($dateCita: date!, $slotBefore: String!, $slotExact: String!, $slotAfter: String!) {
       delete_AVAILABILITY(
         where: {
           _or: [
@@ -1717,14 +1729,13 @@ const curServClient = (lang) => {
         }
         console.log('QUERY_DELETE_OLDAVAILABILITIES : ' + QUERY_DELETE_OLDAVAILABILITIES);
         if(curCita1.dateCita.toISOString().includes('T')){
-          var tabCita = curCita1.dateCita.toISOString().split('T');
-          if(tabCita.length > 1){
-            var dateCita = new Date(tabCita[0]);
+          let tabCita = curCita1.dateCita.toISOString().split('T');
+          if(tabCita.length > 1){            
             const { slotBefore, slotAfter, slotExact } = getSlotsBeforeAfter(tabCita[1]);
-            const variables = { dateCita, slotBefore, slotExact, slotAfter };
+            const variables = { dateCita: new Date(tabCita[0]), slotBefore: slotBefore.slice(0,5), slotExact: slotExact.slice(0,5), slotAfter: slotAfter.slice(0,5) };
             const resp3 = await client.request(QUERY_DELETE_OLDAVAILABILITIES, variables);
             if(resp3.delete_AVAILABILITY.affected_rows > 0){
-              console.log('Old Availabilities removed successfully.' + resp2.affected_rows);
+              console.log('Old Availabilities removed successfully.');
             }; 
            
           }         
@@ -1801,12 +1812,6 @@ const curServClient = (lang) => {
     };
     setMessages((prevMessages) => [...prevMessages, newMsg]);
     setMessageSender(curMe(lang === "" ? selLang : lang));
-  };
-
-  const GetUTCDate = (date) =>{
-    const utcDate = date;
-    utcDate.setUTCHours(utcDate.getUTCHours() - 1); // Subtract 1 hour in UTC
-    return utcDate;
   };
 
   /*const generateICSFile = () => {
@@ -2019,7 +2024,14 @@ END:VCALENDAR`;
         <div ref={lstMsgRef} className="chat-messages">             
               <div className="message blue-bg" style={{display : curCateg === 2 && curCita1.contact !== "" ? "block" : "none"}}>
               <b>{GetMsgResumeCita('')}</b><br/><br/>
-              {GetMsgDateHourCita('')}<b className='color-cita'>{GetUTCDate(new Date(curCita1.dateCita)).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit", hour: '2-digit', minute: '2-digit' })}</b><br/>
+              {GetMsgDateHourCita('')}<b className='color-cita'>{new Intl.DateTimeFormat(codeLang(''), { 
+                  year: 'numeric', 
+                  month: '2-digit', 
+                  day: '2-digit', 
+                  hour: '2-digit', 
+                  minute: '2-digit',
+                  timeZone: 'UTC' 
+              }).format(new Date(curCita1.dateCita))}</b><br/>
               {GetMsgTypeCita('')}<b className='color-cita'>{curCita1.labelService}</b><br/>
               {GetMsgContactCita('')}<b className='color-cita'><a href={"https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text="}>{"+" + import.meta.env.VITE_WHATSAPP}</a></b><br/><br/>
               {GetMsgUpdateCita('')}
@@ -2107,7 +2119,7 @@ END:VCALENDAR`;
                     className="cita-button button send-button"
                     onClick={(e) => manageCita(e)} value={col.split("-").length > 2 ? col.split("-")[0] + "-" + col.split("-")[1] + "-" + col.split("-")[2] : col.split("-")[0] }
                   >
-                    {col.split("-").length > 2 ? GetUTCDate(new Date(col)).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit" }) : (col.split("-").length > 1 ? col.split("-")[1] : new Date('2000-01-01T' + col + ":00").toLocaleString(selLang, { hour: '2-digit', minute: '2-digit' })) } 
+                    {col.split("-").length > 2 ? new Date(col).toLocaleString(codeLang(''), { weekday: "short", day: "2-digit", month: "2-digit" }) : (col.split("-").length > 1 ? col.split("-")[1] : new Date('2000-01-01T' + col + ":00").toLocaleString(selLang, { hour: '2-digit', minute: '2-digit' })) } 
                   </button>
                 ))}
                 <br/>
