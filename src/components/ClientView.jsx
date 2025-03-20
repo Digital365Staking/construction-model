@@ -1083,17 +1083,16 @@ const curServClient = (lang) => {
 
   const handleClearChat = async () => {
     try {
-      
+      setCurCita1(prevState => ({
+        ...prevState,  // Keep existing properties              
+        stepCita: 0  // Update stepCita
+      }));
       setIsDisabled(true); 
       setChatInput('');
       setMessages([]);
       
       if(curCateg !== 2){
-        setCurCita1(prevState => ({
-          ...prevState,  // Keep existing properties              
-          stepCita: 0  // Update stepCita
-        }));
-      
+        
       const QUERY_DELETE_COMMENTS = `
        mutation DeleteCommentsByIdClientAndPseudo($id_client: Int!, $pseudo: String!) { 
         delete_COMMENT(
@@ -1306,49 +1305,12 @@ const curServClient = (lang) => {
         
         console.log("VITE_ID_CLIENT:", import.meta.env.VITE_ID_CLIENT);
         
-        //let arr = [[]];
-        /*arr.push([]);
-        
-        let c=0;
-        let line=-1;
-        availability.forEach(item => {
-          if (item.cur_date === targetValue) {
-            if (c % 4 === 0) {
-              arr.push([]);
-              line++;
-            }
-            arr[line].push(item.slot);                
-          }
-          c++;
-        });
-        console.log("arr l = " + arr[0].length);
-        if(arr[0].length === 0){
-            let lg = step < 0 ? selLang : lang;
-            const queryClient = `
-              query GetClientSlots($id: Int!) {
-                CLIENT(where: { id: { _eq: $id } }) {
-                  start_slot_am
-                  end_slot_am
-                  start_slot_pm
-                  end_slot_pm
-                }
-              }
-            `;
-            const data = await client.request(queryClient, { id: Number(import.meta.env.VITE_ID_CLIENT) });
-            const clientSlots = data.CLIENT[0];
-
-            
-            
-        }*/
-        let arr = [];
         console.log("VITE_START_SLOT_AM:", import.meta.env.VITE_START_SLOT_AM);
         console.log("VITE_END_SLOT_AM:", import.meta.env.VITE_END_SLOT_AM);
         console.log("VITE_START_SLOT_PM:", import.meta.env.VITE_START_SLOT_PM);
         console.log("VITE_END_SLOT_PM:", import.meta.env.VITE_END_SLOT_PM);
         console.log("Before generate buts : " + targetValue);
-        arr.push(...generateTimeSlotButtons(targetValue));
-        //arr.push(...generateTimeSlotButtons(targetValue));
-
+        let arr = await generateTimeSlotButtons(targetValue);
         setLinesDay(arr);
         break;
       case 2:
@@ -1400,49 +1362,33 @@ const curServClient = (lang) => {
   }
 
   const generateTimeSlotButtons = async (cur_date) => {
-
-    try{
-
+    try {
       const GET_AVAILABILITY = `
-          query CheckAvailability{
-            AVAILABILITY(where: { cur_date: { _eq: "${cur_date}" }, id_client: { _eq: ${Number(import.meta.env.VITE_ID_CLIENT)} } }) {
-              slot
-            }
+        query CheckAvailability {
+          AVAILABILITY(where: { cur_date: { _eq: "${cur_date}" }, id_client: { _eq: ${Number(import.meta.env.VITE_ID_CLIENT)} } }) {
+            slot
           }
-        `;
-        let data = await client.request(GET_AVAILABILITY);
-        // Group into arrays of 4
-        let groupedSlots = [];
-        if(data.AVAILABILITY.length > 0){
-          let slots = data.AVAILABILITY.map((slot) => slot); // Assuming each slot has a 'time' field
-    
-          for (let i = 0; i < slots.length; i += 4) {
-            groupedSlots.push(slots.slice(i, i + 4));
-          }
-        
         }
-        return groupedSlots;
-
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }  
-    /*let slots = [];
-    let current = new Date(`1970-01-01T${start}:00`);
-    let endTime = new Date(`1970-01-01T${end}:00`);
+      `;
   
-    while (current < endTime) {
-      let hourSlots = [];
-      let hourEnd = new Date(current);
-      hourEnd.setMinutes(current.getMinutes() + 60);
-  
-      while (current < hourEnd && current < endTime) {
-        hourSlots.push(current.toTimeString().slice(0, 5));
-        current.setMinutes(current.getMinutes() + 15);
+      let data = await client.request(GET_AVAILABILITY);
+      
+      // Extract slot values from response
+      let slots = data.AVAILABILITY.map((entry) => entry.slot); 
+      
+      // Group into arrays of 4
+      let groupedSlots = [];
+      for (let i = 0; i < slots.length; i += 4) {
+        groupedSlots.push(slots.slice(i, i + 4));
       }
-      slots.push(hourSlots);
+      
+      return groupedSlots;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      return []; // Ensure function always returns an array
     }
-    return slots;*/
   };
+  
 
   const generateHourSlots = (startHour, endHour, intervalMinutes) => {
     let slots = [];
@@ -1517,7 +1463,7 @@ const curServClient = (lang) => {
   const manageCita = async (e) => {
     try{
     e.preventDefault();
-    console.log(e.target.value + ' : ' + curCita1.stepCita);
+    console.log(e.target.value + ' manageCita : ' + curCita1.stepCita);
     const regex = /^\d{4}-\d{2}-\d{2}$/;
     if (regex.test(e.target.value)){
       let cur_date = new Date(e.target.value);
