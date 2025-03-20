@@ -149,9 +149,12 @@ const GetMsgInitQuote = (lang) => {
   };
 
   const sendCita = async (emailClient,emailAdmin,subject,msg,lbl_headerCita,lbl_datehour,val_datehour,lbl_service,val_service,
-    lbl_name,val_name,lbl_wap, val_wap
+    lbl_name,val_name,lbl_wap, val_wap, isCancel
   ) => {
-    const urlIcs = await generateICSFile(msg);
+    let urlIcs = "";
+    if(!isCancel){
+      urlIcs = await generateICSFile(msg);
+    }
     console.log('url ics : ' + urlIcs);
     const templateParams = {
       from_name: subject,
@@ -168,7 +171,7 @@ const GetMsgInitQuote = (lang) => {
       val_wap: val_wap,
       msg: msg,
       reply_to: emailAdmin, // email admin
-      urlIcs: urlIcs.replace('https://backendlessappcontent.com/','')
+      urlIcs: !isCancel ? urlIcs.replace('https://backendlessappcontent.com/','') : ''
     };
    
     emailjs.send(
@@ -845,7 +848,7 @@ const curServClient = (lang) => {
         handleInsertCita();
         if(enableNotif){
           sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,encodedMessage,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
-          GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP);
+          GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP,false);
         }
         setChatInput('');
         return;
@@ -1139,7 +1142,7 @@ const curServClient = (lang) => {
       const { subject, name, dathour, encodedMessage } = GetTextEmail();
       const subject2 = selLang === 'de' ? "Termin vom Kunden abgesagt" : (selLang === 'es' ? "Cita cancelada por el cliente" : (selLang === 'en' ? "Appointment canceled by the client" : "Rendez-vous annulé par le client"));
       sendCita(curCita1.contact,import.meta.env.VITE_EMAIL,subject2,encodedMessage,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
-          GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP);
+          GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP,true);
       console.log("After delete cita : " + curCita1.dateCita instanceof Date);
       let tabCita = new Date(curCita1.dateCita).toISOString().split('T');
       if (response.delete_CITA.affected_rows > 0 && tabCita.length > 1) {
