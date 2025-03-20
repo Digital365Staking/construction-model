@@ -1365,7 +1365,10 @@ const curServClient = (lang) => {
     try {
       const GET_AVAILABILITY = `
         query CheckAvailability {
-          AVAILABILITY(where: { cur_date: { _eq: "${cur_date}" }, id_client: { _eq: ${Number(import.meta.env.VITE_ID_CLIENT)} } }) {
+          AVAILABILITY(
+           where: { cur_date: { _eq: "${cur_date}" }, id_client: { _eq: ${Number(import.meta.env.VITE_ID_CLIENT)} } }
+           order_by: { slot: asc }
+           ) {
             slot
           }
         }
