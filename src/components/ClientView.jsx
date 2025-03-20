@@ -1091,6 +1091,7 @@ const curServClient = (lang) => {
       setIsDisabled(true); 
       setChatInput('');
       setMessages([]);
+      setLinesDay([[]]);
       
       if(curCateg !== 2){
         
@@ -1211,8 +1212,7 @@ const curServClient = (lang) => {
       {
         display: "block"
       }
-    );  
-    setLinesDay([[]]);
+    );
 
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -2049,7 +2049,7 @@ END:VCALENDAR`;
       <span className={`copied-message ${copied == index ? "visible" : ""}`}>{labelCopied}</span>
               </div>               
               <div className="message-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}> 
-                <div>{GetMsgTypeCita(selLang)}<b>{curCita1.labelService}</b><br/>
+                {curCita1.stepCita > 0 && (<div>{GetMsgTypeCita(selLang)}<b>{curCita1.labelService}</b><br/>
                 {GetMsgDateHourCita(selLang)}<b>
                   { (new Date(new Date(curCita1.dateCita).toDateString()) > new Date(new Date().toDateString())) ? new Intl.DateTimeFormat(codeLang(''), { 
             weekday: 'short',
@@ -2061,7 +2061,7 @@ END:VCALENDAR`;
             timeZone: 'UTC' 
         }).format(new Date(curCita1.dateCita)).replace(', 00:00','') : ''}
                   </b><br/>
-                </div> 
+                </div> )}
                 <div>
                 {message.lines && message.lines.length > 0
                   ? message.lines.map((line, lineIndex) => (
