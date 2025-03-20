@@ -1345,8 +1345,9 @@ const curServClient = (lang) => {
         console.log("VITE_END_SLOT_AM:", import.meta.env.VITE_END_SLOT_AM);
         console.log("VITE_START_SLOT_PM:", import.meta.env.VITE_START_SLOT_PM);
         console.log("VITE_END_SLOT_PM:", import.meta.env.VITE_END_SLOT_PM);
-        arr.push(...generateTimeSlotButtons(import.meta.env.VITE_START_SLOT_AM, import.meta.env.VITE_END_SLOT_AM));
-        arr.push(...generateTimeSlotButtons(import.meta.env.VITE_START_SLOT_PM, import.meta.env.VITE_END_SLOT_PM));
+        console.log("Before generate buts : " + targetValue);
+        arr.push(...generateTimeSlotButtons(targetValue));
+        //arr.push(...generateTimeSlotButtons(targetValue));
 
         setLinesDay(arr);
         break;
@@ -1401,7 +1402,7 @@ const curServClient = (lang) => {
   const generateTimeSlotButtons = async (cur_date) => {
 
     try{
-      
+
       const GET_AVAILABILITY = `
           query CheckAvailability{
             AVAILABILITY(where: { cur_date: { _eq: "${cur_date}" }, id_client: { _eq: ${Number(import.meta.env.VITE_ID_CLIENT)} } }) {
