@@ -2138,7 +2138,7 @@ END:VCALENDAR`;
           ))}
           <div class="cita-container">
           {linesDay.map((lin, idxLin) => (
-              <div key={idxLin} className="button-line">  
+              <div key={idxLin} className="button-line" style={{ display: linesDay.length > 0 ? "block" : "none" }}>  
                 {lin.map((col, idxCol) => (
                   <button 
                     key={idxCol}  
