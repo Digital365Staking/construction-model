@@ -286,8 +286,9 @@ const GetMsgInitQuote = (lang) => {
       let dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
       let formattedDate = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
   
-      if (dayOfWeek !== 0 && !publicHolidays.includes(formattedDate)) {
-        workingDays.push(formattedDate); // Add valid working day to the array
+      const formatter = new Intl.DateTimeFormat('en-US', { weekday: 'long' });
+      if (formatter.format(new Date(formattedDate)) === "Sunday" && !publicHolidays.includes(formattedDate)) {
+        workingDays.push(formattedDate); // Add valid Sunday to the array
       }
       
       d++;
