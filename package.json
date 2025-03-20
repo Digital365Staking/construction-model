@@ -27,6 +27,7 @@
     "@huggingface/inference": "^3.3.2",
     "@nhost/nhost-js": "^3.2.5",
     "ai": "^4.1.26",
+    "backendless": "^7.4.4",
     "dotenv": "^16.4.7",
     "emailjs-com": "^3.2.0",
     "file-saver": "^2.0.5",

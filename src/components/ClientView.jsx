@@ -9,6 +9,9 @@ import { HfInference } from "@huggingface/inference";
 import emailjs from 'emailjs-com';
 import { saveAs } from "file-saver";
 import { Swiper, SwiperSlide } from 'swiper/react';
+import Backendless from 'backendless';
+
+Backendless.initApp(import.meta.env.VITE_BACKENDLESS_APPID, import.meta.env.VITE_BACKENDLESS_REST);
 
 // Import Swiper styles
 import 'swiper/css';
@@ -145,10 +148,11 @@ const GetMsgInitQuote = (lang) => {
     }).catch(err => console.error("Failed to copy:", err));
   };
 
-  const sendCita = (emailClient,emailAdmin,subject,msg,lbl_headerCita,lbl_datehour,val_datehour,lbl_service,val_service,
+  const sendCita = async (emailClient,emailAdmin,subject,msg,lbl_headerCita,lbl_datehour,val_datehour,lbl_service,val_service,
     lbl_name,val_name,lbl_wap, val_wap
   ) => {
-    generateICSFile(msg);
+    const urlIcs = await generateICSFile(msg);
+    console.log('url ics : ' + urlIcs);
     const templateParams = {
       from_name: subject,
       to_name: emailClient, // email client
@@ -163,7 +167,8 @@ const GetMsgInitQuote = (lang) => {
       lbl_wap: lbl_wap,
       val_wap: val_wap,
       msg: msg,
-      reply_to: emailAdmin // email admin
+      reply_to: emailAdmin, // email admin
+      urlIcs: urlIcs.replace('https://backendlessappcontent.com/','')
     };
    
     emailjs.send(
@@ -278,7 +283,7 @@ const GetMsgInitQuote = (lang) => {
       let dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
       let formattedDate = currentDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
   
-      if (dayOfWeek !== 1 && !publicHolidays.includes(formattedDate)) {
+      if (dayOfWeek !== 0 && !publicHolidays.includes(formattedDate)) {
         workingDays.push(formattedDate); // Add valid working day to the array
       }
       
@@ -744,7 +749,7 @@ const curServClient = (lang) => {
 
         console.log("Nom :" + curCita1.nombre);
         const encodedMessage = encodeURIComponent(txtMail);
-        return encodedMessage;
+        return { subject, name, dathour, encodedMessage };
   };
 
   const handleSendMessage = async (e) => {
@@ -816,7 +821,7 @@ const curServClient = (lang) => {
           contact:chatInput,
           stepCita: prevState.stepCita + 1  // Update stepCita
         }));
-        setChatInput('');       
+               
         setMessages([]);
         /*let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n';
         let dathour = new Intl.DateTimeFormat(codeLang(''), { 
@@ -836,12 +841,13 @@ const curServClient = (lang) => {
 
         console.log("Nom :" + curCita1.nombre);
         const encodedMessage = encodeURIComponent(txtMail);*/
-        const encodedMessage = GetTextEmail();
+        const { subject, name, dathour, encodedMessage } = GetTextEmail();
         handleInsertCita();
         if(enableNotif){
           sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,encodedMessage,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
           GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP);
         }
+        setChatInput('');
         return;
       }
     }
@@ -1092,7 +1098,7 @@ const curServClient = (lang) => {
       setChatInput('');
       setMessages([]);
       setLinesDay([[]]);
-      
+
       if(curCateg !== 2){
         
       const QUERY_DELETE_COMMENTS = `
@@ -1130,6 +1136,10 @@ const curServClient = (lang) => {
       `;
       const variables = { id: curCita1.idService };
       const response = await client.request(QUERY_DELETE_CITA, variables);
+      const { subject, name, dathour, encodedMessage } = GetTextEmail();
+      const subject2 = selLang === 'de' ? "Termin vom Kunden abgesagt" : (selLang === 'es' ? "Cita cancelada por el cliente" : (selLang === 'en' ? "Appointment canceled by the client" : "Rendez-vous annulé par le client"));
+      sendCita(curCita1.contact,import.meta.env.VITE_EMAIL,subject2,encodedMessage,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
+          GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP);
       console.log("After delete cita : " + curCita1.dateCita instanceof Date);
       let tabCita = new Date(curCita1.dateCita).toISOString().split('T');
       if (response.delete_CITA.affected_rows > 0 && tabCita.length > 1) {
@@ -1831,7 +1841,8 @@ END:VCALENDAR`;
     return btoa(new TextEncoder().encode(icsContent).reduce((data, byte) => data + String.fromCharCode(byte), ""));
   };*/
 
-  const generateICSFile = (txtMail) => {
+  const generateICSFile = async (txtMail) => {
+    try{
     let curDate = new Date(curCita1.dateCita);
     curDate = new Date(curDate.getTime() - 60 * 60 * 1000); // - 1 hour
     let dateEnd = new Date(curDate.getTime() + 30 * 60 * 1000);
@@ -1851,13 +1862,16 @@ END:VEVENT
 END:VCALENDAR`;
   
     const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
-
+    const filePath = `/ICS/${curCita1.labelService}_${new Date().toISOString()}.ics`; // Folder in Backendless
+    const response = await Backendless.Files.upload(blob, filePath, true);
     // Save file locally
     saveAs(blob, selLang === 'de' ? 'ereignis.ics' : (selLang === "es" ? "cita.ics" : "event.ics")); // Triggers download
-    // Generate a temporary URL for the file
-    //const fileUrl = URL.createObjectURL(blob);
+    
+    return response.fileURL;
 
-    //return "http://localhost:5173/event.ics"; // Return the URL to use in the email
+    } catch (error) {
+      console.error("File upload failed:", error);
+    }
   };
 
   const COMMENT_SUBSCRIPTION = `
