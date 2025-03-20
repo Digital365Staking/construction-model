@@ -727,6 +727,7 @@ const curServClient = (lang) => {
   const GetTextEmail = () => {
     let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n';
         let dathour = new Intl.DateTimeFormat(codeLang(''), { 
+            weekday: 'short',
             year: 'numeric', 
             month: '2-digit', 
             day: '2-digit', 
@@ -1174,23 +1175,24 @@ const curServClient = (lang) => {
         };
         
         const resp3 = await client.request(INSERT_AVAILABILITY_MUTATION, variables);
-        setCurCita1(
-          {
-            idService: 0,
-            labelService: "",
-            dateCita: new Date(),
-            nombre: "",
-            contact: "",
-            stepCita: 0
-          }
-        );
+        
       } else {
         console.log('No cita found with that ID.');
-      }      
+      }    
+      setCurCita1(
+        {
+          idService: 0,
+          labelService: "",
+          dateCita: new Date(),
+          nombre: "",
+          contact: "",
+          stepCita: 0
+        }
+      );  
       localStorage.clear();
-
+      InitDispoCita(import.meta.env.VITE_OPT_CITA === "1");
       const timer = setTimeout(() => {
-        InitDispoCita(import.meta.env.VITE_OPT_CITA === "1");
+        
       }, 1000);
       
     }
@@ -1261,8 +1263,8 @@ const curServClient = (lang) => {
               stepCita: prevState.stepCita + 1  // Update stepCita
             }));
           }
-          msg = GetMsgTypeCita(selLang) + filteredData[0][selLang] + "  " + (selLang === 'de' ? 'Welchen Tag möchten Sie einen Termin vereinbaren?' : (selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?")));
-
+          msg = (selLang === 'de' ? 'Welchen Tag möchten Sie einen Termin vereinbaren?' : (selLang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (selLang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?")));
+          
         }else{
           filteredData = services.filter(item => item.id === curCita1.idService);
           setCurCita1(prevState => ({
@@ -1270,9 +1272,9 @@ const curServClient = (lang) => {
             labelService: filteredData[0][lang]            
           }));
           msg = (selLang === 'de' ? 'An welchem Tag möchten Sie einen Termin vereinbaren?' : (lang === 'es' ? '¿ Qué día le gustaría programar una cita ?' : (lang === 'en' ? 'Which day would you like to schedule an appointment ?' : "Quel jour souhaitez-vous prendre rendez-vous ?")));
-
+          
         }
-       
+        
         console.log(targetValue);
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
@@ -1295,20 +1297,12 @@ const curServClient = (lang) => {
           
         console.log(targetValue);
         const datTarget = new Date(targetValue);
-        /*const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);*/
         setCurCita1(prevState => ({
           ...prevState,  // Keep existing properties
           dateCita: datTarget,
           stepCita: prevState.stepCita + 1  // Update stepCita
         }));
         
-        console.log("VITE_ID_CLIENT:", import.meta.env.VITE_ID_CLIENT);
-        
-        console.log("VITE_START_SLOT_AM:", import.meta.env.VITE_START_SLOT_AM);
-        console.log("VITE_END_SLOT_AM:", import.meta.env.VITE_END_SLOT_AM);
-        console.log("VITE_START_SLOT_PM:", import.meta.env.VITE_START_SLOT_PM);
-        console.log("VITE_END_SLOT_PM:", import.meta.env.VITE_END_SLOT_PM);
         console.log("Before generate buts : " + targetValue);
         let arr = await generateTimeSlotButtons(targetValue);
         setLinesDay(arr);
@@ -1347,7 +1341,7 @@ const curServClient = (lang) => {
             "Pour confirmer le rendez-vous, vous devez enregistrer votre prénom ainsi que votre adresse e-mail. Veuillez d'abord saisir votre prénom, puis cliquez sur 'Envoyer' pour l'enregistrer."));
             
         }
-        loadMessage(curAI(""), msg, "");
+        //loadMessage(curAI(""), msg, "");
                
         setLinesDay([[]]);
         
@@ -1517,9 +1511,10 @@ const curServClient = (lang) => {
       }
     }
     console.log("manageCita" + curCita1.labelService);
+    setMessages([]);
     let msg = initSetCita(e.target.value, -1, selLang);
     console.log(e.target.value + "-" + msg);
-    setMessages([]);
+    
     loadMessage(curAI(""),msg,"");
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -2027,7 +2022,8 @@ END:VCALENDAR`;
         <div ref={lstMsgRef} className="chat-messages">             
               <div className="message blue-bg" style={{display : curCateg === 2 && curCita1.contact !== "" ? "block" : "none"}}>
               <b>{GetMsgResumeCita('')}</b><br/><br/>
-              {GetMsgDateHourCita('')}<b className='color-cita'>{new Intl.DateTimeFormat(codeLang(''), { 
+              {GetMsgDateHourCita('')}<b className='color-cita'>{new Intl.DateTimeFormat(codeLang(''), {
+                  weekday: 'short', 
                   year: 'numeric', 
                   month: '2-digit', 
                   day: '2-digit', 
@@ -2053,6 +2049,19 @@ END:VCALENDAR`;
       <span className={`copied-message ${copied == index ? "visible" : ""}`}>{labelCopied}</span>
               </div>               
               <div className="message-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}> 
+                <div>{GetMsgTypeCita(selLang)}<b>{curCita1.labelService}</b><br/>
+                {GetMsgDateHourCita(selLang)}<b>
+                  { (new Date(new Date(curCita1.dateCita).toDateString()) > new Date(new Date().toDateString())) ? new Intl.DateTimeFormat(codeLang(''), { 
+            weekday: 'short',
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit', 
+            hour: '2-digit', 
+            minute: '2-digit',
+            timeZone: 'UTC' 
+        }).format(new Date(curCita1.dateCita)).replace(', 00:00','') : ''}
+                  </b><br/>
+                </div> 
                 <div>
                 {message.lines && message.lines.length > 0
                   ? message.lines.map((line, lineIndex) => (
