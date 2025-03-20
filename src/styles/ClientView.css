@@ -39,6 +39,7 @@ textarea:disabled {
     border-radius: 0.5em;
     padding: 0.1em 0.1em;
     margin: auto;
+    width: 101%;
     min-height: 55.96vh;
     box-shadow: 0 0 1.25em 0.5em #c3c3c333;
     background-image: linear-gradient(
@@ -57,27 +58,29 @@ textarea:disabled {
   }
 }
 
-.chat-container {
-  font-family: 'Roboto', sans-serif;
-  border-radius: 0.5em;
-  padding: 0.1em 0.1em;
-  margin: auto;
-  max-width: 37.5em;
-  height: 81.96vh;
-  box-shadow: 0 0 1.25em 0.5em #c3c3c333;
-  background-image: linear-gradient(
-    23deg,
-    hsl(49deg 100% 69%) 0%,
-    hsl(16deg 80% 61%) 2%,
-    hsl(330deg 81% 34%) 12%,
-    hsl(259deg 100% 15%) 50%,
-    hsl(212deg 100% 25%) 88%,
-    hsl(197deg 100% 30%) 98%,
-    hsl(183deg 79% 36%) 100%
-  );
-  justify-content: center;
-  align-items: center;
-  overflow-y: auto;
+@media screen and (min-width: 660px) {
+  .chat-container {
+    font-family: 'Roboto', sans-serif;
+    border-radius: 0.5em;
+    padding: 0.1em 0.1em;
+    margin: auto;
+    max-width: 37.5em;
+    height: 81.96vh;
+    box-shadow: 0 0 1.25em 0.5em #c3c3c333;
+    background-image: linear-gradient(
+      23deg,
+      hsl(49deg 100% 69%) 0%,
+      hsl(16deg 80% 61%) 2%,
+      hsl(330deg 81% 34%) 12%,
+      hsl(259deg 100% 15%) 50%,
+      hsl(212deg 100% 25%) 88%,
+      hsl(197deg 100% 30%) 98%,
+      hsl(183deg 79% 36%) 100%
+    );
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+  }
 }
 
 .chat-header {
@@ -323,7 +326,7 @@ textarea:disabled {
     position: fixed;
     border-radius: 0.5em 0.5em 0.5em 0.5em;
     box-shadow: 0 0 0.75em 0.5em #c3c3c333;
-    width: 95.5%;
+    width: 96.5%;
     height: 25.3vh;
     bottom: 0px;
     left:0px;
@@ -405,7 +408,8 @@ textarea:disabled {
   .header-container {
     display: flex;
     margin: auto;
-    height: 100px; /* Adjust as needed */
+    width: 101.5%;
+    height: 110px; /* Adjust as needed */
     border: none;
     background-image: linear-gradient(
       23deg,
