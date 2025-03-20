@@ -724,6 +724,28 @@ const curServClient = (lang) => {
 
   const startTime = Date.now();
 
+  const GetTextEmail = () => {
+    let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n';
+        let dathour = new Intl.DateTimeFormat(codeLang(''), { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit', 
+            hour: '2-digit', 
+            minute: '2-digit',
+            timeZone: 'UTC' 
+        }).format(new Date(curCita1.dateCita));
+        txtMail += dathour + '\n';
+        txtMail += GetMsgTypeCita('') + curCita1.labelService + '\n';
+        txtMail += GetMsgContactCita('') + " +" + import.meta.env.VITE_WHATSAPP + "\n";
+        
+        let subject = selLang === 'de' ? "Neuer Termin" : (selLang === 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous"));
+        let name = selLang === 'de' ? "Name : " : (selLang === 'es' ? "Nombre : " : (selLang === 'en' ? "Name : " : "Nom : "));
+
+        console.log("Nom :" + curCita1.nombre);
+        const encodedMessage = encodeURIComponent(txtMail);
+        return encodedMessage;
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();  
     if (usrValue !== import.meta.env.VITE_HUGGING_KEY){
@@ -795,7 +817,7 @@ const curServClient = (lang) => {
         }));
         setChatInput('');       
         setMessages([]);
-        let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n';
+        /*let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n';
         let dathour = new Intl.DateTimeFormat(codeLang(''), { 
             year: 'numeric', 
             month: '2-digit', 
@@ -812,7 +834,8 @@ const curServClient = (lang) => {
         let name = selLang === 'de' ? "Name : " : (selLang === 'es' ? "Nombre : " : (selLang === 'en' ? "Name : " : "Nom : "));
 
         console.log("Nom :" + curCita1.nombre);
-        const encodedMessage = encodeURIComponent(txtMail);
+        const encodedMessage = encodeURIComponent(txtMail);*/
+        const encodedMessage = GetTextEmail();
         handleInsertCita();
         if(enableNotif){
           sendCita(chatInput,import.meta.env.VITE_EMAIL,subject,encodedMessage,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
@@ -1322,8 +1345,8 @@ const curServClient = (lang) => {
         console.log("VITE_END_SLOT_AM:", import.meta.env.VITE_END_SLOT_AM);
         console.log("VITE_START_SLOT_PM:", import.meta.env.VITE_START_SLOT_PM);
         console.log("VITE_END_SLOT_PM:", import.meta.env.VITE_END_SLOT_PM);
-        arr.push(...generateTimeSlots(import.meta.env.VITE_START_SLOT_AM, import.meta.env.VITE_END_SLOT_AM));
-        arr.push(...generateTimeSlots(import.meta.env.VITE_START_SLOT_PM, import.meta.env.VITE_END_SLOT_PM));
+        arr.push(...generateTimeSlotButtons(import.meta.env.VITE_START_SLOT_AM, import.meta.env.VITE_END_SLOT_AM));
+        arr.push(...generateTimeSlotButtons(import.meta.env.VITE_START_SLOT_PM, import.meta.env.VITE_END_SLOT_PM));
 
         setLinesDay(arr);
         break;
@@ -1375,8 +1398,34 @@ const curServClient = (lang) => {
     
   }
 
-  const generateTimeSlots = (start, end) => {
-    let slots = [];
+  const generateTimeSlotButtons = async (cur_date) => {
+
+    try{
+      
+      const GET_AVAILABILITY = `
+          query CheckAvailability{
+            AVAILABILITY(where: { cur_date: { _eq: "${cur_date}" }, id_client: { _eq: ${Number(import.meta.env.VITE_ID_CLIENT)} } }) {
+              slot
+            }
+          }
+        `;
+        let data = await client.request(GET_AVAILABILITY);
+        // Group into arrays of 4
+        let groupedSlots = [];
+        if(data.AVAILABILITY.length > 0){
+          let slots = data.AVAILABILITY.map((slot) => slot); // Assuming each slot has a 'time' field
+    
+          for (let i = 0; i < slots.length; i += 4) {
+            groupedSlots.push(slots.slice(i, i + 4));
+          }
+        
+        }
+        return groupedSlots;
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }  
+    /*let slots = [];
     let current = new Date(`1970-01-01T${start}:00`);
     let endTime = new Date(`1970-01-01T${end}:00`);
   
@@ -1391,7 +1440,7 @@ const curServClient = (lang) => {
       }
       slots.push(hourSlots);
     }
-    return slots;
+    return slots;*/
   };
 
   const generateHourSlots = (startHour, endHour, intervalMinutes) => {
@@ -1402,7 +1451,7 @@ const curServClient = (lang) => {
     while (currentTime.getHours() < endHour) {
       let startTime = currentTime.toTimeString().slice(0, 5); // "HH:MM"
       currentTime.setMinutes(currentTime.getMinutes() + intervalMinutes);
-      let endTime = currentTime.toTimeString().slice(0, 5);
+      //let endTime = currentTime.toTimeString().slice(0, 5);
       slots.push(`${startTime}`);
       //slots.push(`${endTime}`);
     }
@@ -1465,6 +1514,7 @@ const curServClient = (lang) => {
       }, [wsClient, CITA_SUBSCRIPTION, curIdClient]); // Include id_client in dependencies
 
   const manageCita = async (e) => {
+    try{
     e.preventDefault();
     console.log(e.target.value + ' : ' + curCita1.stepCita);
     const regex = /^\d{4}-\d{2}-\d{2}$/;
@@ -1521,6 +1571,9 @@ const curServClient = (lang) => {
     console.log(e.target.value + "-" + msg);
     setMessages([]);
     loadMessage(curAI(""),msg,"");
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }   
   };
 
   const handleChat = (typeChat) => {
@@ -2033,7 +2086,7 @@ END:VCALENDAR`;
                   timeZone: 'UTC' 
               }).format(new Date(curCita1.dateCita))}</b><br/>
               {GetMsgTypeCita('')}<b className='color-cita'>{curCita1.labelService}</b><br/>
-              {GetMsgContactCita('')}<b className='color-cita'><a href={"https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text="}>{"+" + import.meta.env.VITE_WHATSAPP}</a></b><br/><br/>
+              {GetMsgContactCita('')}<b className='color-cita'><a href={"https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + GetTextEmail()}>{"+" + import.meta.env.VITE_WHATSAPP}</a></b><br/><br/>
               {GetMsgUpdateCita('')}
               </div>            
           {messages.map((message, index) => (            
