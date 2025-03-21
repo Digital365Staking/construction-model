@@ -124,7 +124,7 @@ body{
       display: flex;
       flex-direction: column; /* Arranges messages vertically */
       justify-content: flex-start; /* Aligns messages to the top */
-      height: 32.6em; /* Ensures the container takes up its allocated space */
+      height: 62.6em; /* Ensures the container takes up its allocated space */
       overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
     }
   }
@@ -134,7 +134,7 @@ body{
       display: flex;
       flex-direction: column; /* Arranges messages vertically */
       justify-content: flex-start; /* Aligns messages to the top */
-      height: 25.6em; /* Ensures the container takes up its allocated space */
+      height: 62.6em; /* Ensures the container takes up its allocated space */
       overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
       margin: 0;
     }
@@ -352,7 +352,7 @@ body{
       position: fixed;
       border-radius: 0.5em 0.5em 0.5em 0.5em;
       box-shadow: 0 0 0.75em 0.5em #c3c3c333;
-      width: 98.2%;
+      width: 97.2%;
       bottom: 0px;
       margin-left: -1.5px;
       padding: 0.5em 0.5em;

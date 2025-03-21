@@ -8,17 +8,17 @@ const App = () => {
   const [searchParams] = useSearchParams();
   const [ClientView, setClientView] = useState(null);
   const [AdminView, setAdminView] = useState(null);
-  const [curGuid, setCurGuid] = useState(() => JSON.parse(localStorage.getItem('curGuid')) || "");
-  
-
-  useEffect(() => {
-          localStorage.setItem('curGuid', JSON.stringify(curGuid));
-          
-      }, [curGuid]);
+  const [curGuid, setCurGuid] = useState(() => localStorage.getItem('curGuid') || "-");
 
       useEffect(() => {
         
         if (searchParams.has("a")) {
+          let key = Number(searchParams.get('a'));
+          if(curGuid === '-'){
+            //localStorage.setItem('curGuid', JSON.stringify(curGuid));
+          }else{
+
+          }
           import("./components/AdminView").then((module) => {
             setAdminView(() => module.default);
           });
@@ -30,7 +30,7 @@ const App = () => {
       }, []);
 
   return (
-    <div>      
+    <div> { searchParams.has("a") ? searchParams.get('a') : 'No admin' }    
       <main>  
       {ClientView ? <ClientView /> : (AdminView ? <AdminView /> : <p></p>)}     
       </main>      

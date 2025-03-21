@@ -30,7 +30,7 @@ const AdminView = () => {
     const [chatInput, setChatInput] = useState('');
     
     
-    const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
+    const [selLang, setSelLang] = useState(navigator.language.slice(0,2) || "en");
     const curSend = selLang === 'de' ? 'Senden' : (selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer'));
     const curTypeHere = selLang === 'de' ? 'Hier eingeben' : (selLang === 'es' ? 'Escribe aquí' : (selLang === 'en' ? 'Type here' : 'Tapez ici'));
     const curAI = selLang === 'de' ? 'Virtueller Assistent' : (selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel'));
@@ -71,7 +71,7 @@ const AdminView = () => {
     }, []);
 
     const loadMessage = (sender,msg) => {
-        //const curFormat = selLang === 'de' ? 'de-DE' : (selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR'));
+        
         const timestamp = new Date().toLocaleString(curFormat, {
           month: 'long',
           day: 'numeric',
@@ -88,7 +88,7 @@ const AdminView = () => {
           timestamp,
         };
         setMessages((prevMessages) => [...prevMessages, newMsg]);
-        //setMessageSender(curMe);
+        
       };
 
       const LAST_QUESTION = `
