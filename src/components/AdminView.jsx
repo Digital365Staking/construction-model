@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import "../styles/AdminView.css";
 import { GraphQLClient } from 'graphql-request';
 import { createClient as createWSClient } from 'graphql-ws';
@@ -28,14 +28,14 @@ const AdminView = () => {
     const [curPseudo, setCurPseudo] = useState('');
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [chatInput, setChatInput] = useState('');
-    
+    const [copied, setCopied] = useState(-1);
     
     const [selLang, setSelLang] = useState(navigator.language.slice(0,2) || "en");
     const curSend = selLang === 'de' ? 'Senden' : (selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer'));
     const curTypeHere = selLang === 'de' ? 'Hier eingeben' : (selLang === 'es' ? 'Escribe aquí' : (selLang === 'en' ? 'Type here' : 'Tapez ici'));
     const curAI = selLang === 'de' ? 'Virtueller Assistent' : (selLang === 'es' ? 'Asistente virtual' : (selLang === 'en' ? 'Virtual assistant' : 'Assistant virtuel'));
     const curMe = selLang === 'de' ? 'Ich' : (selLang === 'es' ? 'Yo' : (selLang === 'en' ? 'Me' : 'Moi'));
-
+    const labelCopied = selLang === 'de' ? 'Kopiert !' : (selLang === 'es' ? 'Copiado !' : (selLang === 'en' ? 'Copied !' : 'Copié !'));
     const curFormat = selLang === 'de' ? 'de-DE' : (selLang === 'es' ? 'es-ES' : (selLang === 'en' ? 'en-US' : 'fr-FR'));
 
 
@@ -54,21 +54,35 @@ const AdminView = () => {
       }
     }
       `;
-  
-        const fetchComments = async () => {
-            try {
-            setComments([]);
-            const data = await client.request(QUERY_COMMENTS, { id_client : Number(import.meta.env.VITE_ID_CLIENT) });
-            const sortedComments = data.COMMENT.sort((a, b) => new Date(b.created) - new Date(a.created));
-            setComments(sortedComments);
-            } catch (error) {
-            console.error("Error fetching data:", error);
-            }      
-        };
 
-    useEffect(() => { 
-      fetchComments();
-    }, []);
+      
+      const fetchComments = useCallback(async () => {
+        let mounted = true; // Track component mount state
+    
+        try {
+          setComments([]); // Reset before fetching
+    
+          const data = await client.request(QUERY_COMMENTS, { 
+            id_client: Number(import.meta.env.VITE_ID_CLIENT) 
+          });
+    
+          const sortedComments = (data?.COMMENT ?? [])
+            .sort((a, b) => new Date(b.created || 0) - new Date(a.created || 0));
+    
+          if (mounted) setComments(sortedComments);
+        } catch (error) {
+          console.error("Error fetching comments:", error);
+        }
+    
+        return () => { mounted = false; }; // Cleanup function
+      }, []);
+    
+      // Call `fetchComments` inside useEffect on mount
+      useEffect(() => {
+        fetchComments();
+      }, [fetchComments]);
+      
+      
 
     const loadMessage = (sender,msg) => {
         
@@ -341,6 +355,12 @@ const AdminView = () => {
       return () => unsubscribe(); // Unsubscribe on unmount
     }, [wsClient, COMMENT_SUBSCRIPTION, id_client]); // Include id_client in dependencies
     
+    const copyToClipboard = (e, text) => {
+      navigator.clipboard.writeText(text).then(() => {        
+        setCopied(e.target.id);        
+        setTimeout(() => setCopied(-1), 1500);
+      }).catch(err => console.error("Failed to copy:", err));
+    };
 
     return (
     <div className="app-container"> 
@@ -351,7 +371,14 @@ const AdminView = () => {
               <div
                 key={index}
                 className={`message ${item.type === 0 ? 'blue-bg' : 'gray-bg'}`}>
-                <div className="message-sender"><span style={{fontWeight:"bold"}}>{item.type  === 0 ? item.pseudo : (item.isai ? curAI : curMe)}</span> : {item.content}
+                <div className="message-sender"><button id={index} 
+                  onClick={(e) => copyToClipboard(e,item.content)} 
+                  className="clipboard-icon"
+                >
+                  📋
+                </button>
+                <span className={`copied-message ${copied === index ? "visible" : ""}`}>{labelCopied}</span>
+                <span style={{fontWeight:"bold"}}>{item.type  === 0 ? item.pseudo : (item.isai ? curAI : curMe)}</span> : {item.content}
                 <div className="message-timestamp">{new Date(item.created).toLocaleString(curFormat, {
                       month: 'long',
                       day: 'numeric',

@@ -141,6 +141,7 @@ const GetMsgInitQuote = (lang) => {
 
   
   const copyToClipboard = (e, text) => {
+    
     navigator.clipboard.writeText(text).then(() => {
       setCopied(e.target.id);
       console.log("clip = " + e.target.id);
@@ -2064,7 +2065,7 @@ END:VCALENDAR`;
       >
         📋
       </button>
-      <span className={`copied-message ${copied == index ? "visible" : ""}`}>{labelCopied}</span>
+      <span className={`copied-message ${copied === index ? "visible" : ""}`}>{labelCopied}</span>
               </div>               
               <div className="message-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}> 
                 {curCita1.stepCita > 0 && (<div>{GetMsgTypeCita(selLang)}<b>{curCita1.labelService}</b><br/>

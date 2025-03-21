@@ -124,7 +124,7 @@ body{
       display: flex;
       flex-direction: column; /* Arranges messages vertically */
       justify-content: flex-start; /* Aligns messages to the top */
-      height: 62.6em; /* Ensures the container takes up its allocated space */
+      height: 110em; /* Ensures the container takes up its allocated space */
       overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
     }
   }
@@ -134,7 +134,7 @@ body{
       display: flex;
       flex-direction: column; /* Arranges messages vertically */
       justify-content: flex-start; /* Aligns messages to the top */
-      height: 62.6em; /* Ensures the container takes up its allocated space */
+      height: 99em; /* Ensures the container takes up its allocated space */
       overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
       margin: 0;
     }
@@ -145,7 +145,7 @@ body{
       display: flex;
       flex-direction: column; /* Arranges messages vertically */
       justify-content: flex-start; /* Aligns messages to the top */
-      height: 24.5em; /* Ensures the container takes up its allocated space */
+      height: 99em; /* Ensures the container takes up its allocated space */
       overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
     }
   }
@@ -269,8 +269,8 @@ body{
   
   .clipboard-icon {
     float: right;
-    top: 5px;
-    right: 5px;
+    top: 0px;
+    margin-right: 10px;
     width: 24px;
     height: 24px;
     cursor: pointer;
