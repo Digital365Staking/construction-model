@@ -1,5 +1,8 @@
 body{
   background: #5b6af0;
+  transform: scale(1);
+  transform-origin: top left;
+  width: 100%; /* Adjust to prevent horizontal scrolling */
 }
 
 .button {
@@ -33,14 +36,14 @@ textarea:disabled {
   opacity: 0.5;  /* Optional: Makes it appear disabled */
 }
 
-@media screen and (max-width: 660px) {
+@media screen and (max-width: 550px) {
   .chat-container {
     font-family: 'Roboto', sans-serif;
     border-radius: 0.5em;
     padding: 0.1em 0.1em;
     margin: auto;
-    width: 101%;
-    min-height: 55.96vh;
+    width: 100%;
+    min-height: 82vh;
     box-shadow: 0 0 1.25em 0.5em #c3c3c333;
     background-image: linear-gradient(
       23deg,
@@ -58,7 +61,7 @@ textarea:disabled {
   }
 }
 
-@media screen and (min-width: 660px) {
+@media screen and (min-width: 550px) {
   .chat-container {
     font-family: 'Roboto', sans-serif;
     border-radius: 0.5em;
@@ -321,15 +324,15 @@ textarea:disabled {
   width: 100%;
 }
 
-@media screen and (max-width: 660px) {
+@media screen and (max-width: 550px) {
   .fixed-bottom {
     position: fixed;
     border-radius: 0.5em 0.5em 0.5em 0.5em;
     box-shadow: 0 0 0.75em 0.5em #c3c3c333;
-    width: 96.5%;
-    height: 25.3vh;
-    bottom: 0px;
-    left:0px;
+    width: 96.7%;
+    height: 29vh;
+    bottom: 3px;
+    left:-7px;
     padding: 0.5em 0.5em;
     background: #333;
     color: white;
@@ -346,14 +349,14 @@ textarea:disabled {
 }
 
 /* Styles for PC */
-@media screen and (min-width: 930px) {
+@media screen and (min-width: 550px) {
   .fixed-bottom {
     position: fixed;
     border-radius: 0.5em 0.5em 0.5em 0.5em;
     box-shadow: 0 0 0.75em 0.5em #c3c3c333;
-    width: 38.25%;
-    bottom: 12px;
-    margin-left: -2px;
+    width: 38.6%;
+    bottom: 0px;
+    margin-left: -1.5px;
     padding: 0.5em 0.5em;
     background: #333;
     color: white;

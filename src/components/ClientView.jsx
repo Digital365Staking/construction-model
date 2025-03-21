@@ -76,7 +76,7 @@ const ClientView = () => {
   const [chatInput, setChatInput] = useState('');
   const [displayWaiting, setDisplayWaiting] = useState('none');
   const [copied, setCopied] = useState(-1);
-  const [selLang, setSelLang] = useState(import.meta.env.VITE_LANG);
+  const [selLang, setSelLang] = useState(navigator.language.slice(0,2) || "en");
   const GetMsgResumeCita = (lang) => {
     if(lang === "")
       return selLang === 'de' ? 'Zusammenfassung meines Termins' : (selLang === 'es' ? 'Resumen de mi cita' : (selLang === 'en' ? 'Summary of my appointment' : "Résumé de mon rendez-vous"));
@@ -302,8 +302,8 @@ const GetMsgInitQuote = (lang) => {
   
     // Group working days into arrays (example: 5 working days per group)
     let groupedWorkingDays = [];
-    for (let i = 0; i < workingDays.length; i += 5) {
-      groupedWorkingDays.push(workingDays.slice(i, i + 5));
+    for (let i = 0; i < workingDays.length; i += 4) {
+      groupedWorkingDays.push(workingDays.slice(i, i + 4));
     }
   
     return groupedWorkingDays;
@@ -1655,7 +1655,7 @@ const curServClient = (lang) => {
     console.log("lentgh data : " + data[0].length);
     let tmpArr = data[0].length === 0 ? services : data;
     tmpArr.forEach(item => {
-      if (c % 4 === 0) {
+      if (c % 3 === 0) {
         array.push([]);
         line++;           
       }
