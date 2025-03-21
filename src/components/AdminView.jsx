@@ -78,9 +78,9 @@ const AdminView = () => {
       }, []);
     
       // Call `fetchComments` inside useEffect on mount
-      useEffect(() => {
+      /*useEffect(() => {
         fetchComments();
-      }, [fetchComments]);
+      }, [fetchComments]);*/
       
       
 
@@ -326,7 +326,7 @@ const AdminView = () => {
           next: async (data) => {
             if (data.data && data.data.COMMENT.length > 0) {
               // Example new comment to add (you can replace this with your actual new comment data)
-              const newComment = {
+              /*const newComment = {
                 id: data.data.COMMENT[0].id,  // Replace with the actual id
                 pseudo: data.data.COMMENT[0].pseudo,
                 question: data.data.COMMENT[0].question,
@@ -340,7 +340,8 @@ const AdminView = () => {
               const updatedComments = [...comments, newComment].sort((a, b) => new Date(b.created) - new Date(a.created));
 
               // Update the state with the sorted comments
-              setComments(updatedComments);
+              setComments(updatedComments);*/
+              await fetchComments();
 
               const data2 = await client.request(SUB_COMMENTS, { pseudo: data.data.COMMENT[0].pseudo });
               setSubComments([]);
