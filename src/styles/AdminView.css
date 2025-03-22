@@ -40,8 +40,7 @@ body{
       padding: 0.1em 0.1em;
       margin: auto;
       width: 110.6%;
-      height: fit-content;
-      min-height: 110.5vh;
+      height: 97vh;
       box-shadow: 0 0 1.25em 0.5em #c3c3c333;
       background-image: linear-gradient(
         23deg,
@@ -66,7 +65,7 @@ body{
       padding: 0.1em 0.1em;
       margin: auto;
       width: 100%;
-      min-height: 99.8vh;
+      height: 97vh;
       box-shadow: 0 0 1.25em 0.5em #c3c3c333;
       background-image: linear-gradient(
         23deg,
@@ -124,7 +123,7 @@ body{
       display: flex;
       flex-direction: column; /* Arranges messages vertically */
       justify-content: flex-start; /* Aligns messages to the top */
-      height: 110em; /* Ensures the container takes up its allocated space */
+      height: 69vh; /* Ensures the container takes up its allocated space */
       overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
     }
   }
@@ -134,7 +133,7 @@ body{
       display: flex;
       flex-direction: column; /* Arranges messages vertically */
       justify-content: flex-start; /* Aligns messages to the top */
-      height: 99em; /* Ensures the container takes up its allocated space */
+      height: 84vh; /* Ensures the container takes up its allocated space */
       overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
       margin: 0;
     }
