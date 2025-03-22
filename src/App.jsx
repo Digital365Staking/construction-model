@@ -10,7 +10,7 @@ const App = () => {
   const [searchParams] = useSearchParams();
   const [ClientView, setClientView] = useState(null);
   const [AdminView, setAdminView] = useState(null);
-  const [curGuid, setCurGuid] = useState(() => localStorage.getItem('curGuid') || "-");
+  const [curGuid, setCurGuid] = useState(() => localStorage.getItem('curGuid') || '-');
 
       useEffect(() => {
         const QUERY_CLI_KEY = `
@@ -24,15 +24,15 @@ const App = () => {
       
         const QUERY_CLI_GUID = `
        query GetClientByIdAndGuid($id: Int!, $guid: String!) {
-        client(where: { id: { _eq: $id }, guid: { _eq: $guid } }) {
+        CLIENT(where: { id: { _eq: $id }, guid: { _eq: $guid } }) {
           id
           }
         }
         `;
       
         const QUERY_CLI_UPDATEKEYS = `
-        mutation UpdateClient($id: Int!, $newGuid: String!, $newKey: Int!) {
-        update_CLIENT_by_pk(pk_columns: {id: $id}, _set: {guid: $newGuid, key: $newKey}) {
+        mutation UpdateClient($id: Int!, $guid: String!, $number: Int!) {
+        update_CLIENT_by_pk(pk_columns: {id: $id}, _set: {guid: $guid, key: $number}) {
           id
           guid
           key
@@ -60,6 +60,8 @@ const App = () => {
             }
         };
 
+        const isEmptyString = (value) => !value || value.trim() === "";
+
         const GetClientByIdAndKey = async(id,key) => {
           try{          
             const data = await client.request(QUERY_CLI_KEY, { id, key  });
@@ -68,40 +70,48 @@ const App = () => {
               if(guid === "-" || isEmptyString(guid)){
                 console.log("link registration , 1st time");
                 guid = uuidv4(); // Generates a unique GUID
-                setCurGuid(guid);
+                localStorage.setItem('curGuid',guid);
                 const number = Math.floor(Math.random() * 99999) + 1;
+                console.log("id = " + id + " , guid = " + guid + " , number = " + number);
                 await client.request(QUERY_CLI_UPDATEKEYS, { id, guid, number });
               }
               return guid;
+            }else{
+              console.log("key doesn't exist");
             }
             return "-";
           } catch (error) {
             console.error("Error GetClientByIdAndKey:", error);
           }
         };
-
-        if (searchParams.has("a")) {
-          let key = Number(searchParams.get('a'));
-          let guid = "-";
-          if(curGuid === '-'){            
-            guid = GetClientByIdAndKey(id_client,key);
-          }else{
-            guid = GetClientByIdAndGuid(id_client,curGuid);
-          }
-          if(guid === '-'){
-            import("./components/ClientView").then((module) => {
-              setClientView(() => module.default);
-            });
-          }else{
-            import("./components/AdminView").then((module) => {
-              setAdminView(() => module.default);
-            });
-          }          
-        }else{
-          import("./components/ClientView").then((module) => {
-            setClientView(() => module.default);
-          });
-        }
+        
+        const processView = async () => {
+            if (searchParams.has("a")) {
+              console.log('curGUID = ' + curGuid);
+              let key = Number(searchParams.get('a'));
+              let guid = "-";
+              if(curGuid === '-'){            
+                guid = await GetClientByIdAndKey(id_client,Number(key));
+              }else{
+                guid = await GetClientByIdAndGuid(id_client,curGuid);
+              }
+              console.log('contentGuid ' + guid);
+              if(guid === '-'){
+                import("./components/ClientView").then((module) => {
+                  setClientView(() => module.default);
+                });
+              }else{
+                import("./components/AdminView").then((module) => {
+                  setAdminView(() => module.default);
+                });
+              }          
+            }else{
+              import("./components/ClientView").then((module) => {
+                setClientView(() => module.default);
+              });
+            }
+        };
+        processView();
       }, []);
 
   return (

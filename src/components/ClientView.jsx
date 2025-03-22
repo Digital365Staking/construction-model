@@ -2015,7 +2015,7 @@ END:VCALENDAR`;
           <div class="header-right">
           <div class="header-top">
           {isFormSendOpen && !isMobile && (<h4 style={{marginBottom:"2em"}}>{import.meta.env.VITE_COMPANY_NAME}</h4>)}
-          {isFormSendOpen && isMobile && (<div style={{position: "fixed", top: "5", right: "0", marginRight: "5em"}}>{import.meta.env.VITE_COMPANY_NAME}</div>)}
+          {isFormSendOpen && isMobile && (<div style={{position: "fixed", top: "5", right: "0", marginRight: "1em", fontWeight: "bold"}}>{import.meta.env.VITE_COMPANY_NAME}</div>)}
           </div>
               <div class="header-bottom" style={{ display: 'flex', marginBottom:"15em" }}>
                 <div style={{ width: '45%' }}>
