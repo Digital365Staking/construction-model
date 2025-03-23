@@ -213,7 +213,7 @@ const GetMsgInitQuote = (lang) => {
     const fetchProducts = async () => {
       try {
         const today = new Date();
-        const todayFormatted = today.toISOString().split('T')[0]; // Formats to YYYY-MM-DD
+        const todayFormatted = '2025-03-22';//today.toISOString().split('T')[0]; // Formats to YYYY-MM-DD
         if(curCita1.dateCita < todayFormatted){
           console.log("Date cita inferior a Today");
           /*setCurCita1(
@@ -2094,7 +2094,7 @@ END:VCALENDAR`;
             hour: '2-digit', 
             minute: '2-digit',
             timeZone: 'UTC' 
-        }).format(new Date(curCita1.dateCita)).replace(', 00:00','') : ''}
+        }).format(new Date(curCita1.dateCita)).replace('00:00','').replace(', 00:00','') : ''}
                   </b><br/>
                 </div> )}
                 <div>
