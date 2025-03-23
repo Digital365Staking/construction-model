@@ -212,6 +212,21 @@ const GetMsgInitQuote = (lang) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        const today = new Date();
+        const todayFormatted = today.toISOString().split('T')[0]; // Formats to YYYY-MM-DD
+        if(curCita1.dateCita < todayFormatted){
+          console.log("Date cita inferior a Today");
+          /*setCurCita1(
+            {
+              idService: 0,
+              labelService: "",
+              dateCita: new Date(),
+              nombre: "",
+              contact: "",
+              stepCita: 0
+            }
+          );*/  
+        }
         setCurIdClient(Number(import.meta.env.VITE_ID_CLIENT));
         const hasOptProd = import.meta.env.VITE_OPT_PRODUCT === "1";
         if (hasOptProd) {
@@ -2024,6 +2039,7 @@ END:VCALENDAR`;
                   </a>
                 </div>
                 <div style={{ width: '55%',textAlign: "left" }}>
+                  {isMobile && (<br/>)}
                   {selLang === 'de' ? 'Kontakt :' : (selLang === 'es' ? 'Contacto :' : 'Contact :')} digital365staking@gmail.com
                   <br/> 
                   <a href={import.meta.env.VITE_GDPR} target="_blank">GDPR</a>
