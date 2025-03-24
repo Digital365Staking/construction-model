@@ -985,7 +985,26 @@ const curServClient = (lang) => {
       }
        `;
       let promptInfo = chatInput + '\n';
-      
+      const QUERY_ADDED_INFO = `
+      query GetFilteredInforai($categ: Int!, $lang: String!) {
+        INFORAI(where: { categ: { _eq: $categ }, lang: { _eq: $lang } }) {
+          text
+        }
+      }
+       `;
+       let res = await client.request(QUERY_ADDED_INFO, {
+        categ : Number(import.meta.env.VITE_CATEG_SECTOR),
+        lang : selLang
+      });
+      if (res?.INFORAI?.length > 0) {
+        let csv = Papa.unparse(res.INFORAI, {
+          header: false,
+          newline: '\r\n'               
+        });
+        csv = csv.replace(/"/g, '');  
+        promptInfo += csv + '\n';    
+      }
+      promptInfo += import.meta.env.VITE_INFOADDED_0 + '\n';  // You are a company in the construction sector
       if(curCateg === 0 && hasPromoProd){
         promptInfo += selLang === 'de' ? 
         `Geben Sie an, welches(n) Produkt(e) aus der folgenden CSV-Liste geeignet wären (geben Sie zusätzlich zur Antwort auf die vorherige Frage eine JSON-Zeichenkette zurück, die eine Liste von Identifikatoren enthält, zum Beispiel: '{ "Produkte": "1,2" }', ohne Leerzeichen im Array. Erwähnen Sie keine Ausdrücke in Klammern, wie '(Produkt 2)' oder '(Produkt 3)' oder '(2)' oder '(3)' ).` 
@@ -997,6 +1016,7 @@ const curServClient = (lang) => {
         ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient ( retourner, en plus de la réponse à la précédente question, une chaîne JSON contenant une liste d'identifiants, par exemple : '{ "Produits": "1,2" }' , sans espaces dans le tableau. Ne pas mentionner les expressions entre parenthèses, telles que '(produit 2)' ou '(produit 3)' ou '(2)' ou '(3)' ).`));
         promptInfo += csvProducts;
       }
+      
       console.log('promptInfo = ' + promptInfo);
       setDisplayWaiting('flex');
       chatResponse = await fetchChatAIResponse(promptInfo);
@@ -2027,7 +2047,7 @@ END:VCALENDAR`;
                   {selLang === 'de' ? 'Kontakt :' : (selLang === 'es' ? 'Contacto :' : 'Contact :')} digital365staking@gmail.com
                   <br/> 
                   <a href={import.meta.env.VITE_GDPR} target="_blank">{selLang === 'de' ? 'DSGVO' : (selLang === 'es' ? 'RGPD' : (selLang === 'en' ? 'GDPR :' : 'RGPD'))}</a>
-                  <a href={selLang === 'de' ? 'https://tally.so/r/wA92dN' : (selLang === 'es' ? 'https://tally.so/r/3XQJlj' : (selLang === 'en' ? 'https://tally.so/r/wLO7PO' : 'https://tally.so/r/n0k76A'))} target="_blank" style={{float:"right",marginRight:"2em"}}>
+                  <a href={selLang === 'de' ? import.meta.env.VITE_URLFORM_DE : (selLang === 'es' ? import.meta.env.VITE_URLFORM_ES : (selLang === 'en' ? import.meta.env.VITE_URLFORM_EN : import.meta.env.VITE_URLFORM_FR))} target="_blank" style={{float:"right",marginRight: isMobile ? "0" : "2em"}}>
                     {selLang === 'de' ? 'Meinen Chatbot anpassen' : (selLang === 'es' ? 'Personalizar mi chatbot' : (selLang === 'en' ? 'Customize my chatbot' : 'Personnaliser mon chatbot'))}
                     </a>
                 </div>

@@ -194,7 +194,7 @@ const AdminView = () => {
       query GetCommentsByPseudo($pseudo: String!) {
         comment_union(
           where: { pseudo: { _eq: $pseudo } }
-          order_by: { created: desc, type: asc }
+          order_by: { created: asc, type: asc }
         ) {
           pseudo
           content
@@ -212,7 +212,7 @@ const AdminView = () => {
               id_client: { _eq: $id_client }, 
               pseudo: { _eq: $pseudo },
             } 
-            order_by: { created: desc }
+            order_by: { created: asc }
           ) {
             id
             pseudo
