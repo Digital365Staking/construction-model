@@ -212,11 +212,12 @@ const GetMsgInitQuote = (lang) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        console.log('fetchProducts');
         const today = new Date();
-        const todayFormatted = '2025-03-22';//today.toISOString().split('T')[0]; // Formats to YYYY-MM-DD
-        if(curCita1.dateCita < todayFormatted){
+        const todayFormatted = today.toISOString().split('T')[0]; // Formats to YYYY-MM-DD
+        if(curCita1.dateCita && curCita1.dateCita < todayFormatted){
           console.log("Date cita inferior a Today");
-          /*setCurCita1(
+          setCurCita1(
             {
               idService: 0,
               labelService: "",
@@ -225,7 +226,7 @@ const GetMsgInitQuote = (lang) => {
               contact: "",
               stepCita: 0
             }
-          );*/  
+          ); 
         }
         setCurIdClient(Number(import.meta.env.VITE_ID_CLIENT));
         const hasOptProd = import.meta.env.VITE_OPT_PRODUCT === "1";
@@ -843,24 +844,7 @@ const curServClient = (lang) => {
         }));
                
         setMessages([]);
-        /*let txtMail = GetMsgResumeCita('') + '\n' + GetMsgDateHourCita('') + '\n';
-        let dathour = new Intl.DateTimeFormat(codeLang(''), { 
-            year: 'numeric', 
-            month: '2-digit', 
-            day: '2-digit', 
-            hour: '2-digit', 
-            minute: '2-digit',
-            timeZone: 'UTC' 
-        }).format(new Date(curCita1.dateCita));
-        txtMail += dathour + '\n';
-        txtMail += GetMsgTypeCita('') + curCita1.labelService + '\n';
-        txtMail += GetMsgContactCita('') + " +" + import.meta.env.VITE_WHATSAPP + "\n";
         
-        let subject = selLang === 'de' ? "Neuer Termin" : (selLang === 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous"));
-        let name = selLang === 'de' ? "Name : " : (selLang === 'es' ? "Nombre : " : (selLang === 'en' ? "Name : " : "Nom : "));
-
-        console.log("Nom :" + curCita1.nombre);
-        const encodedMessage = encodeURIComponent(txtMail);*/
         const { subject, name, dathour, encodedMessage } = GetTextEmail();
         handleInsertCita();
         if(enableNotif){
@@ -2042,7 +2026,10 @@ END:VCALENDAR`;
                   {isMobile && (<br/>)}
                   {selLang === 'de' ? 'Kontakt :' : (selLang === 'es' ? 'Contacto :' : 'Contact :')} digital365staking@gmail.com
                   <br/> 
-                  <a href={import.meta.env.VITE_GDPR} target="_blank">GDPR</a>
+                  <a href={import.meta.env.VITE_GDPR} target="_blank">{selLang === 'de' ? 'DSGVO' : (selLang === 'es' ? 'RGPD' : (selLang === 'en' ? 'GDPR :' : 'RGPD'))}</a>
+                  <a href={selLang === 'de' ? 'https://tally.so/r/wA92dN' : (selLang === 'es' ? 'https://tally.so/r/3XQJlj' : (selLang === 'en' ? 'https://tally.so/r/wLO7PO' : 'https://tally.so/r/n0k76A'))} target="_blank" style={{float:"right",marginRight:"2em"}}>
+                    {selLang === 'de' ? 'Meinen Chatbot anpassen' : (selLang === 'es' ? 'Personalizar mi chatbot' : (selLang === 'en' ? 'Customize my chatbot' : 'Personnaliser mon chatbot'))}
+                    </a>
                 </div>
               </div>
           </div>
@@ -2084,7 +2071,7 @@ END:VCALENDAR`;
       <span className={`copied-message ${copied === index ? "visible" : ""}`}>{labelCopied}</span>
               </div>               
               <div className="message-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}> 
-                {curCita1.stepCita > 0 && (<div>{GetMsgTypeCita(selLang)}<b>{curCita1.labelService}</b><br/>
+                {curCateg === 2 && curCita1.stepCita > 0 && (<div>{GetMsgTypeCita(selLang)}<b>{curCita1.labelService}</b><br/>
                 {GetMsgDateHourCita(selLang)}<b>
                   { (new Date(new Date(curCita1.dateCita).toDateString()) > new Date(new Date().toDateString())) ? new Intl.DateTimeFormat(codeLang(''), { 
             weekday: 'short',
