@@ -229,6 +229,7 @@ const GetMsgInitQuote = (lang) => {
             }
           ); 
         }
+        GetMsgInitInfo("");
         setCurIdClient(Number(import.meta.env.VITE_ID_CLIENT));
         const hasOptProd = import.meta.env.VITE_OPT_PRODUCT === "1";
         if (hasOptProd) {
@@ -715,12 +716,6 @@ const curServClient = (lang) => {
     return text;
   };
 
-  /*useEffect(() => {
-    
-    setMessages([]);
-    loadMessage(curAI(""),GetMsgInitInfo(""),""); 
-  }, [curCateg]);*/
-
   useEffect(() => {
     localStorage.setItem('curCateg', curCateg);
     if(curCita1.nombre !== ""){
@@ -728,12 +723,20 @@ const curServClient = (lang) => {
     }else{
       localStorage.setItem('curPseudo', curPseudo);
     }
-    setMessages([]);
+    //setMessages([]);
     if(curCateg === 0){
-      loadMessage(curAI(""),GetMsgInitInfo(""),"");
+      //loadMessage(curAI(""),GetMsgInitInfo(""),"");
     }
     if(curCateg === 1){
       loadMessage(curAI(""),GetMsgInitQuote(""),"");
+    }else{
+      loadMessage(curAI(""),GetMsgInitInfo(""),"");
+      setCurCateg(0);
+      setDisplayInfo(
+        {
+          display: "none"
+        }
+      ); 
     }     
   }, [curPseudo]);
 
@@ -1634,10 +1637,10 @@ const curServClient = (lang) => {
         }
         loadMessage(curAI(""),msg,"");
       }
-    const timer = setTimeout(() => {
+    /*const timer = setTimeout(() => {
       
       
-    }, 1000);
+    }, 1000);*/
     
   };
 
@@ -2048,7 +2051,7 @@ END:VCALENDAR`;
                   {selLang === 'de' ? 'Kontakt :' : (selLang === 'es' ? 'Contacto :' : 'Contact :')} digital365staking@gmail.com
                   <br/> 
                   <a href={import.meta.env.VITE_GDPR} target="_blank">{selLang === 'de' ? 'DSGVO' : (selLang === 'es' ? 'RGPD' : (selLang === 'en' ? 'GDPR :' : 'RGPD'))}</a>
-                  <a href={selLang === 'de' ? import.meta.env.VITE_URLFORM_DE : (selLang === 'es' ? import.meta.env.VITE_URLFORM_ES : (selLang === 'en' ? import.meta.env.VITE_URLFORM_EN : import.meta.env.VITE_URLFORM_FR))} target="_blank" style={{float:"right",marginRight: isMobile ? "0.1em" : "2em"}}>
+                  <a href={selLang === 'de' ? import.meta.env.VITE_URLFORM_DE : (selLang === 'es' ? import.meta.env.VITE_URLFORM_ES : (selLang === 'en' ? import.meta.env.VITE_URLFORM_EN : import.meta.env.VITE_URLFORM_FR))} target="_blank" style={{float:"right",marginRight: isMobile ? "0.2em" : "2em"}}>
                     {selLang === 'de' ? 'Meinen Chatbot anpassen' : (selLang === 'es' ? 'Personalizar mi chatbot' : (selLang === 'en' ? 'Customize my chatbot' : 'Personnaliser mon chatbot'))}
                     </a>
                 </div>
