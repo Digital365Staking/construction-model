@@ -90,13 +90,13 @@ const App = () => {
               console.log('curGUID = ' + curGuid);
               let key = Number(searchParams.get('a'));
               let guid = "-";
-              if(curGuid === '-'){            
+              if(curGuid === '-' || isEmptyString(curGuid)){            
                 guid = await GetClientByIdAndKey(id_client,Number(key));
               }else{
                 guid = await GetClientByIdAndGuid(id_client,curGuid);
               }
               console.log('contentGuid ' + guid);
-              if(guid === '-'){
+              if(guid === '-' || isEmptyString(guid)){
                 import("./components/ClientView").then((module) => {
                   setClientView(() => module.default);
                 });
