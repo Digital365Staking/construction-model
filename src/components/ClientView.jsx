@@ -47,14 +47,15 @@ const wsClient = createWSClient({
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
-// Initialize ENV Variables
-const year = new Date().getFullYear();
-const envVarName = `VITE_PUBLIC_HOLIDAYS_${year}`;
-const public_holidays = import.meta.env[envVarName];
-const chatgpt_api_url = import.meta.env.VITE_CHATGPT_URL;
-const chatgpt_api_key = import.meta.env.VITE_CHATGPT_KEY;
+
 
 const ClientView = () => {
+  // Initialize ENV Variables
+  const year = new Date().getFullYear();
+  const envVarName = `VITE_PUBLIC_HOLIDAYS_${year}`;
+  const public_holidays = import.meta.env[envVarName];
+  const chatgpt_api_url = import.meta.env.VITE_CHATGPT_URL;
+  const chatgpt_api_key = import.meta.env.VITE_CHATGPT_KEY;
   const start_slot_am = import.meta.env.VITE_START_SLOT_AM;
   const end_slot_am = import.meta.env.VITE_END_SLOT_AM;
   const start_slot_pm = import.meta.env.VITE_START_SLOT_PM;
@@ -1950,7 +1951,10 @@ END:VCALENDAR`;
               if (data.data && data.data.COMMENT.length > 0) {
                 if(messages.length > 1 && messages[messages.length-2].text !== messages[messages.length-1].text){
                   loadMessage(curServClient(""),data.data.COMMENT[0].response,"");
-                  console.log('Admin, New comment added from client :', data.data.COMMENT[0]); 
+                  console.log('Admin, New comment added from client :', data.data.COMMENT[0]);
+                  if (lstMsgRef.current) {
+                    lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight;
+                  } 
                 }else{
                   loadMessage(curAI(""),data.data.COMMENT[0].response,"");
                   console.log('AI, New comment added from client :', data.data.COMMENT[0]);  

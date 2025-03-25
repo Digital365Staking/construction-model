@@ -87,13 +87,14 @@ const App = () => {
         
         const processView = async () => {
             if (searchParams.has("a")) {
-              console.log('curGUID = ' + curGuid);
-              let key = Number(searchParams.get('a'));
               let guid = "-";
-              if(curGuid === '-' || isEmptyString(curGuid)){            
+              guid = curGuid.replace(/"/g, '');
+              console.log('curGUID = ' + guid);
+              let key = Number(searchParams.get('a'));
+              if(guid === '-' || isEmptyString(guid)){            
                 guid = await GetClientByIdAndKey(id_client,Number(key));
               }else{
-                guid = await GetClientByIdAndGuid(id_client,curGuid);
+                guid = await GetClientByIdAndGuid(id_client,guid);
               }
               console.log('contentGuid ' + guid);
               if(guid === '-' || isEmptyString(guid)){

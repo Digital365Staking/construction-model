@@ -270,14 +270,18 @@ const AdminView = () => {
                           
                           if (newComments.comment_union.length > 0) {
                               setSubComments(newComments.comment_union);
+                              if (lstMsgRef.current) {
+                                console.log('scroll subCom received in Admin');
+                                lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight - 200;
+                              }
                           }else{
                             setSubComments([]);
                             setIsPopupOpen(false);                            
                           }
                           fetchComments();
                       },
-                      error: (err) => console.error("Subscription error:", err),
-                      complete: () => console.log("Subscription complete"),
+                      error: (err) => console.error("SUBCOMMENT_SUBSCRIPTION error:", err),
+                      complete: () => console.log("SUBCOMMENT_SUBSCRIPTION complete"),
                   }
               );
       
@@ -328,8 +332,8 @@ const AdminView = () => {
               setSubComments(data2.comment_union);              
             }
           },
-          error: (err) => console.error('Subscription error:', err),
-          complete: () => console.log('Subscription complete'),
+          error: (err) => console.error('COMMENT_SUBSCRIPTION error:', err),
+          complete: () => console.log('COMMENT_SUBSCRIPTION complete'),
         }
       );
     
