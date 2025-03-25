@@ -785,7 +785,7 @@ const curServClient = (lang) => {
     }else{
       const timeTaken = Date.now() - startTime;
       console.log("Diff : " + timeTaken);
-      if (timeTaken < 2000) {
+      if (timeTaken < 1000) {
         console.log("Bot detected: Too fast!");
         return;
       }else{
@@ -1850,25 +1850,6 @@ const curServClient = (lang) => {
     setMessageSender(curMe(lang === "" ? selLang : lang));
   };
 
-  /*const generateICSFile = () => {
-    const icsContent = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Your Company//NONSGML Event//EN
-BEGIN:VEVENT
-UID:12345
-DTSTAMP:20250226T090000Z
-DTSTART:20250301T100000Z
-DTEND:20250301T110000Z
-SUMMARY:Meeting with Client
-DESCRIPTION:Discuss project details
-LOCATION:Online
-END:VEVENT
-END:VCALENDAR`;
-
-    // Convert to Base64
-    return btoa(new TextEncoder().encode(icsContent).reduce((data, byte) => data + String.fromCharCode(byte), ""));
-  };*/
-
   const generateICSFile = async (txtMail) => {
     try{
     let curDate = new Date(curCita1.dateCita);
@@ -1952,7 +1933,7 @@ END:VCALENDAR`;
                 console.log('Msg resp = ', messages[messages.length-1].text);
               }              
               if (data.data && data.data.COMMENT.length > 0) {
-                if(messages.length > 1 && messages[messages.length-2].text !== messages[messages.length-1].text){
+                if(messages.length > 1 && (messages[messages.length-2].text !== messages[messages.length-1].text || !data.data.COMMENT[0].isai)){
                   loadMessage(curServClient(""),data.data.COMMENT[0].response,"");
                   console.log('Admin, New comment added from client :', data.data.COMMENT[0]);                  
                 }else{
@@ -2170,7 +2151,7 @@ END:VCALENDAR`;
           ))}
           <div class="cita-container">
           {linesDay.map((lin, idxLin) => (
-              <div key={idxLin} className="button-line" style={{ display: linesDay.length > 0 ? "block" : "none" }}>  
+              <div key={idxLin} className="button-line" style={{ display: curCateg == 2 && linesDay.length > 0 ? "block" : "none" }}>  
                 {lin.map((col, idxCol) => (
                   <button 
                     key={idxCol}  
