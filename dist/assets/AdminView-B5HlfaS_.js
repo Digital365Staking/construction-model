@@ -1,4 +1,4 @@
-import{r,G as V,j as n}from"./index-D7ZY6xbj.js";import{c as B}from"./client-CqLpxT0a.js";const i=new V("https://irkwbvxjbynhlcascmrk.hasura.eu-central-1.nhost.run/v1/graphql",{headers:{"x-hasura-admin-secret":"b0oJ5NWT^GXk8=O+mdV=X2yzz1D5AgWX"}}),v=B({url:"https://irkwbvxjbynhlcascmrk.hasura.eu-central-1.nhost.run/v1/graphql".replace("https","wss"),connectionParams:{headers:{"x-hasura-admin-secret":"b0oJ5NWT^GXk8=O+mdV=X2yzz1D5AgWX"}}}),J=()=>{const C=r.useRef(null),[q,f]=r.useState([]),[E,a]=r.useState([]),[u,T]=r.useState(""),[y,l]=r.useState(!1),[m,p]=r.useState(""),[x,_]=r.useState(-1),[t,z]=r.useState(navigator.language.slice(0,2)||"en"),$=t==="de"?"Senden":t==="es"?"Enviar":t==="en"?"Send":"Envoyer",j=t==="de"?"Hier eingeben":t==="es"?"Escribe aquí":t==="en"?"Type here":"Tapez ici",O=t==="de"?"Virtueller Assistent":t==="es"?"Asistente virtual":t==="en"?"Virtual assistant":"Assistant virtuel",I=t==="de"?"Ich":t==="es"?"Yo":t==="en"?"Me":"Moi",k=t==="de"?"Kopiert !":t==="es"?"Copiado !":t==="en"?"Copied !":"Copié !",S=t==="de"?"de-DE":t==="es"?"es-ES":t==="en"?"en-US":"fr-FR",A=`
+import{r,G as V,j as n}from"./index-3xDjqz8j.js";import{c as B}from"./client-CqLpxT0a.js";const i=new V("https://irkwbvxjbynhlcascmrk.hasura.eu-central-1.nhost.run/v1/graphql",{headers:{"x-hasura-admin-secret":"b0oJ5NWT^GXk8=O+mdV=X2yzz1D5AgWX"}}),v=B({url:"https://irkwbvxjbynhlcascmrk.hasura.eu-central-1.nhost.run/v1/graphql".replace("https","wss"),connectionParams:{headers:{"x-hasura-admin-secret":"b0oJ5NWT^GXk8=O+mdV=X2yzz1D5AgWX"}}}),J=()=>{const C=r.useRef(null),[q,f]=r.useState([]),[E,a]=r.useState([]),[u,T]=r.useState(""),[y,l]=r.useState(!1),[m,p]=r.useState(""),[x,_]=r.useState(-1),[t,z]=r.useState(navigator.language.slice(0,2)||"en"),$=t==="de"?"Senden":t==="es"?"Enviar":t==="en"?"Send":"Envoyer",j=t==="de"?"Hier eingeben":t==="es"?"Escribe aquí":t==="en"?"Type here":"Tapez ici",O=t==="de"?"Virtueller Assistent":t==="es"?"Asistente virtual":t==="en"?"Virtual assistant":"Assistant virtuel",I=t==="de"?"Ich":t==="es"?"Yo":t==="en"?"Me":"Moi",k=t==="de"?"Kopiert !":t==="es"?"Copiado !":t==="en"?"Copied !":"Copié !",S=t==="de"?"de-DE":t==="es"?"es-ES":t==="en"?"en-US":"fr-FR",A=`
     query GetCommentsByClient($id_client: Int!) {
       COMMENT(
         where: { id_client: { _eq: $id_client } }
@@ -67,7 +67,7 @@ import{r,G as V,j as n}from"./index-D7ZY6xbj.js";import{c as B}from"./client-CqL
       query GetCommentsByPseudo($pseudo: String!) {
         comment_union(
           where: { pseudo: { _eq: $pseudo } }
-          order_by: { created: desc, type: asc }
+          order_by: { created: asc, type: asc }
         ) {
           pseudo
           content
@@ -83,7 +83,7 @@ import{r,G as V,j as n}from"./index-D7ZY6xbj.js";import{c as B}from"./client-CqL
               id_client: { _eq: $id_client }, 
               pseudo: { _eq: $pseudo },
             } 
-            order_by: { created: desc }
+            order_by: { created: asc }
           ) {
             id
             pseudo

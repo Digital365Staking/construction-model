@@ -1004,7 +1004,7 @@ const curServClient = (lang) => {
         csv = csv.replace(/"/g, '');  
         promptInfo += csv + '\n';    
       }
-      promptInfo += import.meta.env.VITE_INFOADDED_0 + '\n';  // You are a company in the construction sector
+      //promptInfo += import.meta.env.VITE_INFOADDED_0 + '\n';  // You are a company in the construction sector
       if(curCateg === 0 && hasPromoProd){
         promptInfo += selLang === 'de' ? 
         `Geben Sie an, welches(n) Produkt(e) aus der folgenden CSV-Liste geeignet wären (geben Sie zusätzlich zur Antwort auf die vorherige Frage eine JSON-Zeichenkette zurück, die eine Liste von Identifikatoren enthält, zum Beispiel: '{ "Produkte": "1,2" }', ohne Leerzeichen im Array. Erwähnen Sie keine Ausdrücke in Klammern, wie '(Produkt 2)' oder '(Produkt 3)' oder '(2)' oder '(3)' ).` 
@@ -2047,7 +2047,7 @@ END:VCALENDAR`;
                   {selLang === 'de' ? 'Kontakt :' : (selLang === 'es' ? 'Contacto :' : 'Contact :')} digital365staking@gmail.com
                   <br/> 
                   <a href={import.meta.env.VITE_GDPR} target="_blank">{selLang === 'de' ? 'DSGVO' : (selLang === 'es' ? 'RGPD' : (selLang === 'en' ? 'GDPR :' : 'RGPD'))}</a>
-                  <a href={selLang === 'de' ? import.meta.env.VITE_URLFORM_DE : (selLang === 'es' ? import.meta.env.VITE_URLFORM_ES : (selLang === 'en' ? import.meta.env.VITE_URLFORM_EN : import.meta.env.VITE_URLFORM_FR))} target="_blank" style={{float:"right",marginRight: isMobile ? "0" : "2em"}}>
+                  <a href={selLang === 'de' ? import.meta.env.VITE_URLFORM_DE : (selLang === 'es' ? import.meta.env.VITE_URLFORM_ES : (selLang === 'en' ? import.meta.env.VITE_URLFORM_EN : import.meta.env.VITE_URLFORM_FR))} target="_blank" style={{float:"right",marginRight: isMobile ? "0.1em" : "2em"}}>
                     {selLang === 'de' ? 'Meinen Chatbot anpassen' : (selLang === 'es' ? 'Personalizar mi chatbot' : (selLang === 'en' ? 'Customize my chatbot' : 'Personnaliser mon chatbot'))}
                     </a>
                 </div>
