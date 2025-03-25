@@ -459,7 +459,7 @@ textarea:disabled {
   .header-container {
     display: flex;
     margin: auto;
-    width: 115%;
+    min-width: 115%;
     height: 110px; /* Adjust as needed */
     border: none;
     background-image: linear-gradient(

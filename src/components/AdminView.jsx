@@ -270,10 +270,6 @@ const AdminView = () => {
                           
                           if (newComments.comment_union.length > 0) {
                               setSubComments(newComments.comment_union);
-                              if (lstMsgRef.current) {
-                                console.log('scroll subCom received in Admin');
-                                lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight - 200;
-                              }
                           }else{
                             setSubComments([]);
                             setIsPopupOpen(false);                            
@@ -281,10 +277,20 @@ const AdminView = () => {
                           fetchComments();
                       },
                       error: (err) => console.error("SUBCOMMENT_SUBSCRIPTION error:", err),
-                      complete: () => console.log("SUBCOMMENT_SUBSCRIPTION complete"),
+                      complete: () => {
+                        console.log("SUBCOMMENT_SUBSCRIPTION complete")
+                      },
                   }
               );
-      
+
+              // Ensure scrolling happens after state update
+                setTimeout(() => {
+                  if (lstMsgRef.current) {
+                      console.log(lstMsgRef.current.scrollTop + 'viewListComments in Admin - Scrolling' + lstMsgRef.current.scrollHeight);
+                      lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight;
+                  }
+              }, 2000); // Delay scrolling to ensure content is rendered
+
               // Optional: return unsubscribe function for cleanup
               return () => unsubscribe();
       
@@ -293,6 +299,14 @@ const AdminView = () => {
           }    
       };
       
+      // Scroll to bottom when comments update
+      /*useEffect(() => {
+        if (lstMsgRef.current) {
+            console.log('Scrolling to bottom on comment update');
+            lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight;
+        }
+      }, [subComments]); // Triggers when comments change*/
+
 
     const COMMENT_SUBSCRIPTION = `
       subscription CommentSubscription($id_client: Int!) {
