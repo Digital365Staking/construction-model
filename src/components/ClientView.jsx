@@ -2005,7 +2005,7 @@ END:VCALENDAR`;
                   }}
                   navigation={true}
                   modules={[Keyboard, Pagination, Navigation]}
-                  className="mySwiper"
+                  className="swiper"
                 > 
                 {products.map((prod, index) => ( 
                   <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"7em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em",color: "#062a4e"}}><a href={GetLinkURL(prod)} onClick={handleClickItem}>{GetLabelProd(prod)}</a></div></SwiperSlide>
