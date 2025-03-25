@@ -283,14 +283,13 @@ const AdminView = () => {
                   }
               );
 
-              // Ensure scrolling happens after state update
-                setTimeout(() => {
-                  if (lstMsgRef.current) {
-                      console.log(lstMsgRef.current.scrollTop + 'viewListComments in Admin - Scrolling' + lstMsgRef.current.scrollHeight);
-                      lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight;
-                  }
-              }, 2000); // Delay scrolling to ensure content is rendered
-
+              /*if (lstMsgRef.current) {
+                requestAnimationFrame(() => {
+                    console.log('Scrolling to bottom on comment update2');
+                    lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight;
+                });
+              }*/
+             
               // Optional: return unsubscribe function for cleanup
               return () => unsubscribe();
       
@@ -299,6 +298,15 @@ const AdminView = () => {
           }    
       };
       
+      // **Ensure scrolling happens after the component updates**
+      useEffect(() => {
+        if (lstMsgRef.current) {
+            requestAnimationFrame(() => {
+                console.log('Scrolling to bottom on comment update');
+                lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight;
+            });
+        }
+      }, [subComments]); // Triggers when comments change
       // Scroll to bottom when comments update
       /*useEffect(() => {
         if (lstMsgRef.current) {
@@ -394,7 +402,7 @@ const AdminView = () => {
       </div>   
       <div className="chat-container">       
         
-        <div ref={lstMsgRef} className="chat-messages">           
+        <div className="chat-messages">           
           {comments.map((item, index) => (            
             <div
               key={index}

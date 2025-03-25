@@ -1951,10 +1951,7 @@ END:VCALENDAR`;
               if (data.data && data.data.COMMENT.length > 0) {
                 if(messages.length > 1 && messages[messages.length-2].text !== messages[messages.length-1].text){
                   loadMessage(curServClient(""),data.data.COMMENT[0].response,"");
-                  console.log('Admin, New comment added from client :', data.data.COMMENT[0]);
-                  if (lstMsgRef.current) {
-                    lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight;
-                  } 
+                  console.log('Admin, New comment added from client :', data.data.COMMENT[0]);                  
                 }else{
                   loadMessage(curAI(""),data.data.COMMENT[0].response,"");
                   console.log('AI, New comment added from client :', data.data.COMMENT[0]);  
