@@ -553,8 +553,8 @@ textarea:disabled {
 
 @media screen and (max-width: 660px) {
   .swiper {
-    width: 70%;
-    height: 70%;
+    width: 100%;
+    height: 100%;
   }
 }
 
@@ -594,8 +594,8 @@ textarea:disabled {
 @media screen and (max-width: 660px) {
   .popup {
     position: fixed;
-    max-width: 20vh;
-    min-height: 105vh;
+    max-width: 80vh;
+    min-height: 115vh;
     margin-top: 0em;
     margin-left: 0em;
     background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */

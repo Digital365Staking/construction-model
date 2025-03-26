@@ -2194,7 +2194,7 @@ END:VCALENDAR`;
         {isFormSendOpen && (
         <div class="fixed-bottom">
         <form className="chat-input-form" onSubmit={handleSendMessage}>
-          <textarea id="message" name="message" rows="5" cols="50" disabled={curCateg === 2 && curCita1.stepCita < 3 && curCita1.contact !== ""} className="chat-input" value={chatInput} placeholder={`${curTypeHere}, ${messageSender}...`} onFocus={handleFocus} onChange={(e) => setChatInput(e.target.value)}></textarea>          
+          <textarea id="message" name="message" rows="5" cols="50" disabled={curCateg === 2 && curCita1.stepCita < 3} className="chat-input" value={chatInput} placeholder={`${curTypeHere}, ${messageSender}...`} onFocus={handleFocus} onChange={(e) => setChatInput(e.target.value)}></textarea>          
           <input
             type="text"
             name="usr"
