@@ -268,13 +268,13 @@ const GetMsgInitQuote = (lang) => {
 
   const QUERY_SERVICE = `
     query GetSERVICE($cat: Int_comparison_exp!) {
-      SERVICE(where: { cat: $cat }) {
+      SERVICE(where: { categ: $cat }) {
         id
         en
         es
         fr
         de
-        cat
+        categ
       }
     }
   `;
@@ -1099,6 +1099,17 @@ const curServClient = (lang) => {
         isai: isai,
         categ: curCateg
       }); 
+      const QUERY_DELETE_OLDCOMMENTS = `
+        mutation deleteOldComments {
+          delete_COMMENT(where: {created: {_lt: "${new Date().toISOString().split('T')[0]}T00:00:00"}}) {
+            affected_rows
+          }
+        }
+      `;
+      const resp2 = await client.request(QUERY_DELETE_OLDCOMMENTS);
+      if(resp2.delete_COMMENT.affected_rows > 0){
+        console.log('Old Comments removed successfully.' + resp2.delete_COMMENT.affected_rows);
+      }
       if(enableNotif){
         let subject = selLang === 'de' ? 'Empfang einer Informationsanforderung von einem Kunden.' : (selLang === 'es' ? "Recepción de una solicitud de información de un cliente." : (selLang === 'en' ? 'Receipt of an information request from a client.' : `Réception d'une demande d'information d'un client.`));
         let headQ = selLang === 'de' ? 'Hallo, ein Kunde hat Ihnen folgende Frage gestellt : ' : (selLang === 'es' ? "Hola, un cliente le ha hecho la siguiente pregunta : " : (selLang === 'en' ? "Hello, a client has asked you the following question : " : "Un client vous a posé la question suivante : "));
@@ -1774,7 +1785,7 @@ const curServClient = (lang) => {
         console.log('QUERY_DELETE_OLDCITAS : ' + QUERY_DELETE_OLDCITAS);
         const resp2 = await client.request(QUERY_DELETE_OLDCITAS);
         if(resp2.delete_CITA.affected_rows > 0){
-          console.log('Old Citas removed successfully.' + resp2.affected_rows);
+          console.log('Old Citas removed successfully.' + resp2.delete_CITA.affected_rows);
         }
         console.log('QUERY_DELETE_OLDAVAILABILITIES : ' + QUERY_DELETE_OLDAVAILABILITIES);
         if(curCita1.dateCita.toISOString().includes('T')){

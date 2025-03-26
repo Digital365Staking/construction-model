@@ -603,8 +603,8 @@ textarea:disabled {
     justify-content: center;
     align-items: center;
     overflow-y: 99999;
-    top: 100%;
-    left: 100%;
+    top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
   }
 }
