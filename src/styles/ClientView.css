@@ -650,8 +650,8 @@ textarea:disabled {
 @media screen and (max-width: 660px) {
   .close {
     position: absolute;
-    top: 20px;
-    right: 17px;
+    top: 5px;
+    right: 65px;
     font-size: 30px;
     color: #062a4e;
     text-decoration: none;
