@@ -131,7 +131,7 @@ body{
       display: flex;
       flex-direction: column; /* Arranges messages vertically */
       justify-content: flex-start; /* Aligns messages to the top */
-      height: 39vh; /* Ensures the container takes up its allocated space */
+      height: 84vh; /* Ensures the container takes up its allocated space */
       overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
     }
   }
