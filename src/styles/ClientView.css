@@ -553,7 +553,7 @@ textarea:disabled {
 
 @media screen and (max-width: 660px) {
   .swiper {
-    width: 85%;
+    width: 80%;
     min-height: 95%;
   }
 }
@@ -597,7 +597,8 @@ textarea:disabled {
     max-width: 75vh;
     min-height: 115vh;
     margin-top: 1em;
-    margin-left: 3em;
+    margin-left: 2em;
+    margin-right: 2em;
     background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
     display: none; /* Initially hidden */
     justify-content: center;
