@@ -1068,6 +1068,11 @@ const curServClient = (lang) => {
               tab = chatResponse.split(`Based on this, here's the JSON`);
               if(tab.length > 0){
                 chatResponse = tab[0];
+              }else{
+                tab = chatResponse.split(`Voici la réponse au format JSON :`);
+                if(tab.length > 0){
+                  chatResponse = tab[0];
+                }
               }
             }
           }
@@ -1853,7 +1858,7 @@ const curServClient = (lang) => {
   const generateICSFile = async (txtMail) => {
     try{
     let curDate = new Date(curCita1.dateCita);
-    curDate = new Date(curDate.getTime() - 60 * 60 * 1000); // - 1 hour
+    curDate = new Date(curDate.getTime());
     let dateEnd = new Date(curDate.getTime() + 30 * 60 * 1000);
     const icsContent = 
     `BEGIN:VCALENDAR

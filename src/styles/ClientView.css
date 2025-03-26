@@ -459,7 +459,7 @@ textarea:disabled {
   .header-container {
     display: flex;
     margin: auto;
-    min-width: 118.5%;
+    min-width: 118%;
     height: 110px; /* Adjust as needed */
     border: none;
     background-image: linear-gradient(
@@ -551,9 +551,18 @@ textarea:disabled {
   margin-left: -9px;
 }
 
-.swiper {
-  width: 95%;
-  height: 95%;
+@media screen and (max-width: 660px) {
+  .swiper {
+    width: 90%;
+    height: 90%;
+  }
+}
+
+@media screen and (min-width: 660px) {
+  .swiper {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .swiper-slide {
@@ -587,7 +596,7 @@ textarea:disabled {
     position: fixed;
     max-width: 37.5em;
     height: 100%;
-    margin-left: 5em;
+    margin-left: 2em;
     background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
     display: none; /* Initially hidden */
     justify-content: center;
