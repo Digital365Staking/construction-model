@@ -506,32 +506,33 @@ const curServClient = (lang) => {
       .join("\n"); // Join back into a string
   };  
 
-  async function prepareQuery(message, tableName, procedureName, headers) {
+  async function prepareQuery(message, viewName) {
     try {
       let csv = "";
-      if(curCateg === 1){  
-        procedureName = 'construction_en';        
+      if(curCateg === 1){        
         const QUERY_DEVIS = `
         query GetInfosDevis {
-          ${procedureName}{
+          ${viewName}{
             title
             price
           }
         }
           `;
         const data = await client.request(QUERY_DEVIS);        
-        console.log(data.construction_en.length + "-" + procedureName);
-        if(data.construction_en.length <= 1){ 
-          if(data.construction_en.length > 0)
-            csv = data.construction_en[0].title;
+        console.log(data[viewName].length + "-" + viewName);
+
+        if (data[viewName].length <= 1) { 
+          if (data[viewName].length > 0)
+            csv = data[viewName][0].title;
           else
             csv = "";
-        }else{
-          csv = Papa.unparse(data.construction_en, {
+        } else {
+          csv = Papa.unparse(data[viewName], {
             header: false,
-            newline: '\r\n'            
-          });          
+            newline: "\r\n"
+          });
         }
+
         csv = csv.replace(/"/g, '');
         const wap = import.meta.env.VITE_WHATSAPP;
         csv = await callAPIAI(csv + ".\nSi la información necesaria para proporcionar un presupuesto no es suficiente, dar el WhatsApp del jefe de la empresa : +" + wap + " (ultima frase de la respuesta).",message);
@@ -631,9 +632,9 @@ const curServClient = (lang) => {
 
   async function fetchChatAIResponse(message) {
     try {
-      const procedure = import.meta.env.VITE_CSV_TABLE + "_" + selLang;
+      const viewName = import.meta.env.VITE_CSV_TABLE + "_en"; // + selLang
       //let csv = await prepareQuery(message,"contact_csv","getcontact_csv_1","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
-      let csv = await prepareQuery(message, "", procedure, "");
+      let csv = await prepareQuery(message, viewName);
       console.log(textArray.length);
       for (let i = 0; i < textArray.length; i++) {
         const ret = await callAPIAI(textArray[i],message);
