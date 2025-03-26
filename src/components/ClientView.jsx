@@ -1072,6 +1072,11 @@ const curServClient = (lang) => {
                 tab = chatResponse.split(`Voici la réponse au format JSON :`);
                 if(tab.length > 0){
                   chatResponse = tab[0];
+                }else{
+                  tab = chatResponse.split(`Voici les identifiants des produits en format JSON :`);
+                  if(tab.length > 0){
+                    chatResponse = tab[0];
+                  }
                 }
               }
             }
@@ -1937,7 +1942,7 @@ END:VCALENDAR`;
                 console.log('Msg pile = ', messages[messages.length-2].text);
                 console.log('Msg resp = ', messages[messages.length-1].text);
               }              
-              if (data.data && data.data.COMMENT.length > 0) {
+              if (curCateg !== 2 && data.data && data.data.COMMENT.length > 0) {
                 if(messages.length > 1 && (messages[messages.length-2].text !== messages[messages.length-1].text || !data.data.COMMENT[0].isai)){
                   loadMessage(curServClient(""),data.data.COMMENT[0].response,"");
                   console.log('Admin, New comment added from client :', data.data.COMMENT[0]);                  
@@ -2013,7 +2018,7 @@ END:VCALENDAR`;
                   className="swiper"
                 > 
                 {products.map((prod, index) => ( 
-                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"7em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"5em",color: "#062a4e"}}><a href={GetLinkURL(prod)} onClick={handleClickItem}>{GetLabelProd(prod)}</a></div></SwiperSlide>
+                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"7em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"2em",color: "#062a4e"}}><a href={GetLinkURL(prod)} onClick={handleClickItem}>{GetLabelProd(prod)}</a></div></SwiperSlide>
                 ))}  
                 </Swiper>
                 </div>
