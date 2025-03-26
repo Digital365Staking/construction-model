@@ -2253,6 +2253,7 @@ END:VCALENDAR`;
               <span className={`radio ${selLang === "es" ? "selected" : ""}`}></span>
               ES
             </label>
+            { import.meta.env.VITE_ENABLE_BLOG === '1' && selLang === 'es' && (<a style={{marginRight:"0.1em",color:"white"}} href='https://asuntodepareja.blogspot.com/2025/03/2-maneras-de-combatir-la-soledad-en-tu.html'>Blog del mes : "Asunto de pareja"</a>)}
           </div>          
         </div>
         {/* Right-aligned buttons */}
