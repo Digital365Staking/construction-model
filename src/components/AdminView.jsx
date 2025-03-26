@@ -373,7 +373,7 @@ const AdminView = () => {
     <div className="app-container"> 
       <div id="popup" className='popup' style={{display : isPopupOpen ? 'block' : 'none'}}>  
         <a href="#" class="close" onClick={() => setIsPopupOpen(false)}>&times;</a>    
-        <div ref={lstMsgRef} className="chat-messages" style={{width:"97%"}}>           
+        <div ref={lstMsgRef} className="chat-subcomments" style={{width:"97%"}}>           
             {subComments.map((item, index) => (            
               <div
                 key={index}
@@ -402,7 +402,7 @@ const AdminView = () => {
       </div>   
       <div className="chat-container">       
         
-        <div className="chat-messages">           
+        <div className="chat-comments">           
           {comments.map((item, index) => (            
             <div
               key={index}

@@ -126,7 +126,7 @@ textarea:disabled {
     display: flex;
     flex-direction: column; /* Arranges messages vertically */
     justify-content: flex-start; /* Aligns messages to the top */
-    height: 32.6em; /* Ensures the container takes up its allocated space */
+    height: 40vh; /* Ensures the container takes up its allocated space */
     overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
   }
 }
@@ -136,7 +136,7 @@ textarea:disabled {
     display: flex;
     flex-direction: column; /* Arranges messages vertically */
     justify-content: flex-start; /* Aligns messages to the top */
-    height: 25.6em; /* Ensures the container takes up its allocated space */
+    height: 40vh; /* Ensures the container takes up its allocated space */
     overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
     margin: 0;
   }
@@ -147,7 +147,7 @@ textarea:disabled {
     display: flex;
     flex-direction: column; /* Arranges messages vertically */
     justify-content: flex-start; /* Aligns messages to the top */
-    height: 24.5em; /* Ensures the container takes up its allocated space */
+    height: 40vh; /* Ensures the container takes up its allocated space */
     overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
   }
 }
@@ -587,7 +587,7 @@ textarea:disabled {
     position: fixed;
     max-width: 37.5em;
     height: 100%;
-    margin-left: 5px;
+    margin-left: 5em;
     background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
     display: none; /* Initially hidden */
     justify-content: center;
@@ -640,7 +640,8 @@ textarea:disabled {
   .close {
     position: absolute;
     top: 0px;
-    right: 10px;
+    right: 0;
+    margin-right: 10px;
     font-size: 30px;
     color: white;
     text-decoration: none;
