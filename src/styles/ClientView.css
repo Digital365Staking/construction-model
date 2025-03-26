@@ -291,13 +291,7 @@ textarea:disabled {
   color: green;
   font-size: 14px;
   margin-top: 5px;
-  display: block;
-  opacity: 0;
   transition: opacity 0.3s ease;
-}
-
-.copied-message.visible {
-  opacity: 1;
 }
 
 .label {

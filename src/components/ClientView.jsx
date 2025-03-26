@@ -144,7 +144,7 @@ const GetMsgInitQuote = (lang) => {
   const copyToClipboard = (e, text) => {
     
     navigator.clipboard.writeText(text).then(() => {
-      setCopied(e.target.id);
+      setCopied(parseInt(e.target.id));
       console.log("clip = " + e.target.id);
       setTimeout(() => setCopied(-1), 1500);
     }).catch(err => console.error("Failed to copy:", err));
@@ -1167,14 +1167,18 @@ const curServClient = (lang) => {
       `;
       if(curPseudo !== ""){
         const vars = { id_client: Number(import.meta.env.VITE_ID_CLIENT), pseudo: curPseudo };
-        const response = await client.request(QUERY_DELETE_COMMENTS, vars);
-        if(curCateg === 0 || curCateg === 1){  
-          localStorage.clear();        
-          loadMessage(curAI(""),GetMsgInitInfo(""),"");
-        }      
+        const response = await client.request(QUERY_DELETE_COMMENTS, vars);      
         if (response.delete_COMMENT.affected_rows > 0) {
           console.log('Comments deleted successfully. cli ' + Number(import.meta.env.VITE_ID_CLIENT) + ' , pseudo ' + curPseudo === '' ? tim.toString() : curPseudo);
         }
+      }
+      if(curCateg === 0){  
+        localStorage.clear();        
+        loadMessage(curAI(""),GetMsgInitInfo(""),"");
+      }
+      if(curCateg === 1){  
+        localStorage.clear();        
+        loadMessage(curAI(""),GetMsgInitQuote(""),"");
       }
       
     }else{
@@ -2097,7 +2101,7 @@ END:VCALENDAR`;
       >
         📋
       </button>
-      <span className={`copied-message ${copied === index ? "visible" : ""}`}>{labelCopied}</span>
+      <span className={`copied-message`} style={{display:(copied === index ? "block" : "none")}}>{labelCopied}</span>
               </div>               
               <div className="message-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}> 
                 {curCateg === 2 && curCita1.stepCita > 0 && (<div>{GetMsgTypeCita(selLang)}<b>{curCita1.labelService}</b><br/>
