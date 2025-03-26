@@ -1076,7 +1076,7 @@ const curServClient = (lang) => {
                 if(tab.length > 0){
                   chatResponse = tab[0];
                 }else{
-                  tab = chatResponse.split(`Voici les identifiants des produits en format JSON :`);
+                  tab = chatResponse.split(`Voici les identifiants des produits`);
                   if(tab.length > 0){
                     chatResponse = tab[0];
                   }
