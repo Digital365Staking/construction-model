@@ -594,8 +594,8 @@ textarea:disabled {
 @media screen and (max-width: 660px) {
   .popup {
     position: fixed;
-    max-width: 37.5em;
-    height: 100%;
+    width: 100%;
+    min-height: 99vh;
     margin-left: -0.2em;
     background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
     display: none; /* Initially hidden */
@@ -642,6 +642,12 @@ textarea:disabled {
   max-width: 90%;
   max-height: 90%;
   border: 5px solid white;
+}
+
+.disabled {
+  pointer-events: none; /* Prevent clicks, hover, and interactions */
+  opacity: 0.5; /* Make it look visually disabled */
+  user-select: none; /* Prevent text selection */
 }
 
 /* Close button */

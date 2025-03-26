@@ -818,7 +818,7 @@ const curServClient = (lang) => {
       timestamp,
     };
     let email = import.meta.env.VITE_EMAIL;
-    if(import.meta.env.VITE_OPT_CITA == "1" && displayCita.display === "none" && curCita1.stepCita === 3 && curCita1.contact === ""){
+    if(import.meta.env.VITE_OPT_CITA == "1" && curCita1.stepCita === 3 && curCita1.contact === ""){
       wap = import.meta.env.VITE_WHATSAPP;
       lnkWAP = "https://wa.me/" + wap + "?text=TT";
       setCurCita1(prevState => ({
@@ -840,7 +840,10 @@ const curServClient = (lang) => {
       loadMessage(curAI(""),msg,selLang);
       return;
     }else{
-      if(import.meta.env.VITE_OPT_CITA == "1" && displayCita.display === "none" && curCita1.stepCita === 4 && curCita1.contact === ""){
+      console.log('displayCita = ' + displayCita.display);
+      console.log('stepCita = ' + curCita1.stepCita);
+      console.log('contact = ' + curCita1.contact);
+      if(import.meta.env.VITE_OPT_CITA == "1" && curCita1.stepCita === 4 && curCita1.contact === ""){
         setCurCita1(prevState => ({
           ...prevState,  // Keep existing properties
           contact:chatInput,
@@ -2198,7 +2201,7 @@ END:VCALENDAR`;
           <button className="button send-button" onClick={handleClearChat}>
             {curCateg === 2 && curCita1.contact !== "" ? curCancel : curClear}
           </button>
-          <div>
+          <div className={curCateg === 2 && curCita1.stepCita > 0 ? "disabled" : ""}>
             {/* Radio Button EN */}
             <input
               type="radio"
