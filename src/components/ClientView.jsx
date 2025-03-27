@@ -173,7 +173,7 @@ const GetMsgInitQuote = (lang) => {
       val_wap: val_wap,
       msg: msg,
       reply_to: emailAdmin, // email admin
-      urlIcs: !isCancel ? urlIcs.replace('https://backendlessappcontent.com/','') : ''
+      urlIcs: !isCancel ? urlIcs.replace('https://backendlessappcontent.com/','') : (import.meta.env.VITE_ENABLE_BLOG === '1' && selLang === 'es') ? 'https://asuntodepareja.blogspot.com/2025/03/2-maneras-de-combatir-la-soledad-en-tu.html' : 'http://www.meria.com/r/pvKKfbZ5'
     };
    
     emailjs.send(
@@ -195,7 +195,7 @@ const GetMsgInitQuote = (lang) => {
       headerQuestion: headerQuestion,
       question: question,
       headerResponse: headerResponse,
-      url: window.location.href + '?a=1'
+      url: window.location.href.replace('#popup','') + '?a=1'
     };
    
     emailjs.send(

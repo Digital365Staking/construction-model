@@ -40,7 +40,7 @@ body{
       padding: 0.1em 0.1em;
       margin: auto;
       width: 110.6%;
-      height: 97.7vh;
+      min-height: 99.99vh;
       box-shadow: 0 0 1.25em 0.5em #c3c3c333;
       background-image: linear-gradient(
         23deg,
