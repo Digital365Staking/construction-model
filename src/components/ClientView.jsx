@@ -2270,6 +2270,7 @@ END:VCALENDAR`;
               ES
             </label>
             { import.meta.env.VITE_ENABLE_BLOG === '1' && selLang === 'es' && (<a style={{marginRight:"0.1em",color:"white"}} href='https://asuntodepareja.blogspot.com/2025/03/2-maneras-de-combatir-la-soledad-en-tu.html'>Blog del mes : "Asunto de pareja"</a>)}
+            { import.meta.env.VITE_ENABLE_BLOG === '1' && selLang === 'en' && (<a style={{marginRight:"0.1em",color:"white"}} href='https://cardanoproject.blog/'>Blog of the Month: "Cardano, a Competitor to Bitcoin?"</a>)}
           </div>          
         </div>
         {/* Right-aligned buttons */}
