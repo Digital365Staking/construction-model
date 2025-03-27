@@ -552,8 +552,8 @@ textarea:disabled {
 }
 
 .app-container{
-  margin-top : -6px;
-  margin-left: -7px;
+  margin-top : -10px;
+  margin-left: -11px;
 }
 
 @media screen and (max-width: 660px) {
