@@ -2088,7 +2088,7 @@ END:VCALENDAR`;
                   timeZone: 'UTC' 
               }).format(new Date(curCita1.dateCita))}</b><br/>
               {GetMsgTypeCita('')}<b className='color-cita'>{curCita1.labelService}</b><br/>
-              {GetMsgContactCita('')}<b className='color-cita'><a href={"https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + GetTextEmail()}>{"+" + import.meta.env.VITE_WHATSAPP}</a></b><br/><br/>
+              {GetMsgContactCita('')}<b className='color-cita'><a href={"https://wa.me/" + import.meta.env.VITE_WHATSAPP + "?text=" + GetTextEmail().encodedMessage}>{"+" + import.meta.env.VITE_WHATSAPP}</a></b><br/><br/>
               {GetMsgUpdateCita('')}
               </div>            
           {messages.map((message, index) => (            
