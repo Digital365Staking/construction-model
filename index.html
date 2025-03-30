@@ -20,37 +20,34 @@
     }
 
     const data = {
-          nodes: [
-              { id: "Cabello Liso", group: 1 },
-              { id: "Hidratación y Nutrición", group: 2 },
-              { id: "Cabello Ondulado", group: 1 },
-              { id: "Mascarilla Purificante", group: 4 },
-              { id: "Cabello Rizado", group: 1 },
-              { id: "Cabello Enrollado", group: 1 },
-              { id: "Shampoo Hidratante", group: 3 },
-              { id: "Shampoo Purificante", group: 3 },
-              { id: "Shampoo Fortificante", group: 3 },
-              { id: "Shampoo Matizador", group: 3 },
-              { id: "Fortalecimiento y Reparación", group: 2 },
-              { id: "Control de Frizz y Alisado", group: 2 },
-              { id: "Crecimiento y Engrosamiento", group: 2 },
-              { id: "Mascarilla Hidratante", group: 4 },
-              { id: "Mascarilla Reafirmante", group: 4 }
-          ],
-          links: [
-              { source: "Cabello Ondulado", target: "Cabello Liso", value: 1 },
-              { source: "Cabello Liso", target: "Cabello Rizado", value: 2 },
-              { source: "Cabello Rizado", target: "Cabello Enrollado", value: 3 },
-              { source: "Hidratación y Nutrición", target: "Fortalecimiento y Reparación", value: 4 },
-              { source: "Fortalecimiento y Reparación", target: "Control de Frizz y Alisado", value: 5 },
-              { source: "Control de Frizz y Alisado", target: "Crecimiento y Engrosamiento", value: 6 },
-              { source: "Shampoo Hidratante", target: "Shampoo Purificante", value: 7 },
-              { source: "Shampoo Purificante", target: "Shampoo Fortificante", value: 8 },
-              { source: "Shampoo Fortificante", target: "Shampoo Matizador", value: 9 },
-              { source: "Mascarilla Purificante", target: "Mascarilla Hidratante", value: 10 },
-              { source: "Mascarilla Hidratante", target: "Mascarilla Reafirmante", value: 11 }
-          ]
-      };
+    nodes: [
+        { id: "Foundation", group: 1 },
+        { id: "Excavation", group: 1 },
+        { id: "Concrete Pouring", group: 1 },
+        { id: "Framing", group: 1 },
+        { id: "Structural Work", group: 1 },
+        { id: "Roofing", group: 2 },
+        { id: "Plumbing", group: 2 },
+        { id: "Painting", group: 2 },
+        { id: "Finishing Work", group: 2 },
+        { id: "Electrical Work", group: 3 },
+        { id: "Flooring", group: 3 },
+        { id: "Windows & Doors Installation", group: 3 },
+        { id: "HVAC Installation", group: 3 }
+    ],
+    links: [
+        { source: "Excavation", target: "Foundation", value: 1 },
+        { source: "Foundation", target: "Concrete Pouring", value: 2 },
+        { source: "Concrete Pouring", target: "Framing", value: 3 },
+        { source: "Framing", target: "Structural Work", value: 4 },
+        { source: "Roofing", target: "Plumbing", value: 5 },
+        { source: "Plumbing", target: "Painting", value: 6 },
+        { source: "Painting", target: "Finishing Work", value: 7 },
+        { source: "Electrical Work", target: "Windows & Doors Installation", value: 8 },
+        { source: "Windows & Doors Installation", target: "HVAC Installation", value: 9 },
+        { source: "HVAC Installation", target: "Flooring", value: 10 }
+    ]
+};
       const width = 430;
       const height = 700;
 
@@ -81,7 +78,7 @@
           .enter().append("circle")
           .attr("r", 10)
           .attr("fill", d => {
-              const groupColors = { 1: "red", 2: "blue", 3: "green", 4: "orange" };
+              const groupColors = { 1: "red", 2: "blue", 3: "green" };
               return groupColors[d.group] || "gray";
           })
           .call(d3.drag()
