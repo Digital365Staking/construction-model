@@ -152,7 +152,7 @@ const AdminView = () => {
     
           // Check if there's a last question
           if (lastQuestionData.COMMENT.length === 0) {
-            console.log('No questions found for the given pseudo : ' + curPseudo);
+            //console.log('No questions found for the given pseudo : ' + curPseudo);
             return;
           }
     
@@ -167,7 +167,7 @@ const AdminView = () => {
             created : new Date(Date.now() + 60 * 60 * 1000)
           });    
           
-          console.log('Comment inserted successfully! ' + result);  // Log the result
+          //console.log('Comment inserted successfully! ' + result);  // Log the result
           fetchComments();
         } catch (error) {          
           console.error("Error fetching data:", error);
@@ -245,15 +245,13 @@ const AdminView = () => {
               // Update comment viewed status if not viewed
               if (!viewed) {
                   await client.request(UPDATE_COMMENTS, { pseudo });          
-              } else {
-                  console.log("Update not needed");
-              }         
+              }        
       
               // Fetch updated comments
               const data2 = await client.request(SUB_COMMENTS, { pseudo });
               setSubComments(data2.comment_union);
       
-              console.log("Current pseudo:", pseudo);
+              //console.log("Current pseudo:", pseudo);
       
               // Fetch main comments (if necessary)
               await fetchComments();
@@ -302,7 +300,7 @@ const AdminView = () => {
       useEffect(() => {
         if (lstMsgRef.current) {
             requestAnimationFrame(() => {
-                console.log('Scrolling to bottom on comment update');
+                
                 lstMsgRef.current.scrollTop = lstMsgRef.current.scrollHeight;
             });
         }

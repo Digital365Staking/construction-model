@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>APP</title>
+    <title>CONSTRUCTION MODEL</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script type="module" crossorigin src="/assets/index-B-eHbYo3.js"></script>
   </head>
@@ -22,15 +22,15 @@
     const data = {
     nodes: [
         { id: "Foundation", group: 1 },
-        { id: "Structural Work", group: 2 },
-        { id: "Finishing Work", group: 3 },
         { id: "Excavation", group: 1 },
         { id: "Concrete Pouring", group: 1 },
-        { id: "Framing", group: 2 },
+        { id: "Framing", group: 1 },
+        { id: "Structural Work", group: 1 },
         { id: "Roofing", group: 2 },
-        { id: "Plumbing", group: 3 },
+        { id: "Plumbing", group: 2 },
+        { id: "Painting", group: 2 },
+        { id: "Finishing Work", group: 2 },
         { id: "Electrical Work", group: 3 },
-        { id: "Painting", group: 3 },
         { id: "Flooring", group: 3 },
         { id: "Windows & Doors Installation", group: 3 },
         { id: "HVAC Installation", group: 3 }
@@ -39,14 +39,13 @@
         { source: "Excavation", target: "Foundation", value: 1 },
         { source: "Foundation", target: "Concrete Pouring", value: 2 },
         { source: "Concrete Pouring", target: "Framing", value: 3 },
-        { source: "Framing", target: "Roofing", value: 4 },
-        { source: "Framing", target: "Plumbing", value: 5 },
-        { source: "Framing", target: "Electrical Work", value: 6 },
-        { source: "Roofing", target: "Windows & Doors Installation", value: 7 },
-        { source: "Plumbing", target: "HVAC Installation", value: 8 },
-        { source: "Electrical Work", target: "Painting", value: 9 },
-        { source: "Painting", target: "Flooring", value: 10 },
-        { source: "Flooring", target: "Windows & Doors Installation", value: 11 }
+        { source: "Framing", target: "Structural Work", value: 4 },
+        { source: "Roofing", target: "Plumbing", value: 5 },
+        { source: "Plumbing", target: "Painting", value: 6 },
+        { source: "Painting", target: "Finishing Work", value: 7 },
+        { source: "Electrical Work", target: "Windows & Doors Installation", value: 8 },
+        { source: "Windows & Doors Installation", target: "HVAC Installation", value: 9 },
+        { source: "HVAC Installation", target: "Flooring", value: 10 }
     ]
 };
       const width = 430;
@@ -79,7 +78,7 @@
           .enter().append("circle")
           .attr("r", 10)
           .attr("fill", d => {
-              const groupColors = { 1: "red", 2: "blue", 3: "green", 4: "orange" };
+              const groupColors = { 1: "red", 2: "blue", 3: "green" };
               return groupColors[d.group] || "gray";
           })
           .call(d3.drag()

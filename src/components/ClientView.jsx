@@ -145,7 +145,7 @@ const GetMsgInitQuote = (lang) => {
     
     navigator.clipboard.writeText(text).then(() => {
       setCopied(parseInt(e.target.id));
-      console.log("clip = " + e.target.id);
+      
       setTimeout(() => setCopied(-1), 1500);
     }).catch(err => console.error("Failed to copy:", err));
   };
@@ -157,7 +157,7 @@ const GetMsgInitQuote = (lang) => {
     if(!isCancel){
       urlIcs = await generateICSFile(msg);
     }
-    console.log('url ics : ' + urlIcs);
+    
     const templateParams = {
       from_name: subject,
       to_name: emailClient, // email client
@@ -213,11 +213,11 @@ const GetMsgInitQuote = (lang) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        console.log('fetchProducts');
+        
         const today = new Date();
         const todayFormatted = today.toISOString().split('T')[0]; // Formats to YYYY-MM-DD
         if(curCita1.dateCita && curCita1.dateCita < todayFormatted){
-          console.log("Date cita inferior a Today");
+          
           setCurCita1(
             {
               idService: 0,
@@ -284,7 +284,7 @@ const GetMsgInitQuote = (lang) => {
       const data = await client.request(QUERY_SERVICE, {
         cat: { _eq: Number(import.meta.env.VITE_CATEG_SECTOR) }  // Use comparison expression, here it's 'equal to 1'
       });
-      //console.log("A" + data.SERVICE.length);
+      
       setServices(data.SERVICE); 
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -374,21 +374,7 @@ const GetMsgInitQuote = (lang) => {
     }
   );
   const [isDisabled, setIsDisabled]  = useState(curCateg === 2 && curCita1.stepCita < 3 && curCita1.contact !== "");
-  //localStorage.clear();
   
-  useEffect(() => {
-    console.log("curCita1 lbl : " + curCita1.labelService);
-    console.log("curCita1 date : " + curCita1.dateCita);
-    console.log("curCita1 name : " + curCita1.nombre);
-    console.log("curCita1 contact : " + curCita1.contact);
-    console.log("curCita1 Step : " + curCita1.stepCita);
-    console.log("curCateg : " + curCateg);
-    console.log("curPseudo : " + curPseudo);
-    /*if(curCita1.contact != ""){
-      generateCita1();
-    }*/
-  }, []);
-
 
   const [messageSender, setMessageSender] = useState(curMe(''));
   const curAI = (lang) => {
@@ -421,7 +407,7 @@ const curServClient = (lang) => {
   async function callAPIAI(prefix, message, recommend) {
     try {
       const type_ai = import.meta.env.VITE_TYPE_AI;
-      console.log("Type AI : " + type_ai);
+      
       const prompt = prefix + (prefix === "" ? "" : `\nBased on the previous text and/or CSV report ( the column on the right is the price in ${import.meta.env.VITE_TYPE_CURRENCY} ), provide a natural and conversational response to the following question :  `
               ) + message + (recommend ? "No recomendar de ponerse en contacto con empresas de limpieza locales. La expresión 'Lo siento' no puede aparecer en la respuesta." : "")
       if(type_ai === "1"){
@@ -458,12 +444,12 @@ const curServClient = (lang) => {
       
         const result = await model.generateContent(prompt);
         
-        console.log("USE GEMINI, input :\n" + prompt);
+        //console.log("USE GEMINI, input :\n" + prompt);
         return result.response.text(); 
       }
       if(type_ai === "3"){
         const max = Number(import.meta.env.VITE_MAX_TOKENS_HUGGING);
-        console.log("Max : " + max);
+        
         const key = import.meta.env.VITE_HUGGING_KEY;
         const client = new HfInference(key);
         const modelHugging = import.meta.env.VITE_HUGGING_MODEL;
@@ -479,7 +465,7 @@ const curServClient = (lang) => {
           max_tokens: max
         });
         const resp = chatCompletion.choices[0].message.content;
-        console.log(resp);
+        
         return resp;
       }
       if(type_ai === "4"){
@@ -490,7 +476,7 @@ const curServClient = (lang) => {
             max_tokens:max
           });
                        
-          console.log("USE PERPLEXITY" + prompt);
+          //console.log("USE PERPLEXITY" + prompt);
           return result.text;        
       }
     } catch (error) {
@@ -519,7 +505,7 @@ const curServClient = (lang) => {
         }
           `;
         const data = await client.request(QUERY_DEVIS);        
-        console.log(data[viewName].length + "-" + viewName);
+        
 
         if (data[viewName].length <= 1) { 
           if (data[viewName].length > 0)
@@ -536,7 +522,7 @@ const curServClient = (lang) => {
         csv = csv.replace(/"/g, '');
         const wap = import.meta.env.VITE_WHATSAPP;
         csv = await callAPIAI(csv + ".\nSi la información necesaria para proporcionar un presupuesto no es suficiente, dar el WhatsApp del jefe de la empresa : +" + wap + " (ultima frase de la respuesta).",message);
-        console.log("Request only : \n" + csv);
+        
         
         return csv;
       }else{
@@ -635,10 +621,10 @@ const curServClient = (lang) => {
       const viewName = import.meta.env.VITE_CSV_TABLE + "_en"; // + selLang
       //let csv = await prepareQuery(message,"contact_csv","getcontact_csv_1","Contact name,Job title,Business phone,Account,Email,Mobile phone,Modified on,Data entry compliance");
       let csv = await prepareQuery(message, viewName);
-      console.log(textArray.length);
+      
       for (let i = 0; i < textArray.length; i++) {
         const ret = await callAPIAI(textArray[i],message);
-        console.log(ret);
+        
         if(ret.includes("doesn't provide") || ret.includes("doesn't mention") || ret.includes("doesn't include") ||
           ret.includes("not provide") || ret.includes("not mention") || ret.includes("not include") || 
           ret.includes("doesn't specify") || ret.includes("not specify") || ret.includes("not contain") || ret.includes("sorry")){
@@ -772,8 +758,7 @@ const curServClient = (lang) => {
         
         let subject = selLang === 'de' ? "Neuer Termin" : (selLang === 'es' ? "Nueva cita" : (selLang === 'en' ? "New appointment" : "Nouveau rendez-vous"));
         let name = selLang === 'de' ? "Name : " : (selLang === 'es' ? "Nombre : " : (selLang === 'en' ? "Name : " : "Nom : "));
-
-        console.log("Nom :" + curCita1.nombre);
+        
         const encodedMessage = encodeURIComponent(txtMail);
         return { subject, name, dathour, encodedMessage };
   };
@@ -841,9 +826,7 @@ const curServClient = (lang) => {
       loadMessage(curAI(""),msg,selLang);
       return;
     }else{
-      console.log('displayCita = ' + displayCita.display);
-      console.log('stepCita = ' + curCita1.stepCita);
-      console.log('contact = ' + curCita1.contact);
+      
       if(import.meta.env.VITE_OPT_CITA == "1" && curCita1.stepCita === 4 && curCita1.contact === ""){
         setCurCita1(prevState => ({
           ...prevState,  // Keep existing properties
@@ -952,7 +935,7 @@ const curServClient = (lang) => {
         }else{
           localStorage.setItem('curPseudo', tim.toString());
         }       
-        console.log("pseudo set");
+        
       }else{
         const lastHumanData = await client.request(LAST_HUMAN_COMMENT, { pseudo : curPseudo });
         if (lastHumanData.COMMENT.length > 0) {
@@ -967,9 +950,9 @@ const curServClient = (lang) => {
   
           // Check if the difference is more than 1 hour
           if (diffInHours > 1) {
-              console.log("The last comment was more than 1 hour ago. pseudo " + curPseudo);              
+              //console.log("The last comment was more than 1 hour ago. pseudo " + curPseudo);              
           } else {
-              console.log("The last comment was within the last hour. pseudo " + curPseudo);              
+              //console.log("The last comment was within the last hour. pseudo " + curPseudo);              
               isai = false;
           }          
         }
@@ -1025,10 +1008,9 @@ const curServClient = (lang) => {
         promptInfo += csvProducts;
       }
       
-      console.log('promptInfo = ' + promptInfo);
       setDisplayWaiting('flex');
       chatResponse = await fetchChatAIResponse(promptInfo);
-      console.log(selLang + ' = lang. response : ' + chatResponse);
+      
       if(curCateg === 0 && hasPromoProd){
         let tabResp = chatResponse.split(selLang === 'de' ? '{ "Produkte": "' : (selLang === 'es' ? '{ "Productos": "' : (selLang === 'en' ? '{ "Products": "' : '{ "Produits": "')));
         if(tabResp.length > 1){
@@ -1036,7 +1018,7 @@ const curServClient = (lang) => {
           let str = tabResp[1].split('" }')[0].trim();
           if(str !== ""){
             const arr = str.split(",").map(item => parseInt(item, 10)); 
-            console.log("Arr : " + arr);
+            
             let result = await client.request(QUERY_URL_PRODUCTS, {
               id_client : curIdClient,  // Replace with the actual client ID
               ids : arr
@@ -1066,7 +1048,7 @@ const curServClient = (lang) => {
           }else{
             tab = chatResponse.split("json");
             if(tab.length > 0){
-              console.log('tab0 = ' + tab[0].slice(0,tab[0].length-3));
+              
               chatResponse = tab[0].slice(0,tab[0].length-3);
             }else{
               tab = chatResponse.split(`Based on this, here's the JSON`);
@@ -1114,7 +1096,7 @@ const curServClient = (lang) => {
       `;
       const resp2 = await client.request(QUERY_DELETE_OLDCOMMENTS);
       if(resp2.delete_COMMENT.affected_rows > 0){
-        console.log('Old Comments removed successfully.' + resp2.delete_COMMENT.affected_rows);
+        //console.log('Old Comments removed successfully.' + resp2.delete_COMMENT.affected_rows);
       }
       if(enableNotif){
         let subject = selLang === 'de' ? 'Empfang einer Informationsanforderung von einem Kunden.' : (selLang === 'es' ? "Recepción de una solicitud de información de un cliente." : (selLang === 'en' ? 'Receipt of an information request from a client.' : `Réception d'une demande d'information d'un client.`));
@@ -1123,7 +1105,7 @@ const curServClient = (lang) => {
 
         sendComment(import.meta.env.VITE_EMAIL,subject,headQ,chatInput,headR);
       }      
-      console.log('Comment inserted successfully! ' + result);  // Log the result
+      //console.log('Comment inserted successfully! ' + result);  // Log the result
       const historyEnabled = import.meta.env.VITE_COMMENT_HISTORY === "1";
       if(historyEnabled){
         let result = await client.request(INSERT_COMMENT_HISTORY, {
@@ -1135,7 +1117,7 @@ const curServClient = (lang) => {
           isai: isai,
           categ: curCateg
         });
-        console.log('Histo inserted successfully! ' + result);  // Log the result
+        //console.log('Histo inserted successfully! ' + result);  // Log the result
       }
       if(isai)
         loadMessage(curAI(""),chatResponse,"");
@@ -1175,7 +1157,7 @@ const curServClient = (lang) => {
         const vars = { id_client: Number(import.meta.env.VITE_ID_CLIENT), pseudo: curPseudo };
         const response = await client.request(QUERY_DELETE_COMMENTS, vars);      
         if (response.delete_COMMENT.affected_rows > 0) {
-          console.log('Comments deleted successfully. cli ' + Number(import.meta.env.VITE_ID_CLIENT) + ' , pseudo ' + curPseudo === '' ? tim.toString() : curPseudo);
+          //console.log('Comments deleted successfully. cli ' + Number(import.meta.env.VITE_ID_CLIENT) + ' , pseudo ' + curPseudo === '' ? tim.toString() : curPseudo);
         }
       }
       if(curCateg === 0){  
@@ -1202,10 +1184,10 @@ const curServClient = (lang) => {
       const subject2 = selLang === 'de' ? "Termin vom Kunden abgesagt" : (selLang === 'es' ? "Cita cancelada por el cliente" : (selLang === 'en' ? "Appointment canceled by the client" : "Rendez-vous annulé par le client"));
       sendCita(curCita1.contact,import.meta.env.VITE_EMAIL,subject2,encodedMessage,GetMsgResumeCita(''),GetMsgDateHourCita(''),dathour,
           GetMsgTypeCita(''),curCita1.labelService,name,curCita1.nombre,GetMsgContactCita(''),import.meta.env.VITE_WHATSAPP,true);
-      console.log("After delete cita : " + curCita1.dateCita instanceof Date);
+      
       let tabCita = new Date(curCita1.dateCita).toISOString().split('T');
       if (response.delete_CITA.affected_rows > 0 && tabCita.length > 1) {
-        console.log('Cita deleted successfully.');
+        
         const INSERT_AVAILABILITY_MUTATION = `
           mutation insertAvailability(
             $slot: String!, 
@@ -1227,7 +1209,7 @@ const curServClient = (lang) => {
           id_client: Number(import.meta.env.VITE_ID_CLIENT),
           cur_date: tabCita[0]
         };
-        console.log(variables);
+        
         const resp1 = await client.request(INSERT_AVAILABILITY_MUTATION, variables);
         const newDate = new Date(curCita1.dateCita); // Clone the date to avoid mutating the original date
         newDate.setMinutes(newDate.getMinutes() - 15);
@@ -1327,7 +1309,7 @@ const curServClient = (lang) => {
               setMessageSender(curMe(''));
               return;
           }else{
-            console.log("filteredData" + filteredData[0]);
+            
             setCurCita1(prevState => ({
               ...prevState,  // Keep existing properties
               idService: idServ,
@@ -1347,13 +1329,13 @@ const curServClient = (lang) => {
           
         }
         
-        console.log(targetValue);
+        
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
-        console.log(tomorrow);
+        
         const startDate = tomorrow;
         const endDate = new Date("2099-12-31");
-        console.log(public_holidays);
+        
         let array = getWorkingDays(startDate, endDate, public_holidays, 29);
         setLinesDay(array);
         
@@ -1367,7 +1349,7 @@ const curServClient = (lang) => {
       }
     
           
-        console.log(targetValue);
+        
         const datTarget = new Date(targetValue);
         setCurCita1(prevState => ({
           ...prevState,  // Keep existing properties
@@ -1375,12 +1357,12 @@ const curServClient = (lang) => {
           stepCita: prevState.stepCita + 1  // Update stepCita
         }));
         
-        console.log("Before generate buts : " + targetValue);
+        
         let arr = await generateTimeSlotButtons(targetValue);
         setLinesDay(arr);
         break;
       case 2:
-        console.log('hour selected ' + targetValue);
+        
         if(targetValue.length === 5){
           const firstTwo = Number(targetValue.slice(0, 2));
           const lastTwo = Number(targetValue.slice(-2));          
@@ -1513,10 +1495,10 @@ const curServClient = (lang) => {
               if (data.data && data.data.CITA.length > 0) {
                 // Example new comment to add (you can replace this with your actual new comment data)
                 const formattedDate = data.data.CITA[0].start_date.toISOString().split('T')[0]; // "YYYY-MM-DD"
-                console.log(formattedDate);
+                
                 const formattedTime = String(date.getHours()).padStart(2, '0') + ":" + 
                       String(date.getMinutes()).padStart(2, '0');
-                console.log(formattedTime);
+                
                 let data = await client.request(DELETE_AVAILABILITY, { cur_date : data.data.CITA[0].start_date,
                    id_client : id_client, slot : formattedTime });             
               }
@@ -1532,7 +1514,7 @@ const curServClient = (lang) => {
   const manageCita = async (e) => {
     try{
     e.preventDefault();
-    console.log(e.target.value + ' manageCita : ' + curCita1.stepCita);
+    
     const regex = /^\d{4}-\d{2}-\d{2}$/;
     if (regex.test(e.target.value)){
       let cur_date = new Date(e.target.value);
@@ -1557,7 +1539,7 @@ const curServClient = (lang) => {
             }
           }
         `;
-        console.log('Generated AM Time Slots:' + start_slot_am + " to " + end_slot_am);
+        
         let timeSlots = generateHourSlots(Number(start_slot_am.slice(0, 2)), Number(end_slot_am.slice(0, 2)), 15); // 15-minute slots from 09:00 to 14:00
         let id_client = curIdClient;
         
@@ -1579,13 +1561,13 @@ const curServClient = (lang) => {
       
         const response2 = await client.request(INSERT_AVAILABILITY, { objects });
 
-        console.log("Availability slots inserted successfully:", timeSlots);
+        
       }
     }
-    console.log("manageCita" + curCita1.labelService);
+    
     setMessages([]);
     let msg = initSetCita(e.target.value, -1, selLang);
-    console.log(e.target.value + "-" + msg);
+    
     
     loadMessage(curAI(""),msg,"");
     } catch (error) {
@@ -1700,7 +1682,7 @@ const curServClient = (lang) => {
       if(curCita1.contact !== ""){
         return;
       }
-      console.log("serv nb : " + services.length);
+      
       loadMessage(curAI(selLang),msg,"");
       loadServices([[]],"");
   };
@@ -1709,8 +1691,7 @@ const curServClient = (lang) => {
     const array = [[]];
     let c=0;
     let line=-1;
-    console.log("lentgh services - " + services.length);
-    console.log("lentgh data : " + data[0].length);
+    
     let tmpArr = data[0].length === 0 ? services : data;
     tmpArr.forEach(item => {
       if (c % 3 === 0) {
@@ -1791,13 +1772,12 @@ const curServClient = (lang) => {
           idService:response.insert_CITA.returning[0].id,        
           stepCita: 0
         }));
-        console.log('Cita inserted successfully.');
-        console.log('QUERY_DELETE_OLDCITAS : ' + QUERY_DELETE_OLDCITAS);
+        
         const resp2 = await client.request(QUERY_DELETE_OLDCITAS);
         if(resp2.delete_CITA.affected_rows > 0){
-          console.log('Old Citas removed successfully.' + resp2.delete_CITA.affected_rows);
+          //console.log('Old Citas removed successfully.' + resp2.delete_CITA.affected_rows);
         }
-        console.log('QUERY_DELETE_OLDAVAILABILITIES : ' + QUERY_DELETE_OLDAVAILABILITIES);
+        
         if(curCita1.dateCita.toISOString().includes('T')){
           let tabCita = curCita1.dateCita.toISOString().split('T');
           if(tabCita.length > 1){            
@@ -1805,7 +1785,7 @@ const curServClient = (lang) => {
             const variables = { dateCita: new Date(tabCita[0]), slotBefore: slotBefore.slice(0,5), slotExact: slotExact.slice(0,5), slotAfter: slotAfter.slice(0,5) };
             const resp3 = await client.request(QUERY_DELETE_OLDAVAILABILITIES, variables);
             if(resp3.delete_AVAILABILITY.affected_rows > 0){
-              console.log('Old Availabilities removed successfully.');
+              //console.log('Old Availabilities removed successfully.');
             }; 
            
           }         
@@ -1833,7 +1813,7 @@ const curServClient = (lang) => {
         loadMessage(curAI(lang),GetMsgInitInfo(lang),lang);
       return;
     }
-    console.log("stepCita : " + curCita1.stepCita);
+    
     let msg = lang === 'de' ? 'Welche Art von Termin wünschen Sie ?' : (lang === 'es' ? '¿ Qué tipo de cita desea ?' : (lang === 'en' ? 'What type of appointment do you want ?' : "Quel type de rendez-vous souhaitez-vous ?"));
   
       switch (curCita1.stepCita) {
@@ -1950,7 +1930,7 @@ END:VCALENDAR`;
         }else{
           localStorage.setItem('curPseudo', tim.toString());
         } 
-        console.log("pseudo set in COMMENT_SUBSCRIPTION, Client View");
+        
       }
 
         const unsubscribe = wsClient.subscribe(
@@ -1960,18 +1940,14 @@ END:VCALENDAR`;
           },
           {
             next: async (data) => {
-              if(messages.length > 1){
-                console.log('l pile = ' + messages.length);
-                console.log('Msg pile = ', messages[messages.length-2].text);
-                console.log('Msg resp = ', messages[messages.length-1].text);
-              }              
+                           
               if (curCateg !== 2 && data.data && data.data.COMMENT.length > 0) {
                 if(messages.length > 1 && (messages[messages.length-2].text !== messages[messages.length-1].text || !data.data.COMMENT[0].isai)){
                   loadMessage(curServClient(""),data.data.COMMENT[0].response,"");
-                  console.log('Admin, New comment added from client :', data.data.COMMENT[0]);                  
+                  //console.log('Admin, New comment added from client :', data.data.COMMENT[0]);                  
                 }else{
                   loadMessage(curAI(""),data.data.COMMENT[0].response,"");
-                  console.log('AI, New comment added from client :', data.data.COMMENT[0]);  
+                  //console.log('AI, New comment added from client :', data.data.COMMENT[0]);  
                 }
                                        
               }
@@ -2020,7 +1996,7 @@ END:VCALENDAR`;
 
   const handleClickItem = (event) => {
     event.preventDefault(); // Optional, to prevent default behavior
-    console.log('clickItem');
+    //console.log('clickItem');
   };
 
   return (
