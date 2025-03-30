@@ -121,9 +121,9 @@ const GetMsgUpdateCita = (lang) => {
 
 const GetMsgInitCita = (lang) => {
     if(lang === "")
-      return selLang === 'de' ? 'Für welche Art von Service möchten Sie einen Termin vereinbaren ?' : (selLang === 'es' ? '¿ Para qué tipo de servicio le gustaría solicitar una cita ?' : (selLang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?"));
+      return selLang === 'de' ? 'Welche Art von Termin wünschen Sie ?' : (selLang === 'es' ? '¿ Qué tipo de cita desea ?' : (selLang === 'en' ? 'What type of appointment do you want ?' : "Quel type de rendez-vous souhaitez-vous ?"));
     else
-      return lang === 'de' ? 'Für welche Art von Service möchten Sie einen Termin vereinbaren ?' : (lang === 'es' ? '¿ Para qué tipo de servicio le gustaría solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?"));
+      return lang === 'de' ? 'Welche Art von Termin wünschen Sie ?' : (lang === 'es' ? '¿ Qué tipo de cita desea ?' : (lang === 'en' ? 'What type of appointment do you want ?' : "Quel type de rendez-vous souhaitez-vous ?"));
 };
 
 const GetMsgInitInfo = (lang) => {
@@ -282,7 +282,7 @@ const GetMsgInitQuote = (lang) => {
   const fetchServices = async () => {
     try {
       const data = await client.request(QUERY_SERVICE, {
-        cat: { _eq: 1 }  // Use comparison expression, here it's 'equal to 1'
+        cat: { _eq: Number(import.meta.env.VITE_CATEG_SECTOR) }  // Use comparison expression, here it's 'equal to 1'
       });
       //console.log("A" + data.SERVICE.length);
       setServices(data.SERVICE); 
@@ -1080,6 +1080,11 @@ const curServClient = (lang) => {
                   tab = chatResponse.split(`Voici les identifiants des produits`);
                   if(tab.length > 0){
                     chatResponse = tab[0];
+                  }else{
+                    /*tab = chatResponse.split(`Par conséquent,`);
+                    if(tab.length > 0){
+                      chatResponse = tab[0];
+                    }*/
                   }
                 }
               }
@@ -1829,9 +1834,8 @@ const curServClient = (lang) => {
       return;
     }
     console.log("stepCita : " + curCita1.stepCita);
-    let msg = lang === 'de' ? 'Für welchen Service möchten Sie einen Termin vereinbaren ?' : (lang === 'es' ? '¿ Para qué tipo de servicio le gustaría solicitar una cita ?' : (lang === 'en' ? 'What type of service would you like to schedule an appointment for ?' : "Pour quel type de service souhaitez-vous prendre rendez-vous ?"));
-
-     
+    let msg = lang === 'de' ? 'Welche Art von Termin wünschen Sie ?' : (lang === 'es' ? '¿ Qué tipo de cita desea ?' : (lang === 'en' ? 'What type of appointment do you want ?' : "Quel type de rendez-vous souhaitez-vous ?"));
+  
       switch (curCita1.stepCita) {
         case 0:          
           loadServices([[]], lang);   
@@ -2138,12 +2142,12 @@ END:VCALENDAR`;
           selLang === 'de' ? '' 
           : selLang === 'es' ? ' Pregunta : ' 
           : ' Question : '
-        }${messages[index - 1].text}${
+        }${messages.length > 2 && messages[index - 1] && messages[index - 1].text && typeof messages[index - 1].text === "string" ? messages[index - 1].text : ''}${
           selLang === 'de' ? '' 
           : selLang === 'es' ? ' Respuesta : ' 
           : selLang === 'en' ? ' Response : ' 
           : ' Réponse : '
-        }${messages[index].text}`
+        }${messages.length > 2 && messages[index] && messages[index].text && typeof messages[index].text === "string" ? messages[index].text: ''}`
       : ''
   }
 >
