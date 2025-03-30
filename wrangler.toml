@@ -2,7 +2,7 @@ name = "my-react-app"
 type = "javascript"
 
 # Define the Cloudflare account ID (find it in your Cloudflare dashboard)
-account_id = "6be0d40c08dd64dddc478ccdc95d7dcd"
+account_id = "63561eef71cb197ee3a62398e9c9f109"
 
 # Cloudflare Pages deployment settings
 compatibility_date = "2025-02-22"
