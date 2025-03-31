@@ -50,9 +50,12 @@ CREATE TABLE IF NOT EXISTS "public"."COMMENT" (
     "question" "text" NOT NULL,
     "response" "text" NOT NULL,
     "viewed" boolean DEFAULT false,
-	"isai" boolean DEFAULT false,
-    "created" timestamp without time zone
+    "isai" boolean DEFAULT false,
+    "created" timestamp without time zone,
+    "categ" integer DEFAULT 3
 );
+
+ALTER SEQUENCE public."COMMENT_id_seq" RESTART WITH 1;
 
 DROP VIEW comment_union;
 CREATE VIEW comment_union AS
