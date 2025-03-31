@@ -437,7 +437,7 @@ const curServClient = (lang) => {
         
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ 
-          model: 'gemini-1.5-flash', 
+          model: import.meta.env.VITE_GEMINI_MODEL, 
           systemInstruction: import.meta.env.VITE_TYPE_COMPANY,
           "maxOutputTokens":max
         });
@@ -1005,7 +1005,11 @@ const curServClient = (lang) => {
         `Indicate which product(s) from the following CSV list would be suitable ( return, in addition to the answer to the previous question, a JSON string containing a list of identifiers, for example: '{ "Products": "1,2" }' , with no spaces in the array. Do not mention expressions in parentheses, such as '(Product 2)' or '(Product 3)' o '(2)' o '(3)' ).`
         : 
         ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient ( retourner, en plus de la réponse à la précédente question, une chaîne JSON contenant une liste d'identifiants, par exemple : '{ "Produits": "1,2" }' , sans espaces dans le tableau. Ne pas mentionner les expressions entre parenthèses, telles que '(produit 2)' ou '(produit 3)' ou '(2)' ou '(3)' ).`));
-        promptInfo += csvProducts;
+        promptInfo += csvProducts + '\n';
+        promptInfo += selLang === 'es' ? `No escribir el análisis de la lista proporcionada.`
+        : (selLang === 'de' ? `Die Analyse der bereitgestellten Liste nicht schreiben.` 
+        : (selLang === 'en' ? `Do not write the analysis of the provided list.` 
+        : `Ne pas écrire l'analyse de la liste fournie.`));
       }
       
       setDisplayWaiting('flex');
