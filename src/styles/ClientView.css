@@ -469,12 +469,12 @@ textarea:disabled {
     border: none;
     background-image: linear-gradient(
       23deg,
-      hsl(140deg 60% 45%) 0%,   /* Bright green */
-      hsl(130deg 50% 40%) 20%,  /* Slightly darker green */
-      hsl(120, 38%, 48%) 40%,  /* Forest green */
-      hsl(110, 76%, 56%) 60%,  /* Deep green */
-      hsl(101, 38%, 52%) 80%,  /* Dark olive green */
-      hsl(90deg 20% 20%) 100%   /* Almost black-green */
+      hsl(50deg 100% 50%) 0%,   /* Bright yellow */
+      hsl(45deg 90% 45%) 20%,  /* Slightly darker yellow */
+      hsl(40deg 80% 40%) 40%,  /* Golden yellow */
+      hsl(35, 59%, 58%) 60%,  /* Deep mustard yellow */
+      hsl(30, 86%, 60%) 80%,  /* Dark amber */
+      hsl(25, 30%, 55%) 100%   /* Almost brown */
     );
   }
 }
