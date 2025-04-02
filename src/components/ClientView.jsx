@@ -2201,7 +2201,7 @@ END:VCALENDAR`;
           <button className="button send-button" onClick={handleClearChat}>
             {curCateg === 2 && curCita1.contact !== "" ? curCancel : curClear}
           </button>
-          <div className={curCateg === 2 && curCita1.stepCita > 0 ? "disabled" : ""}>
+          <div className={curCateg === 2 && (curCita1.stepCita > 0 || curCita1.contact != "") ? "disabled" : ""}>
             {/* Radio Button EN */}
             <input
               type="radio"
