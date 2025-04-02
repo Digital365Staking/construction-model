@@ -2035,12 +2035,7 @@ END:VCALENDAR`;
           {isFormSendOpen && isMobile && (<div style={{position: "fixed", top: "5", right: "0", marginRight: "1em", fontWeight: "bold"}}>{import.meta.env.VITE_COMPANY_NAME}</div>)}
           </div>
               <div class="header-bottom" style={{ display: 'flex', marginBottom:"15em" }}>
-                <div style={{ width: '45%' }}>
-                  <a href={import.meta.env.VITE_GOOGLEMAPS} target="_blank">
-                  {import.meta.env.VITE_ADDRESS}
-                  </a>
-                </div>
-                <div style={{ width: '55%',textAlign: "left" }}>
+                <div style={{ width: '100%',textAlign: "left" }}>
                   {isMobile && (<br/>)}
                   {selLang === 'de' ? 'Kontakt :' : (selLang === 'es' ? 'Contacto :' : 'Contact :')} digital365staking@gmail.com
                   <br/> 
