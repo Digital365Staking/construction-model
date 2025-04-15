@@ -1,531 +1,542 @@
 body{
-    background: #5b6af0;
-  }
-  
-  .button {
-    border: none;
-    padding: 0.625em;
-    border-radius: 0.5em;
-    cursor: pointer;
-  }
-  
-  .button:hover {
-    filter: brightness(0.9);
-  }
-  
-  .button:active {
-    transform: translateY(2px);
-  }
-  
-  .active-person {
-    background: #08529d;
-    box-shadow: 0 0 0.5em 0.1em #c3c3c333;
-  }
-  
-  button:disabled {
-    pointer-events: none;  /* Prevents the button from being clicked */
-    opacity: 0.5;  /* Optional: visually indicate the button is disabled */
-  }
-  
-  textarea:disabled {
-    background-color: #d3d3d3;  /* Light gray color */
-    pointer-events: none;  /* Optional: Prevent interaction */
-    opacity: 0.5;  /* Optional: Makes it appear disabled */
-  }
-  
-  @media screen and (max-width: 420px) {
-    .chat-container {
-      font-family: 'Roboto', sans-serif;
-      border-radius: 0.5em;
-      padding: 0.1em 0.1em;
-      margin: auto;
-      width: 110.6%;
-      min-height: 99.99vh;
-      box-shadow: 0 0 1.25em 0.5em #c3c3c333;
-      background-image: linear-gradient(
-        23deg,
-        hsl(49deg 100% 69%) 0%,
-        hsl(16deg 80% 61%) 2%,
-        hsl(330deg 81% 34%) 12%,
-        hsl(259deg 100% 15%) 50%,
-        hsl(212deg 100% 25%) 88%,
-        hsl(197deg 100% 30%) 98%,
-        hsl(183deg 79% 36%) 100%
-      );
-      justify-content: center;
-      align-items: center;
-      overflow-y: auto;
-    }
-  }
-  
-  @media screen and (min-width: 420px) and (max-width: 550px) {
-    .chat-container {
-      font-family: 'Roboto', sans-serif;
-      border-radius: 0.5em;
-      padding: 0.1em 0.1em;
-      margin: auto;
-      width: 100%;
-      height: 97.7vh;
-      box-shadow: 0 0 1.25em 0.5em #c3c3c333;
-      background-image: linear-gradient(
-        23deg,
-        hsl(49deg 100% 69%) 0%,
-        hsl(16deg 80% 61%) 2%,
-        hsl(330deg 81% 34%) 12%,
-        hsl(259deg 100% 15%) 50%,
-        hsl(212deg 100% 25%) 88%,
-        hsl(197deg 100% 30%) 98%,
-        hsl(183deg 79% 36%) 100%
-      );
-      justify-content: center;
-      align-items: center;
-      overflow-y: auto;
-    }
-  }
-  
-  @media screen and (min-width: 550px) {
-    .chat-container {
-      font-family: 'Roboto', sans-serif;
-      border-radius: 0.5em;
-      padding: 0.1em 0.1em;
-      margin: auto;
-      max-width: 37.5em;
-      height: 99.3vh;
-      box-shadow: 0 0 1.25em 0.5em #c3c3c333;
-      background-image: linear-gradient(
-        23deg,
-        hsl(49deg 100% 69%) 0%,
-        hsl(16deg 80% 61%) 2%,
-        hsl(330deg 81% 34%) 12%,
-        hsl(259deg 100% 15%) 50%,
-        hsl(212deg 100% 25%) 88%,
-        hsl(197deg 100% 30%) 98%,
-        hsl(183deg 79% 36%) 100%
-      );
-      justify-content: center;
-      align-items: center;
-      overflow-y: auto;
-    }
-  }
-  
-  .chat-header {
-    margin-bottom: 1em;
-    color: #fff;
-  }
-  
-  .chat-header h2 {
-    font-size: 1.25em;
-    font-weight: bold;
-  }
-  
-  @media screen and (max-width: 480px) {
-    .chat-comments {
-      display: flex;
-      flex-direction: column; /* Arranges messages vertically */
-      justify-content: flex-start; /* Aligns messages to the top */
-      height: 99vh; /* Ensures the container takes up its allocated space */
-      overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
-      margin: 0;
-    }
-    .chat-subcomments {
-      display: flex;
-      flex-direction: column; /* Arranges messages vertically */
-      justify-content: flex-start; /* Aligns messages to the top */
-      height: 84vh; /* Ensures the container takes up its allocated space */
-      overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
-    }
-  }
-  
-  @media screen and (min-width: 480px) and (max-width: 550px) {
-    .chat-comments {
-      display: flex;
-      flex-direction: column; /* Arranges messages vertically */
-      justify-content: flex-start; /* Aligns messages to the top */
-      height: 99vh; /* Ensures the container takes up its allocated space */
-      overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
-      margin: 0;
-    }
-    .chat-subcomments {
-      display: flex;
-      flex-direction: column; /* Arranges messages vertically */
-      justify-content: flex-start; /* Aligns messages to the top */
-      height: 84vh; /* Ensures the container takes up its allocated space */
-      overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
-    }
-  }
-  
-  @media screen and (min-width: 550px) {
-    .chat-comments {
-      display: flex;
-      flex-direction: column; /* Arranges messages vertically */
-      justify-content: flex-start; /* Aligns messages to the top */
-      height: 99vh; /* Ensures the container takes up its allocated space */
-      overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
-    }
-    .chat-subcomments {
-      display: flex;
-      flex-direction: column; /* Arranges messages vertically */
-      justify-content: flex-start; /* Aligns messages to the top */
-      height: 84vh; /* Ensures the container takes up its allocated space */
-      overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
-    }
-  }
-  
-  .chat-messages::-webkit-scrollbar {
-    display: none;
-  }
-  
-  .message {
-    padding: 0.3em;
-    border-radius: 1em;
-    margin-top: 0.1em;
-    margin-left: 0.1em;
-    display: flex;
-    flex-direction: column;
-    color: #fff;
-    cursor: pointer;
-  }
-  
-  .color-cita{
-    color: #062a4e;
-  }
-  
-  .message-sender {
-    margin-bottom: 0.1em;
-    color: #062a4e;
-  }
-  
-  .message-text {
-    font-size: 1em;
-    margin-bottom: 0.31em;
-    word-wrap: break-word;
-    color: #062a4e;
-  }
-  
-  .message-timestamp {
-    font-size: 0.9em;
-    text-align: right;
-    color: #062a4e;
-    float: right;
-    width: 100%;
-  }
-  
-  .blue-bg {
-    background-color: #1c9bef;
-  }
-  
-  .gray-bg {
-    background-color: #96bfe3;
-  }
-  
-  .chat-input-form {
-    display: flex;
-    align-items: top;
-    gap: 0.625em;
-    margin-bottom: 5px;
-  }
-  
-  .chat-input {
-    padding: 0.625em;
-    border: none;
-    border-radius: 0.5em;
-    background-color: #f5f5f5;
-    color: #333;
-    font-size: 1em;
-    flex-grow: 1;
-  }
-  
-  .send-button {
-    background-color: #1c9bef;
-    color: #fff;
-    font-size: 1em;
-    font-weight: bold;
-    height: fit-content;
-  }
-  
-  .clear-chat-button {
-    display: block;
-    margin: 2.5em auto;
-  }
-  
-  .typing-indicator {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px; /* Space between dots */
-    height: 50px; /* Adjust to fit your design */
-  }
-  
-  .dot {
-    width: 10px;
-    height: 10px;
-    background-color: #3498db; /* Blue dot color */
-    border-radius: 50%;
-    animation: blink 1.5s infinite;
-  }
-  
-  /* Stagger the animations for the dots */
-  .dot:nth-child(1) {
-    animation-delay: 0s;
-  }
-  .dot:nth-child(2) {
-    animation-delay: 0.3s;
-  }
-  .dot:nth-child(3) {
-    animation-delay: 0.6s;
-  }
-  
-  /* Keyframes for blinking dots */
-  @keyframes blink {
-    0%, 20% {
-        opacity: 0.3;
-    }
-    50% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0.3;
-    }
-  }
-  
-  .clipboard-icon {
-    float: right;
-    top: 0px;
-    margin-right: 10px;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    transition: background 0.2s ease;
-  }
-  
-  .clipboard-icon:hover {
-    background: #f0f0f0;
-  }
-  
-  .copied-message {
-    float: right;
-    margin-right: 15px;
-    color: green;
-    font-size: 14px;
-    margin-top: 5px;
-    display: block;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .copied-message.visible {
-    opacity: 1;
-  }
-  
-  .label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-size: 14px;
-    gap: 4px;
-  }
-  
-  .radio {
-    content: "";
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 2px solid #007BFF;
-    display: inline-block;
-    transition: 0.3s;
-  }
-  
-  .radio.selected {
-    background-color: #007BFF;
-    box-shadow: inset 0 0 0 5px white;
-  }
-  
-  .button-line {
-    display: flex;
-    justify-content: space-between;  /* Distribute buttons evenly */
-    width: 100%;
-  }
-  
-  .cita-button {
-    padding: 10px; /* Adjust padding as needed */
-    margin: 0 1px; /* Optional: space between buttons */
-    margin-bottom: 2px;
-    border: none;
-    background-color: #007bff;
-    color: white;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-    flex-grow: 1;
-    text-align: center;
-  }
-  
-  .cita-container {
-    display: flex;
-    flex-direction: column; /* Align lines vertically */
-    width: 100%;
-  }
-  
-  @media screen and (max-width: 420px) {
-    .fixed-bottom {
-      position: fixed;
-      border-radius: 0.5em 0.5em 0.5em 0.5em;
-      box-shadow: 0 0 0.75em 0.5em #c3c3c333;
-      width: 97.2%;
-      bottom: 0px;
-      margin-left: -1.5px;
-      padding: 0.5em 0.5em;
-      background: #333;
-      color: white;
-      background-image: linear-gradient(
-      23deg,
-      hsl(320deg 60% 45%) 0%,
-      hsl(280deg 50% 40%) 20%,
-      hsl(240deg 50% 35%) 40%,
-      hsl(200deg 40% 30%) 60%,
-      hsl(160deg 30% 25%) 80%,
-      hsl(120deg 20% 20%) 100%
-      );
-    }
-  }
-  
-  @media screen and (min-width: 420px) and (max-width: 550px) {
-    .fixed-bottom {
-      position: fixed;
-      border-radius: 0.5em 0.5em 0.5em 0.5em;
-      box-shadow: 0 0 0.75em 0.5em #c3c3c333;
-      width: 96.7%;
-      height: 29vh;
-      bottom: 3px;
-      left:-7px;
-      padding: 0.5em 0.5em;
-      background: #333;
-      color: white;
-      background-image: linear-gradient(
-        23deg,
-        hsl(320deg 60% 45%) 0%,
-        hsl(280deg 50% 40%) 20%,
-        hsl(240deg 50% 35%) 40%,
-        hsl(200deg 40% 30%) 60%,
-        hsl(160deg 30% 25%) 80%,
-        hsl(120deg 20% 20%) 100%
-        );
-    }
-  }
-  
-  /* Styles for PC */
-  @media screen and (min-width: 550px) {
-    .fixed-bottom {
-      position: fixed;
-      border-radius: 0.5em 0.5em 0.5em 0.5em;
-      box-shadow: 0 0 0.75em 0.5em #c3c3c333;
-      width: 38.6%;
-      bottom: 0px;      
-      margin-left: -1.5px;
-      padding: 0.5em 0.5em;
-      background: #333;
-      color: white;
-      background-image: linear-gradient(
-      23deg,
-      hsl(320deg 60% 45%) 0%,
-      hsl(280deg 50% 40%) 20%,
-      hsl(240deg 50% 35%) 40%,
-      hsl(200deg 40% 30%) 60%,
-      hsl(160deg 30% 25%) 80%,
-      hsl(120deg 20% 20%) 100%
-      );
-    }
-  }
-  
-  
-  .app-container{
-    margin-top : -8px;
-    margin-left: -9px;
-  }
-  
-  .swiper {
-    width: 100%;
-    height: 100%;
-  }
-  
-  .swiper-slide {
-    text-align: center;
-    font-size: 18px;
-    background: #fff;
-    border-radius: 20px;
-    /* Center slide text vertically */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .swiper-slide img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
-    object-fit: cover;
-  }
-  
-  /* Style for the trigger image */
-  .trigger {
-    cursor: pointer;
-    width: 300px; /* Adjust as needed */
-    display: block;
-  }
-  
-  @media screen and (max-width: 550px) {
-    .popup {
-      position: fixed;
-      width: 101%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8); /* Semi-transparent background   width: 100%;
-      height: 100%;*/
-      justify-content: center;
-      align-items: center;
-      overflow-y: 99999;
-      top: 50%;
-      left: 49.7%;
-      transform: translate(-50%, -50%);
-    }
-  }
-
-  /* Full-screen popup */
-  @media screen and (min-width: 550px) {
-    .popup {
-      position: fixed;
-      max-width: 37.8em;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8); /* Semi-transparent background  */
-      justify-content: center;
-      align-items: center;
-      overflow-y: 99999;
-      top: 50%;
-      left: 49.7%;
-      transform: translate(-50%, -50%);
-    }
+  background: #5b6af0;
 }
-  
-   /* Make the popup visible when targeted */
-   #popup:target {
+
+.button {
+  border: none;
+  padding: 0.625em;
+  border-radius: 0.5em;
+  cursor: pointer;
+}
+
+.button:hover {
+  filter: brightness(0.9);
+}
+
+.button:active {
+  transform: translateY(2px);
+}
+
+.active-person {
+  background: #08529d;
+  box-shadow: 0 0 0.5em 0.1em #c3c3c333;
+}
+
+button:disabled {
+  pointer-events: none;  /* Prevents the button from being clicked */
+  opacity: 0.5;  /* Optional: visually indicate the button is disabled */
+}
+
+textarea:disabled {
+  background-color: #d3d3d3;  /* Light gray color */
+  pointer-events: none;  /* Optional: Prevent interaction */
+  opacity: 0.5;  /* Optional: Makes it appear disabled */
+}
+
+@media screen and (max-width: 420px) {
+  .chat-container {
+    font-family: 'Roboto', sans-serif;
+    border-radius: 0.5em;
+    padding: 0.1em 0.1em;
+    margin: auto;
+    width: 110.6%;
+    min-height: 99.99vh;
+    box-shadow: 0 0 1.25em 0.5em #c3c3c333;
+    background-image: linear-gradient(
+      23deg,
+      hsl(49deg 100% 69%) 0%,
+      hsl(16deg 80% 61%) 2%,
+      hsl(330deg 81% 34%) 12%,
+      hsl(259deg 100% 15%) 50%,
+      hsl(212deg 100% 25%) 88%,
+      hsl(197deg 100% 30%) 98%,
+      hsl(183deg 79% 36%) 100%
+    );
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+  }
+}
+
+@media screen and (min-width: 420px) and (max-width: 550px) {
+  .chat-container {
+    font-family: 'Roboto', sans-serif;
+    border-radius: 0.5em;
+    padding: 0.1em 0.1em;
+    margin: auto;
+    width: 100%;
+    height: 97.7vh;
+    box-shadow: 0 0 1.25em 0.5em #c3c3c333;
+    background-image: linear-gradient(
+      23deg,
+      hsl(49deg 100% 69%) 0%,
+      hsl(16deg 80% 61%) 2%,
+      hsl(330deg 81% 34%) 12%,
+      hsl(259deg 100% 15%) 50%,
+      hsl(212deg 100% 25%) 88%,
+      hsl(197deg 100% 30%) 98%,
+      hsl(183deg 79% 36%) 100%
+    );
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+  }
+}
+
+@media screen and (min-width: 550px) {
+  .chat-container {
+    font-family: 'Roboto', sans-serif;
+    border-radius: 0.5em;
+    padding: 0.1em 0.1em;
+    margin: auto;
+    max-width: 37.5em;
+    height: 99.3vh;
+    box-shadow: 0 0 1.25em 0.5em #c3c3c333;
+    background-image: linear-gradient(
+      23deg,
+      hsl(49deg 100% 69%) 0%,
+      hsl(16deg 80% 61%) 2%,
+      hsl(330deg 81% 34%) 12%,
+      hsl(259deg 100% 15%) 50%,
+      hsl(212deg 100% 25%) 88%,
+      hsl(197deg 100% 30%) 98%,
+      hsl(183deg 79% 36%) 100%
+    );
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+  }
+}
+
+.chat-header {
+  margin-bottom: 1em;
+  color: #fff;
+}
+
+.chat-header h2 {
+  font-size: 1.25em;
+  font-weight: bold;
+}
+
+@media screen and (max-width: 480px) {
+  .chat-comments {
     display: flex;
+    flex-direction: column; /* Arranges messages vertically */
+    justify-content: flex-start; /* Aligns messages to the top */
+    height: 99vh; /* Ensures the container takes up its allocated space */
+    overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
+    margin: 0;
   }
-  
-  /* Popup content */
-  .popup div {
-    max-width: 100%;
+  .chat-subcomments {
+    display: flex;
+    flex-direction: column; /* Arranges messages vertically */
+    justify-content: flex-start; /* Aligns messages to the top */
+    height: 84vh; /* Ensures the container takes up its allocated space */
+    overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
   }
-  
-  /* Close button */
-  .close {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    font-size: 30px;
-    font-weight: bold;
+}
+
+@media screen and (min-width: 480px) and (max-width: 550px) {
+  .chat-comments {
+    display: flex;
+    flex-direction: column; /* Arranges messages vertically */
+    justify-content: flex-start; /* Aligns messages to the top */
+    height: 99vh; /* Ensures the container takes up its allocated space */
+    overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
+    margin: 0;
+  }
+  .chat-subcomments {
+    display: flex;
+    flex-direction: column; /* Arranges messages vertically */
+    justify-content: flex-start; /* Aligns messages to the top */
+    height: 84vh; /* Ensures the container takes up its allocated space */
+    overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
+  }
+}
+
+@media screen and (min-width: 550px) {
+  .chat-comments {
+    display: flex;
+    flex-direction: column; /* Arranges messages vertically */
+    justify-content: flex-start; /* Aligns messages to the top */
+    height: 99vh; /* Ensures the container takes up its allocated space */
+    overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
+  }
+  .chat-subcomments {
+    display: flex;
+    flex-direction: column; /* Arranges messages vertically */
+    justify-content: flex-start; /* Aligns messages to the top */
+    height: 84vh; /* Ensures the container takes up its allocated space */
+    overflow-y: auto; /* Allows scrolling if the messages exceed the container's height */
+  }
+}
+
+.chat-messages::-webkit-scrollbar {
+  display: none;
+}
+
+.message {
+  padding: 0.3em;
+  border-radius: 1em;
+  margin-top: 0.1em;
+  margin-left: 0px;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  cursor: pointer;
+}
+
+.submessage {
+  padding: 0.3em;
+  border-radius: 1em;
+  margin-top: 0.1em;
+  margin-left: 0px;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  cursor: pointer;
+  width: 96%;
+}
+
+.color-cita{
+  color: #062a4e;
+}
+
+.message-sender {
+  margin-bottom: 0.1em;
+  color: #062a4e;
+}
+
+.message-text {
+  font-size: 1em;
+  margin-bottom: 0.31em;
+  word-wrap: break-word;
+  color: #062a4e;
+}
+
+.message-timestamp {
+  font-size: 0.9em;
+  text-align: right;
+  color: #062a4e;
+  float: right;
+  width: 100%;
+}
+
+.blue-bg {
+  background-color: #1c9bef;
+}
+
+.gray-bg {
+  background-color: #96bfe3;
+}
+
+.chat-input-form {
+  display: flex;
+  align-items: top;
+  gap: 0.625em;
+  margin-bottom: 5px;
+}
+
+.chat-input {
+  padding: 0.625em;
+  border: none;
+  border-radius: 0.5em;
+  background-color: #f5f5f5;
+  color: #333;
+  font-size: 1em;
+  flex-grow: 1;
+}
+
+.send-button {
+  background-color: #1c9bef;
+  color: #fff;
+  font-size: 1em;
+  font-weight: bold;
+  height: fit-content;
+}
+
+.clear-chat-button {
+  display: block;
+  margin: 2.5em auto;
+}
+
+.typing-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px; /* Space between dots */
+  height: 50px; /* Adjust to fit your design */
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background-color: #3498db; /* Blue dot color */
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+}
+
+/* Stagger the animations for the dots */
+.dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.dot:nth-child(2) {
+  animation-delay: 0.3s;
+}
+.dot:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+/* Keyframes for blinking dots */
+@keyframes blink {
+  0%, 20% {
+      opacity: 0.3;
+  }
+  50% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0.3;
+  }
+}
+
+.clipboard-icon {
+  float: right;
+  top: 0px;
+  margin-right: 10px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.clipboard-icon:hover {
+  background: #f0f0f0;
+}
+
+.copied-message {
+  float: right;
+  margin-right: 15px;
+  color: green;
+  font-size: 14px;
+  margin-top: 5px;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.copied-message.visible {
+  opacity: 1;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  gap: 4px;
+}
+
+.radio {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #007BFF;
+  display: inline-block;
+  transition: 0.3s;
+}
+
+.radio.selected {
+  background-color: #007BFF;
+  box-shadow: inset 0 0 0 5px white;
+}
+
+.button-line {
+  display: flex;
+  justify-content: space-between;  /* Distribute buttons evenly */
+  width: 100%;
+}
+
+.cita-button {
+  padding: 10px; /* Adjust padding as needed */
+  margin: 0 1px; /* Optional: space between buttons */
+  margin-bottom: 2px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.cita-container {
+  display: flex;
+  flex-direction: column; /* Align lines vertically */
+  width: 100%;
+}
+
+@media screen and (max-width: 420px) {
+  .fixed-bottom {
+    position: fixed;
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    box-shadow: 0 0 0.75em 0.5em #c3c3c333;
+    width: 97.2%;
+    bottom: 0px;
+    margin-left: -1.5px;
+    padding: 0.5em 0.5em;
+    background: #333;
     color: white;
-    text-decoration: none;
+    background-image: linear-gradient(
+    23deg,
+    hsl(320deg 60% 45%) 0%,
+    hsl(280deg 50% 40%) 20%,
+    hsl(240deg 50% 35%) 40%,
+    hsl(200deg 40% 30%) 60%,
+    hsl(160deg 30% 25%) 80%,
+    hsl(120deg 20% 20%) 100%
+    );
   }
-  
+}
+
+@media screen and (min-width: 420px) and (max-width: 550px) {
+  .fixed-bottom {
+    position: fixed;
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    box-shadow: 0 0 0.75em 0.5em #c3c3c333;
+    width: 96.7%;
+    height: 29vh;
+    bottom: 3px;
+    left:-7px;
+    padding: 0.5em 0.5em;
+    background: #333;
+    color: white;
+    background-image: linear-gradient(
+      23deg,
+      hsl(320deg 60% 45%) 0%,
+      hsl(280deg 50% 40%) 20%,
+      hsl(240deg 50% 35%) 40%,
+      hsl(200deg 40% 30%) 60%,
+      hsl(160deg 30% 25%) 80%,
+      hsl(120deg 20% 20%) 100%
+      );
+  }
+}
+
+/* Styles for PC */
+@media screen and (min-width: 550px) {
+  .fixed-bottom {
+    position: fixed;
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    box-shadow: 0 0 0.75em 0.5em #c3c3c333;
+    width: 38.8%;
+    bottom: 0px;      
+    margin-left: -2.5px;
+    padding: 0.5em 0.5em;
+    background: #333;
+    color: white;
+    background-image: linear-gradient(
+    23deg,
+    hsl(320deg 60% 45%) 0%,
+    hsl(280deg 50% 40%) 20%,
+    hsl(240deg 50% 35%) 40%,
+    hsl(200deg 40% 30%) 60%,
+    hsl(160deg 30% 25%) 80%,
+    hsl(120deg 20% 20%) 100%
+    );
+  }
+}
+
+
+.app-container{
+  margin-top : -8px;
+  margin-left: -9px;
+}
+
+.swiper {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: #fff;
+  border-radius: 20px;
+  /* Center slide text vertically */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  object-fit: cover;
+}
+
+/* Style for the trigger image */
+.trigger {
+  cursor: pointer;
+  width: 300px; /* Adjust as needed */
+  display: block;
+}
+
+@media screen and (max-width: 550px) {
+  .popup {
+    position: fixed;
+    width: 101%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8); /* Semi-transparent background   width: 100%;
+    height: 100%;*/
+    justify-content: center;
+    align-items: center;
+    overflow-y: 99999;
+    top: 50%;
+    left: 49.7%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Full-screen popup */
+@media screen and (min-width: 550px) {
+  .popup {
+    position: fixed;
+    width: 40%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8); /* Semi-transparent background  */
+    justify-content: center;
+    align-items: center;
+    overflow-y: 99999;
+    top: 50%;
+    left: 49.7%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+ /* Make the popup visible when targeted */
+ #popup:target {
+  display: flex;
+}
+
+/* Popup content */
+.popup div {
+  max-width: 100%;
+}
+
+/* Close button */
+.close {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  font-size: 30px;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}

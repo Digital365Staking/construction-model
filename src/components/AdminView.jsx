@@ -360,9 +360,10 @@ const AdminView = () => {
       return () => unsubscribe(); // Unsubscribe on unmount
     }, [wsClient, COMMENT_SUBSCRIPTION, id_client]); // Include id_client in dependencies
     
-    const copyToClipboard = (e, text) => {
+    const copyToClipboard = (idx, text) => {
       navigator.clipboard.writeText(text).then(() => {        
-        setCopied(e.target.id);        
+        setCopied(idx);  
+        console.log(copied);      
         setTimeout(() => setCopied(-1), 1500);
       }).catch(err => console.error("Failed to copy:", err));
     };
@@ -371,13 +372,13 @@ const AdminView = () => {
     <div className="app-container"> 
       <div id="popup" className='popup' style={{display : isPopupOpen ? 'block' : 'none'}}>  
         <a href="#" class="close" onClick={() => setIsPopupOpen(false)}>&times;</a>    
-        <div ref={lstMsgRef} className="chat-subcomments" style={{width:"97%"}}>           
+        <div ref={lstMsgRef} className="chat-subcomments">           
             {subComments.map((item, index) => (            
               <div
                 key={index}
-                className={`message ${item.type === 0 ? 'blue-bg' : 'gray-bg'}`}>
+                className={`submessage ${item.type === 0 ? 'blue-bg' : 'gray-bg'}`}>
                 <div className="message-sender"><button id={index} 
-                  onClick={(e) => copyToClipboard(e,item.content)} 
+                  onClick={() => copyToClipboard(index,item.content)} 
                   className="clipboard-icon"
                 >
                   📋
