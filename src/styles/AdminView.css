@@ -534,7 +534,7 @@ textarea:disabled {
 .close {
   position: absolute;
   top: 0px;
-  right: 0px;
+  right: 15px;
   font-size: 30px;
   font-weight: bold;
   color: white;
