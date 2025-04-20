@@ -765,6 +765,11 @@ const curServClient = (lang) => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();  
+    const maxLength = 1000;
+    if (chatInput.length > maxLength) {
+      console.log("Input is too large!");
+      return;
+    }
     if (usrValue !== import.meta.env.VITE_HUGGING_KEY){
       console.log("Bot detected! Submission blocked.");
       return;
