@@ -377,7 +377,7 @@ const AdminView = () => {
               <div
                 key={index}
                 className={`submessage ${item.type === 0 ? 'blue-bg' : 'gray-bg'}`}>
-                <div className="message-sender"><button id={index} 
+                <div className="message-sender" style={{whiteSpace:"pre-line"}}><button id={index} 
                   onClick={() => copyToClipboard(index,item.content)} 
                   className="clipboard-icon"
                 >
