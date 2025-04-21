@@ -7,6 +7,12 @@ import { createPerplexity } from '@ai-sdk/perplexity';
 import { generateText } from 'ai';
 import { HfInference } from "@huggingface/inference";
 import emailjs from 'emailjs-com';
+import {
+  Document,
+  Packer,
+  Paragraph,
+  TextRun
+} from "docx";
 import { saveAs } from "file-saver";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import Backendless from 'backendless';
@@ -27,6 +33,7 @@ const perplexity = createPerplexity({
 
 import { GraphQLClient } from 'graphql-request';
 import { createClient as createWSClient } from 'graphql-ws';
+import WordIcon from './WordIcon';
 
 const client = new GraphQLClient(import.meta.env.VITE_GRAPHQL_URL, {
   headers: {
@@ -50,6 +57,27 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
 
 
 const ClientView = () => {
+
+  const generateDoc = (text) => {
+    const paragraphs = text.split("\n").map(line => 
+      new Paragraph({
+        children: [new TextRun(line)],
+      })
+    );
+
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: paragraphs,
+        },
+      ],
+    });
+    Packer.toBlob(doc).then((blob) => {
+      saveAs(blob, "exported-document.docx");
+    });
+  };
+
   // Initialize ENV Variables
   const year = new Date().getFullYear();
   const envVarName = `VITE_PUBLIC_HOLIDAYS_${year}`;
@@ -145,7 +173,6 @@ const GetMsgInitQuote = (lang) => {
     
     navigator.clipboard.writeText(text).then(() => {
       setCopied(parseInt(e.target.id));
-      
       setTimeout(() => setCopied(-1), 1500);
     }).catch(err => console.error("Failed to copy:", err));
   };
@@ -396,9 +423,9 @@ const curServClient = (lang) => {
       const curSend = selLang === 'de' ? 'Senden' : (selLang === 'es' ? 'Enviar' : (selLang === 'en' ? 'Send' : 'Envoyer'));
       const curClear = selLang === 'de' ? 'Löschen' : (selLang === 'es' ? 'Borrar' : (selLang === 'en' ? 'Clear' : 'Effacer'));
       const curCancel = selLang === 'de' ? 'Abbrechen' : (selLang === 'es' ? 'Cancelar' : (selLang === 'en' ? 'Cancel' : 'Annuler'));
-      const curInfo = selLang === 'de' ? 'Information' : (selLang === 'es' ? 'Información' : 'Information');
+      const curInfo = selLang === 'de' ? 'Information/Suche' : (selLang === 'es' ? 'Información/Búsqueda' : (selLang === 'en' ? 'Information/Search' : 'Information/Recherche'));
       const curLabelCita = selLang === 'de' ? 'Termin' : (selLang === 'es' ? 'Cita' : (selLang === 'en' ? 'Appointment' : 'Rendez-vous'));
-      const curBudget = selLang === 'de' ? 'Kostenvoranschlag' : (selLang === 'es' ? 'Presupuesto' : (selLang === 'en' ? 'Quote' : 'Devis'));
+      const curBudget = selLang === 'de' ? 'Kostenvora../Schätzung' : (selLang === 'es' ? 'Presupuesto/Estimación' : (selLang === 'en' ? 'Quote/Estimation' : 'Devis/Estimation'));
       const curTypeHere = selLang === 'de' ? 'Hier tippen' : (selLang === 'es' ? 'Escribe aquí' : (selLang === 'en' ? 'Type here' : 'Tapez ici'));
 
   //Examples of CSV
@@ -764,7 +791,7 @@ const curServClient = (lang) => {
   };
 
   const handleSendMessage = async (e) => {
-    e.preventDefault();  
+    e.preventDefault(); 
     const maxLength = 1000;
     if (chatInput.length > maxLength) {
       console.log("Input is too large!");
@@ -1011,10 +1038,10 @@ const curServClient = (lang) => {
         : 
         ` Indiquez quel(s) produit(s) de la liste CSV suivante conviendraient ( retourner, en plus de la réponse à la précédente question, une chaîne JSON contenant une liste d'identifiants, par exemple : '{ "Produits": "1,2" }' , sans espaces dans le tableau. Ne pas mentionner les expressions entre parenthèses, telles que '(produit 2)' ou '(produit 3)' ou '(2)' ou '(3)' ).`));
         promptInfo += csvProducts + '\n';
-        promptInfo += selLang === 'es' ? `No escribir el análisis de la lista proporcionada.`
-        : (selLang === 'de' ? `Die Analyse der bereitgestellten Liste nicht schreiben.` 
-        : (selLang === 'en' ? `Do not write the analysis of the provided list.` 
-        : `Ne pas écrire l'analyse de la liste fournie.`));
+        promptInfo += selLang === 'es' ? `No escribir el análisis de la lista proporcionada. No se debe mencionar 'producto con identificador'.`
+        : (selLang === 'de' ? `Die Analyse der bereitgestellten Liste nicht schreiben. Es sollte 'Produkt mit Identifikator' nicht erwähnt werden.` 
+        : (selLang === 'en' ? `Do not write the analysis of the provided list. The 'product with identifier' should not be mentioned.` 
+        : `Ne pas écrire l'analyse de la liste fournie. Il ne faut pas mentionner 'produit avec identifiant'.`));
       }
       
       setDisplayWaiting('flex');
@@ -2003,10 +2030,10 @@ END:VCALENDAR`;
 
   }, []);
 
-  const handleClickItem = (event) => {
+  /*const handleClickItem = (event) => {
     event.preventDefault(); // Optional, to prevent default behavior
     //console.log('clickItem');
-  };
+  };*/
 
   return (
     <div className="app-container"> 
@@ -2026,25 +2053,28 @@ END:VCALENDAR`;
                   className="swiper"
                 > 
                 {products.map((prod, index) => ( 
-                  <SwiperSlide><img src={prod[1]} alt={prod[0]}/><div style={{display:"flex",flex:"1",marginLeft:"7em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"2em",color: "#062a4e"}}><a href={GetLinkURL(prod)} onClick={handleClickItem}>{GetLabelProd(prod)}</a></div></SwiperSlide>
+                  <SwiperSlide><img src={prod[1]} alt={prod[0]} style={{height:"85%"}}/><div style={{display:"flex",flex:"1",marginLeft:"7em",color: "#062a4e"}}>{prod[0]}</div><div style={{display:"flex",flex:"4",float:"right",marginRight:"2em",color: "#062a4e"}}><a href={GetLinkURL(prod)} target='_blank'>{GetLabelProd(prod)}</a></div></SwiperSlide>
                 ))}  
                 </Swiper>
                 </div>
       <div class="header-container">
           <div class="header-left">
-              <img style={{maxHeight: import.meta.env.VITE_MAX_HEIGHT_LOGO}} src={import.meta.env.VITE_LOGO_URL} alt="Logo"/>
+             <img style={{maxHeight: import.meta.env.VITE_MAX_HEIGHT_LOGO}} src={import.meta.env.VITE_LOGO_URL} alt="Logo"/>
           </div>
           <div class="header-right">
           <div class="header-top">
           {isFormSendOpen && !isMobile && (<h4 style={{marginBottom:"2em"}}>{import.meta.env.VITE_COMPANY_NAME}</h4>)}
           {isFormSendOpen && isMobile && (<div style={{position: "fixed", top: "5", right: "0", marginRight: "1em", fontWeight: "bold"}}>{import.meta.env.VITE_COMPANY_NAME}</div>)}
           </div>
-              <div class="header-bottom" style={{ display: 'flex', marginBottom:"15em" }}>
-                <div style={{ width: '100%',textAlign: "left" }}>
+              <div class="header-bottom" style={{ display: 'flex', marginTop:"-10px" }}>
+                <div style={{ width: '35%',textAlign: "left" }}>
+                  <a href={import.meta.env.VITE_GOOGLEMAPS} target='_blank'>{import.meta.env.VITE_ADDRESS}</a>
+                </div>
+                <div style={{ width: '65%',textAlign: "left", marginLeft:"15px" }}>
                   {isMobile && (<br/>)}
-                  {selLang === 'de' ? 'Kontakt :' : (selLang === 'es' ? 'Contacto :' : 'Contact :')} digital365staking@gmail.com
+                  {selLang === 'de' ? 'Kontakt :' : (selLang === 'es' ? 'Contacto :' : 'Contact :')} {import.meta.env.VITE_EMAIL}
                   <br/> 
-                  <a href={import.meta.env.VITE_GDPR} target="_blank">{selLang === 'de' ? 'DSGVO' : (selLang === 'es' ? 'RGPD' : (selLang === 'en' ? 'GDPR :' : 'RGPD'))}</a>
+                  <a href={import.meta.env.VITE_GDPR} target="_blank">{selLang === 'de' ? 'DSGVO' : (selLang === 'es' ? 'RGPD' : (selLang === 'en' ? 'GDPR' : 'RGPD'))}</a>
                   <a href={selLang === 'de' ? import.meta.env.VITE_URLFORM_DE : (selLang === 'es' ? import.meta.env.VITE_URLFORM_ES : (selLang === 'en' ? import.meta.env.VITE_URLFORM_EN : import.meta.env.VITE_URLFORM_FR))} target="_blank" style={{float:"right",marginRight: isMobile ? "0.2em" : "2em"}}>
                     {selLang === 'de' ? 'Meinen Chatbot anpassen' : (selLang === 'es' ? 'Personalizar mi chatbot' : (selLang === 'en' ? 'Customize my chatbot' : 'Personnaliser mon chatbot'))}
                     </a>
@@ -2080,12 +2110,19 @@ END:VCALENDAR`;
               key={index}
               className={`message ${message.sender === curMe('') ? 'blue-bg' : 'gray-bg'}`}>
               <div className="message-sender">{message.sender}
+              <button id={"doc" + index} 
+        onClick={() => generateDoc(message.text)} 
+        className="transparent"
+      >
+        <WordIcon size={24} />
+      </button>
               <button id={index} 
         onClick={(e) => copyToClipboard(e,message.text)} 
         className="clipboard-icon"
       >
         📋
       </button>
+      
       <span className={`copied-message`} style={{display:(copied === index ? "block" : "none")}}>{labelCopied}</span>
               </div>               
               <div className="message-text" style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}> 
@@ -2102,7 +2139,7 @@ END:VCALENDAR`;
         }).format(new Date(curCita1.dateCita)).replace('00:00','').replace(', 00:00','') : ''}
                   </b><br/>
                 </div> )}
-                <div>
+                <div style={{whiteSpace: "pre-line"}}>
                 {message.lines && message.lines.length > 0
                   ? message.lines.map((line, lineIndex) => (
                       <span key={lineIndex}>
@@ -2154,7 +2191,7 @@ END:VCALENDAR`;
                       <img style={{height:"20vh"}} src={products.length > 0 ? products[0][1] : ''} alt={products.length > 0 ? products[0][0] : ''}/>
                     </a>
                 </div>
-                <div style={{display:"flex",flex:"4",marginTop:"4em",alignItems:"right",justifyContent:"center",color: "#062a4e"}}>
+                <div style={{display:"flex",flex:"4",marginTop:"4em",alignItems:"right",justifyContent:"center",color: "#062a4e",marginLeft:"30px"}}>
                   <a href="#popup" onClick={() => setIsFormSendOpen(false)}>
                   {products.length > 0 ? products[0][0] : ''}
                   </a>

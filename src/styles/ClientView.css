@@ -280,6 +280,15 @@ textarea:disabled {
   }
 }
 
+.transparent {
+  background-color: transparent;
+  border: none;
+  color: inherit;       /* or any color you want */
+  cursor: pointer;
+  float: right;
+  margin-top: -2px;
+}
+
 .clipboard-icon {
   float: right;
   top: 5px;
