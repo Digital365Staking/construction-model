@@ -2067,15 +2067,15 @@ END:VCALENDAR`;
           {isFormSendOpen && isMobile && (<div style={{position: "fixed", top: "5", right: "0", marginRight: "1em", fontWeight: "bold"}}>{import.meta.env.VITE_COMPANY_NAME}</div>)}
           </div>
               <div class="header-bottom" style={{ display: 'flex', marginTop:"-10px" }}>
-                <div style={{ width: '35%',textAlign: "left" }}>
+                <div style={{ width: '25%',textAlign: "left" }}>
                   <a href={import.meta.env.VITE_GOOGLEMAPS} target='_blank'>{import.meta.env.VITE_ADDRESS}</a>
                 </div>
-                <div style={{ width: '65%',textAlign: "left", marginLeft:"15px" }}>
+                <div style={{ width: '75%',textAlign: "left", marginLeft:"15px" }}>
                   {isMobile && (<br/>)}
-                  {selLang === 'de' ? 'Kontakt :' : (selLang === 'es' ? 'Contacto :' : 'Contact :')} {import.meta.env.VITE_EMAIL}
+                  {import.meta.env.VITE_EMAIL}
                   <br/> 
                   <a href={import.meta.env.VITE_GDPR} target="_blank">{selLang === 'de' ? 'DSGVO' : (selLang === 'es' ? 'RGPD' : (selLang === 'en' ? 'GDPR' : 'RGPD'))}</a>
-                  <a href={selLang === 'de' ? import.meta.env.VITE_URLFORM_DE : (selLang === 'es' ? import.meta.env.VITE_URLFORM_ES : (selLang === 'en' ? import.meta.env.VITE_URLFORM_EN : import.meta.env.VITE_URLFORM_FR))} target="_blank" style={{float:"right",marginRight: isMobile ? "0.2em" : "2em"}}>
+                  <a href={selLang === 'de' ? import.meta.env.VITE_URLFORM_DE : (selLang === 'es' ? import.meta.env.VITE_URLFORM_ES : (selLang === 'en' ? import.meta.env.VITE_URLFORM_EN : import.meta.env.VITE_URLFORM_FR))} target="_blank" style={{float:"right",marginRight: isMobile ? "1em" : "2em"}}>
                     {selLang === 'de' ? 'Meinen Chatbot anpassen' : (selLang === 'es' ? 'Personalizar mi chatbot' : (selLang === 'en' ? 'Customize my chatbot' : 'Personnaliser mon chatbot'))}
                     </a>
                 </div>
@@ -2317,4 +2317,3 @@ END:VCALENDAR`;
 
 
 export default ClientView;
-
