@@ -232,6 +232,7 @@ textarea:disabled {
   font-size: 1em;
   font-weight: bold;
   height: fit-content;
+  margin-right: 15px;
 }
 
 .clear-chat-button {
@@ -535,7 +536,7 @@ textarea:disabled {
 }
 
 .header-right {
-  flex: 5; /* Takes 3/4 of the space */
+  flex: 4; /* Takes 3/4 of the space */
   display: flex;
   flex-direction: column;
   border: none;
