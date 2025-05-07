@@ -2,7 +2,14 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import "../styles/AdminView.css";
 import { GraphQLClient } from 'graphql-request';
 import { createClient as createWSClient } from 'graphql-ws';
-
+import {
+  Document,
+  Packer,
+  Paragraph,
+  TextRun
+} from "docx";
+import { saveAs } from "file-saver";
+import WordIcon from './WordIcon';
 
 const client = new GraphQLClient(import.meta.env.VITE_GRAPHQL_URL, {
     headers: {
@@ -21,6 +28,26 @@ const client = new GraphQLClient(import.meta.env.VITE_GRAPHQL_URL, {
   });
 
 const AdminView = () => {
+
+  const generateDoc = (text) => {
+    const paragraphs = text.split("\n").map(line => 
+      new Paragraph({
+        children: [new TextRun(line)],
+      })
+    );
+
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: paragraphs,
+        },
+      ],
+    });
+    Packer.toBlob(doc).then((blob) => {
+      saveAs(blob, "exported-document.docx");
+    });
+  };
     
     const lstMsgRef = useRef(null);
     const [comments, setComments] = useState([]);
@@ -377,7 +404,14 @@ const AdminView = () => {
               <div
                 key={index}
                 className={`submessage ${item.type === 0 ? 'blue-bg' : 'gray-bg'}`}>
-                <div className="message-sender" style={{whiteSpace:"pre-line"}}><button id={index} 
+                <div className="message-sender" style={{whiteSpace:"pre-line"}}>
+                  <button id={"doc" + index} 
+                          onClick={() => generateDoc(item.content)} 
+                          className="transparent"
+                        >
+                          <WordIcon size={24} />
+                        </button>
+                  <button id={index} 
                   onClick={() => copyToClipboard(index,item.content)} 
                   className="clipboard-icon"
                 >
@@ -435,4 +469,3 @@ const AdminView = () => {
 
 
 export default AdminView;
-
